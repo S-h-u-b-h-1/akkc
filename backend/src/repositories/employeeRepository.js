@@ -7,7 +7,8 @@ const publicEmployeeSelect = Object.freeze({
   department: true,
   createdByAdminId: true,
   createdAt: true,
-  updatedAt: true
+  updatedAt: true,
+  deletedAt: true
 });
 
 export const findEmployeeByEmail = (email) =>
@@ -18,5 +19,55 @@ export const findEmployeeByEmail = (email) =>
 export const findEmployeeById = (id) =>
   getPrisma().employee.findUnique({
     where: { id },
+    select: publicEmployeeSelect
+  });
+
+export const findActiveEmployeeByAdmin = ({ id, adminId }) =>
+  getPrisma().employee.findFirst({
+    where: {
+      id,
+      createdByAdminId: adminId,
+      deletedAt: null
+    },
+    select: publicEmployeeSelect
+  });
+
+export const listActiveEmployeesByAdmin = (adminId) =>
+  getPrisma().employee.findMany({
+    where: {
+      createdByAdminId: adminId,
+      deletedAt: null
+    },
+    orderBy: {
+      createdAt: 'desc'
+    },
+    select: publicEmployeeSelect
+  });
+
+export const createEmployee = ({ name, email, passwordHash, department, createdByAdminId }) =>
+  getPrisma().employee.create({
+    data: {
+      name,
+      email,
+      passwordHash,
+      department,
+      createdByAdminId
+    },
+    select: publicEmployeeSelect
+  });
+
+export const updateEmployee = ({ id, data }) =>
+  getPrisma().employee.update({
+    where: { id },
+    data,
+    select: publicEmployeeSelect
+  });
+
+export const softDeleteEmployee = (id) =>
+  getPrisma().employee.update({
+    where: { id },
+    data: {
+      deletedAt: new Date()
+    },
     select: publicEmployeeSelect
   });

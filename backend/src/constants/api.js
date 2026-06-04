@@ -12,6 +12,10 @@ export const HTTP_STATUS = Object.freeze({
 export const API_MESSAGES = Object.freeze({
   HEALTH_OK: 'Service is healthy.',
   ADMIN_CREATED: 'Admin account created successfully.',
+  EMPLOYEE_CREATED: 'Employee created successfully.',
+  EMPLOYEES_FETCHED: 'Employees fetched successfully.',
+  EMPLOYEE_UPDATED: 'Employee updated successfully.',
+  EMPLOYEE_DELETED: 'Employee deleted successfully.',
   LOGIN_SUCCESS: 'Login successful.',
   CURRENT_USER_FETCHED: 'Current user fetched successfully.',
   ROUTE_NOT_FOUND: 'Route not found.',
@@ -20,6 +24,7 @@ export const API_MESSAGES = Object.freeze({
   FORBIDDEN: 'You do not have permission to perform this action.',
   INVALID_CREDENTIALS: 'Invalid email or password.',
   EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
+  EMPLOYEE_NOT_FOUND: 'Employee not found.',
   VALIDATION_FAILED: 'Validation failed.',
   USER_NOT_FOUND: 'Authenticated user was not found.'
 });

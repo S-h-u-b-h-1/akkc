@@ -61,7 +61,8 @@ const main = async () => {
         name: 'Aisha Mehta',
         passwordHash: employeePasswordHash,
         department: 'Design',
-        createdByAdminId: admin.id
+        createdByAdminId: admin.id,
+        deletedAt: null
       },
       create: {
         id: ids.employeeDesign,
@@ -78,7 +79,8 @@ const main = async () => {
         name: 'Rohan Iyer',
         passwordHash: employeePasswordHash,
         department: 'Engineering',
-        createdByAdminId: admin.id
+        createdByAdminId: admin.id,
+        deletedAt: null
       },
       create: {
         id: ids.employeeEngineering,
@@ -95,7 +97,8 @@ const main = async () => {
         name: 'Neha Shah',
         passwordHash: employeePasswordHash,
         department: 'Operations',
-        createdByAdminId: admin.id
+        createdByAdminId: admin.id,
+        deletedAt: null
       },
       create: {
         id: ids.employeeOperations,

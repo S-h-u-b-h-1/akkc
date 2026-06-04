@@ -58,7 +58,7 @@ export const loginAdmin = async ({ email, password }) => {
 export const loginEmployee = async ({ email, password }) => {
   const employee = await findEmployeeByEmail(email);
 
-  if (!employee || !(await verifyPassword(password, employee.passwordHash))) {
+  if (!employee || employee.deletedAt || !(await verifyPassword(password, employee.passwordHash))) {
     throw new AppError(API_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
   }
 
@@ -93,12 +93,15 @@ export const getCurrentUser = async ({ id, role }) => {
   if (role === USER_ROLES.EMPLOYEE) {
     const employee = await findEmployeeById(id);
 
-    if (!employee) {
+    if (!employee || employee.deletedAt) {
       throw new AppError(API_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
     }
 
+    const activeEmployee = { ...employee };
+    delete activeEmployee.deletedAt;
+
     return {
-      ...employee,
+      ...activeEmployee,
       role
     };
   }

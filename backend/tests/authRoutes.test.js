@@ -18,6 +18,13 @@ test('GET /api/auth/me requires a bearer token', async () => {
   assert.equal(response.body.message, 'Authentication is required.');
 });
 
+test('GET /api/admin/employees requires admin authentication', async () => {
+  const response = await request(app).get('/api/admin/employees').expect(401);
+
+  assert.equal(response.body.success, false);
+  assert.equal(response.body.message, 'Authentication is required.');
+});
+
 test('POST /api/admin/signup validates request body', async () => {
   const response = await request(app)
     .post('/api/admin/signup')

@@ -49,6 +49,15 @@ POST /api/employee/login
 GET  /api/auth/me
 ```
 
+### Admin Employee Routes
+
+```text
+POST   /api/admin/employees
+GET    /api/admin/employees
+PUT    /api/admin/employees/:id
+DELETE /api/admin/employees/:id
+```
+
 ### Seed Data
 
 After running migrations against your PostgreSQL database, seed sample data:
