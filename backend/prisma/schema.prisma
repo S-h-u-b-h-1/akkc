@@ -5,3 +5,83 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum TaskStatus {
+  PENDING
+  COMPLETED
+  NOT_DONE
+  DELAYED
+}
+
+model Admin {
+  id           String     @id @default(uuid()) @db.Uuid
+  name         String     @db.VarChar(120)
+  email        String     @unique @db.VarChar(255)
+  passwordHash String     @db.VarChar(255)
+  employees    Employee[] @relation("AdminCreatedEmployees")
+  tasks        Task[]     @relation("AdminCreatedTasks")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+
+  @@index([createdAt])
+}
+
+model Employee {
+  id               String       @id @default(uuid()) @db.Uuid
+  name             String       @db.VarChar(120)
+  email            String       @unique @db.VarChar(255)
+  passwordHash     String       @db.VarChar(255)
+  department       String?      @db.VarChar(120)
+  createdByAdminId String       @db.Uuid
+  createdByAdmin   Admin        @relation("AdminCreatedEmployees", fields: [createdByAdminId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  assignedTasks    Task[]       @relation("EmployeeAssignedTasks")
+  taskUpdates      TaskUpdate[] @relation("EmployeeTaskUpdates")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @default(now()) @updatedAt
+
+  @@index([createdByAdminId])
+  @@index([department])
+  @@index([createdAt])
+}
+
+model Task {
+  id                 String       @id @default(uuid()) @db.Uuid
+  title              String       @db.VarChar(180)
+  domain             String       @db.VarChar(120)
+  clientName         String       @db.VarChar(160)
+  status             TaskStatus   @default(PENDING)
+  assignedDate       DateTime     @db.Date
+  dueDate            DateTime     @db.Date
+  assignedEmployeeId String       @db.Uuid
+  createdByAdminId   String       @db.Uuid
+  assignedEmployee   Employee     @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdByAdmin     Admin        @relation("AdminCreatedTasks", fields: [createdByAdminId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  updates            TaskUpdate[] @relation("TaskUpdates")
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @default(now()) @updatedAt
+
+  @@unique([id, assignedEmployeeId])
+  @@index([assignedEmployeeId])
+  @@index([createdByAdminId])
+  @@index([status, dueDate])
+  @@index([assignedDate])
+  @@index([domain])
+  @@index([clientName])
+}
+
+model TaskUpdate {
+  id         String     @id @default(uuid()) @db.Uuid
+  taskId     String     @db.Uuid
+  employeeId String     @db.Uuid
+  status     TaskStatus
+  remark     String?    @db.Text
+  reason     String?    @db.Text
+  task       Task       @relation("TaskUpdates", fields: [taskId, employeeId], references: [id, assignedEmployeeId], onDelete: Cascade, onUpdate: Cascade)
+  employee   Employee   @relation("EmployeeTaskUpdates", fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdAt  DateTime   @default(now())
+
+  @@index([taskId])
+  @@index([employeeId])
+  @@index([status])
+  @@index([createdAt])
+}

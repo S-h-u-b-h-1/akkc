@@ -35,9 +35,21 @@ npm test
 npm run prisma:validate
 npm run prisma:generate
 npm run prisma:migrate
+npm run prisma:seed
 ```
 
 The backend runs on `http://localhost:5001` by default.
+
+### Seed Data
+
+After running migrations against your PostgreSQL database, seed sample data:
+
+```bash
+cd backend
+npm run prisma:seed
+```
+
+The seed creates one admin, three employees, sample tasks, and task updates. Sample passwords are printed by the seed command for local development only.
 
 ## Frontend
 
