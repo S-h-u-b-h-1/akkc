@@ -1,9 +1,8 @@
 import app from './app.js';
 import { env, validateEnv } from './config/env.js';
+import { disconnectPrisma } from './prisma/client.js';
 
 validateEnv();
-
-const { prisma } = await import('./prisma/client.js');
 
 const server = app.listen(env.port, () => {
   console.info(`API server listening on port ${env.port}`);
@@ -13,7 +12,7 @@ const shutdown = async (signal) => {
   console.info(`${signal} received. Closing API server.`);
 
   server.close(async () => {
-    await prisma.$disconnect();
+    await disconnectPrisma();
     process.exit(0);
   });
 

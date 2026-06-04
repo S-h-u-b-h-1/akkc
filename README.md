@@ -40,6 +40,15 @@ npm run prisma:seed
 
 The backend runs on `http://localhost:5001` by default.
 
+### Authentication Routes
+
+```text
+POST /api/admin/signup
+POST /api/admin/login
+POST /api/employee/login
+GET  /api/auth/me
+```
+
 ### Seed Data
 
 After running migrations against your PostgreSQL database, seed sample data:

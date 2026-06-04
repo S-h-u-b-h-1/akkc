@@ -15,7 +15,7 @@ const parsePort = (value) => {
 export const env = Object.freeze({
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: parsePort(process.env.PORT ?? '5001'),
-  apiPrefix: '/api/v1',
+  apiPrefix: '/api',
   corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
