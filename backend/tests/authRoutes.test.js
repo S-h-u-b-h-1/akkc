@@ -39,6 +39,23 @@ test('GET /api/admin/stats requires admin authentication', async () => {
   assert.equal(response.body.message, 'Authentication is required.');
 });
 
+test('GET /api/employee/tasks requires employee authentication', async () => {
+  const response = await request(app).get('/api/employee/tasks').expect(401);
+
+  assert.equal(response.body.success, false);
+  assert.equal(response.body.message, 'Authentication is required.');
+});
+
+test('PUT /api/employee/tasks/:id/done requires employee authentication', async () => {
+  const response = await request(app)
+    .put('/api/employee/tasks/2f5a6b4a-8dc5-4e9e-bd6f-b2f2a1a57a11/done')
+    .send({ remark: 'Done' })
+    .expect(401);
+
+  assert.equal(response.body.success, false);
+  assert.equal(response.body.message, 'Authentication is required.');
+});
+
 test('POST /api/admin/signup validates request body', async () => {
   const response = await request(app)
     .post('/api/admin/signup')

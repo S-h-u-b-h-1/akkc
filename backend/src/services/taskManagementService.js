@@ -11,19 +11,7 @@ import {
 } from '../repositories/taskRepository.js';
 import { AppError } from '../utils/appError.js';
 import { toDateOnly, todayDateOnly } from '../utils/date.js';
-
-const getEffectiveStatus = (task, today = todayDateOnly()) => {
-  if (task.status === TASK_STATUSES.PENDING && task.dueDate < today) {
-    return TASK_STATUSES.DELAYED;
-  }
-
-  return task.status;
-};
-
-const serializeTask = (task, today = todayDateOnly()) => ({
-  ...task,
-  effectiveStatus: getEffectiveStatus(task, today)
-});
+import { getEffectiveTaskStatus, serializeTask } from '../utils/taskPresenter.js';
 
 const assertEmployeeCanReceiveTask = async ({ employeeId, adminId }) => {
   const employee = await findActiveEmployeeByAdmin({ id: employeeId, adminId });
@@ -166,7 +154,7 @@ const incrementGroup = (groups, key, label, task, today) => {
     });
   }
 
-  incrementStatusSummary(groups.get(key), getEffectiveStatus(task, today));
+  incrementStatusSummary(groups.get(key), getEffectiveTaskStatus(task, today));
 };
 
 export const getAdminStats = async ({ adminId }) => {
@@ -177,7 +165,7 @@ export const getAdminStats = async ({ adminId }) => {
   const employeeGroups = new Map();
 
   tasks.forEach((task) => {
-    const effectiveStatus = getEffectiveStatus(task, today);
+    const effectiveStatus = getEffectiveTaskStatus(task, today);
     incrementStatusSummary(summary, effectiveStatus);
     incrementGroup(clientGroups, task.clientName, task.clientName, task, today);
     incrementGroup(employeeGroups, task.assignedEmployeeId, task.assignedEmployee.name, task, today);

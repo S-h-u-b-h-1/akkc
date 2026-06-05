@@ -20,6 +20,26 @@ const taskSelect = Object.freeze({
       email: true,
       department: true
     }
+  },
+  updates: {
+    orderBy: {
+      createdAt: 'desc'
+    },
+    select: {
+      id: true,
+      status: true,
+      remark: true,
+      reason: true,
+      createdAt: true,
+      employeeId: true,
+      employee: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      }
+    }
   }
 });
 
@@ -105,6 +125,24 @@ export const findTaskByAdmin = ({ id, adminId }) =>
     select: taskSelect
   });
 
+export const listTasksByEmployee = (employeeId) =>
+  getPrisma().task.findMany({
+    where: {
+      assignedEmployeeId: employeeId
+    },
+    orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+    select: taskSelect
+  });
+
+export const findTaskByEmployee = ({ id, employeeId }) =>
+  getPrisma().task.findFirst({
+    where: {
+      id,
+      assignedEmployeeId: employeeId
+    },
+    select: taskSelect
+  });
+
 export const updateTask = ({ id, data }) =>
   getPrisma().task.update({
     where: { id },
@@ -116,6 +154,25 @@ export const deleteTask = (id) =>
   getPrisma().task.delete({
     where: { id },
     select: taskSelect
+  });
+
+export const updateTaskStatusWithEmployeeUpdate = ({ taskId, employeeId, status, remark, reason }) =>
+  getPrisma().$transaction(async (transaction) => {
+    await transaction.taskUpdate.create({
+      data: {
+        taskId,
+        employeeId,
+        status,
+        remark,
+        reason
+      }
+    });
+
+    return transaction.task.update({
+      where: { id: taskId },
+      data: { status },
+      select: taskSelect
+    });
   });
 
 export const listTasksForAdminStats = (adminId) =>

@@ -62,3 +62,33 @@ export const updateTaskSchema = z.object({
   }),
   query: z.object({}).optional()
 });
+
+export const listEmployeeTasksSchema = z.object({
+  body: z.object({}).optional(),
+  params: z.object({}).optional(),
+  query: z.object({}).optional()
+});
+
+export const markTaskDoneSchema = z.object({
+  body: z
+    .object({
+      remark: z.string().trim().min(1).max(2000)
+    })
+    .strict(),
+  params: z.object({
+    id: taskId
+  }),
+  query: z.object({}).optional()
+});
+
+export const markTaskNotDoneSchema = z.object({
+  body: z
+    .object({
+      reason: z.string().trim().min(1).max(2000)
+    })
+    .strict(),
+  params: z.object({
+    id: taskId
+  }),
+  query: z.object({}).optional()
+});

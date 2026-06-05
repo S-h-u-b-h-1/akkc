@@ -69,6 +69,14 @@ DELETE /api/admin/tasks/:id
 GET    /api/admin/stats
 ```
 
+### Employee Task Routes
+
+```text
+GET /api/employee/tasks
+PUT /api/employee/tasks/:id/done
+PUT /api/employee/tasks/:id/not-done
+```
+
 ### Seed Data
 
 After running migrations against your PostgreSQL database, seed sample data:
