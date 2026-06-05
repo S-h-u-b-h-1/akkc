@@ -6,27 +6,27 @@ import { AdminLoginPage } from '../pages/AdminLoginPage.jsx';
 import { AdminSignupPage } from '../pages/AdminSignupPage.jsx';
 import { EmployeeDashboard } from '../pages/EmployeeDashboard.jsx';
 import { EmployeeLoginPage } from '../pages/EmployeeLoginPage.jsx';
+import { LandingPage } from '../pages/LandingPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
 import { ROUTES, USER_ROLES } from '../constants/routes.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { getDashboardRouteForRole } from '../utils/authRedirects.js';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
 
-function RootRedirect() {
+function RootRoute() {
   const { isAuthenticated, role } = useAuth();
 
-  return (
-    <Navigate
-      to={isAuthenticated ? getDashboardRouteForRole(role) : ROUTES.ADMIN_LOGIN}
-      replace
-    />
-  );
+  if (isAuthenticated) {
+    return <Navigate to={getDashboardRouteForRole(role)} replace />;
+  }
+
+  return <LandingPage />;
 }
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path={ROUTES.ROOT} element={<RootRedirect />} />
+      <Route path={ROUTES.ROOT} element={<RootRoute />} />
       <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLoginPage />} />
       <Route path={ROUTES.ADMIN_SIGNUP} element={<AdminSignupPage />} />
       <Route path={ROUTES.EMPLOYEE_LOGIN} element={<EmployeeLoginPage />} />
