@@ -7,6 +7,14 @@ import {
   updateEmployee
 } from '../controllers/adminEmployeeController.js';
 import { login, signup } from '../controllers/adminAuthController.js';
+import {
+  createTask,
+  deleteTask,
+  getStats,
+  getTask,
+  listTasks,
+  updateTask
+} from '../controllers/adminTaskController.js';
 import { adminOnly, authenticate } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -17,6 +25,12 @@ import {
   listEmployeesSchema,
   updateEmployeeSchema
 } from '../validators/employeeValidators.js';
+import {
+  createTaskSchema,
+  listTasksSchema,
+  taskIdParamSchema,
+  updateTaskSchema
+} from '../validators/taskValidators.js';
 
 const router = Router();
 
@@ -50,5 +64,41 @@ router.delete(
   validateRequest(employeeIdParamSchema),
   asyncHandler(deleteEmployee)
 );
+router.post(
+  '/tasks',
+  authenticate,
+  adminOnly,
+  validateRequest(createTaskSchema),
+  asyncHandler(createTask)
+);
+router.get(
+  '/tasks',
+  authenticate,
+  adminOnly,
+  validateRequest(listTasksSchema),
+  asyncHandler(listTasks)
+);
+router.get(
+  '/tasks/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(taskIdParamSchema),
+  asyncHandler(getTask)
+);
+router.put(
+  '/tasks/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(updateTaskSchema),
+  asyncHandler(updateTask)
+);
+router.delete(
+  '/tasks/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(taskIdParamSchema),
+  asyncHandler(deleteTask)
+);
+router.get('/stats', authenticate, adminOnly, asyncHandler(getStats));
 
 export default router;

@@ -16,6 +16,12 @@ export const API_MESSAGES = Object.freeze({
   EMPLOYEES_FETCHED: 'Employees fetched successfully.',
   EMPLOYEE_UPDATED: 'Employee updated successfully.',
   EMPLOYEE_DELETED: 'Employee deleted successfully.',
+  TASK_CREATED: 'Task created successfully.',
+  TASKS_FETCHED: 'Tasks fetched successfully.',
+  TASK_FETCHED: 'Task fetched successfully.',
+  TASK_UPDATED: 'Task updated successfully.',
+  TASK_DELETED: 'Task deleted successfully.',
+  ADMIN_STATS_FETCHED: 'Admin stats fetched successfully.',
   LOGIN_SUCCESS: 'Login successful.',
   CURRENT_USER_FETCHED: 'Current user fetched successfully.',
   ROUTE_NOT_FOUND: 'Route not found.',
@@ -25,6 +31,7 @@ export const API_MESSAGES = Object.freeze({
   INVALID_CREDENTIALS: 'Invalid email or password.',
   EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
   EMPLOYEE_NOT_FOUND: 'Employee not found.',
+  TASK_NOT_FOUND: 'Task not found.',
   VALIDATION_FAILED: 'Validation failed.',
   USER_NOT_FOUND: 'Authenticated user was not found.'
 });
