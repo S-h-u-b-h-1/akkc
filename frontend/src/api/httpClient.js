@@ -18,7 +18,9 @@ export const httpClient = async (path, options = {}) => {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data?.message ?? 'Request failed.');
+    const err = new Error(data?.message ?? 'Request failed.');
+    err.errors = data?.errors;
+    throw err;
   }
 
   return data;

@@ -55,7 +55,14 @@ export function AuthForm({
       completeAuth({ token, user });
       navigate(redirectTo, { replace: true });
     } catch (submitError) {
-      setError(submitError.message);
+      if (submitError.errors && submitError.errors.length > 0) {
+        const details = submitError.errors
+          .map((err) => `${err.field.replace('body.', '')}: ${err.message}`)
+          .join(', ');
+        setError(`${submitError.message} (${details})`);
+      } else {
+        setError(submitError.message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -94,6 +101,7 @@ export function AuthForm({
               type="password"
               autoComplete={includeName ? 'new-password' : 'current-password'}
               required
+              minLength="8"
             />
           </label>
 
