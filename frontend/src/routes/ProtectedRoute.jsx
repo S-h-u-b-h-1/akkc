@@ -1,14 +1,18 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { ROUTES } from '../constants/routes.js';
 import { useAuth } from '../hooks/useAuth.js';
+import { getDashboardRouteForRole, getLoginRouteForRole } from '../utils/authRedirects.js';
 
-export function ProtectedRoute() {
-  const { isAuthenticated } = useAuth();
+export function ProtectedRoute({ allowedRole }) {
+  const { isAuthenticated, role } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to={ROUTES.LOGIN} replace state={{ from: location }} />;
+    return <Navigate to={getLoginRouteForRole(allowedRole)} replace state={{ from: location }} />;
+  }
+
+  if (allowedRole && role !== allowedRole) {
+    return <Navigate to={getDashboardRouteForRole(role)} replace />;
   }
 
   return <Outlet />;

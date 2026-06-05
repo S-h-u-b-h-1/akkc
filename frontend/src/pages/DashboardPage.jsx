@@ -5,13 +5,13 @@ const metrics = [
   { label: 'Employees', value: '0', tone: 'violet' }
 ];
 
-export function DashboardPage() {
+export function DashboardPage({ eyebrow = 'Operations', title = 'Dashboard' }) {
   return (
     <section className="page-stack">
       <div className="page-header">
         <div>
-          <p className="eyebrow">Operations</p>
-          <h1>Dashboard</h1>
+          <p className="eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
         </div>
       </div>
 

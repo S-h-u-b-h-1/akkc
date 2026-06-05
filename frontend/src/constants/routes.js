@@ -1,10 +1,21 @@
 export const ROUTES = Object.freeze({
-  DASHBOARD: '/',
-  LOGIN: '/login',
-  EMPLOYEES: '/employees',
-  TASKS: '/tasks'
+  ROOT: '/',
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN_SIGNUP: '/admin/signup',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_EMPLOYEES: '/admin/employees',
+  ADMIN_TASKS: '/admin/tasks',
+  EMPLOYEE_LOGIN: '/employee/login',
+  EMPLOYEE_DASHBOARD: '/employee/dashboard',
+  EMPLOYEE_TASKS: '/employee/tasks'
 });
 
 export const STORAGE_KEYS = Object.freeze({
-  AUTH_TOKEN: 'employee_task_management_token'
+  AUTH_TOKEN: 'employee_task_management_token',
+  AUTH_USER: 'employee_task_management_user'
+});
+
+export const USER_ROLES = Object.freeze({
+  ADMIN: 'ADMIN',
+  EMPLOYEE: 'EMPLOYEE'
 });

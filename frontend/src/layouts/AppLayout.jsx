@@ -1,17 +1,31 @@
 import { ClipboardList, LayoutDashboard, LogOut, Users } from 'lucide-react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
-import { ROUTES } from '../constants/routes.js';
+import { ROUTES, USER_ROLES } from '../constants/routes.js';
 import { useAuth } from '../hooks/useAuth.js';
+import { getLoginRouteForRole } from '../utils/authRedirects.js';
 
-const navigationItems = [
-  { label: 'Dashboard', to: ROUTES.DASHBOARD, icon: LayoutDashboard },
-  { label: 'Employees', to: ROUTES.EMPLOYEES, icon: Users },
-  { label: 'Tasks', to: ROUTES.TASKS, icon: ClipboardList }
+const adminNavigationItems = [
+  { label: 'Dashboard', to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
+  { label: 'Employees', to: ROUTES.ADMIN_EMPLOYEES, icon: Users },
+  { label: 'Tasks', to: ROUTES.ADMIN_TASKS, icon: ClipboardList }
+];
+
+const employeeNavigationItems = [
+  { label: 'Dashboard', to: ROUTES.EMPLOYEE_DASHBOARD, icon: LayoutDashboard },
+  { label: 'My tasks', to: ROUTES.EMPLOYEE_TASKS, icon: ClipboardList }
 ];
 
 export function AppLayout() {
-  const { logout } = useAuth();
+  const { logout, role, user } = useAuth();
+  const navigate = useNavigate();
+  const navigationItems = role === USER_ROLES.ADMIN ? adminNavigationItems : employeeNavigationItems;
+
+  const handleLogout = () => {
+    const loginRoute = getLoginRouteForRole(role);
+    logout();
+    navigate(loginRoute, { replace: true });
+  };
 
   return (
     <div className="app-shell">
@@ -20,8 +34,13 @@ export function AppLayout() {
           <span className="brand-mark">ET</span>
           <div>
             <p className="brand-name">Employee Tasks</p>
-            <p className="brand-caption">Daily operations</p>
+            <p className="brand-caption">{role === USER_ROLES.ADMIN ? 'Admin' : 'Employee'}</p>
           </div>
+        </div>
+
+        <div className="sidebar-user">
+          <span>{user?.name ?? 'Signed in'}</span>
+          <small>{user?.email}</small>
         </div>
 
         <nav className="sidebar-nav" aria-label="Primary navigation">
@@ -31,7 +50,7 @@ export function AppLayout() {
             return (
               <NavLink
                 className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
-                end={item.to === ROUTES.DASHBOARD}
+                end
                 key={item.to}
                 to={item.to}
               >
@@ -42,7 +61,7 @@ export function AppLayout() {
           })}
         </nav>
 
-        <button className="sidebar-action" type="button" onClick={logout}>
+        <button className="sidebar-action" type="button" onClick={handleLogout}>
           <LogOut size={18} aria-hidden="true" />
           <span>Sign out</span>
         </button>

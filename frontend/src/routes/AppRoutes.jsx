@@ -1,23 +1,65 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from '../layouts/AppLayout.jsx';
+import { AdminLoginPage } from '../pages/AdminLoginPage.jsx';
+import { AdminSignupPage } from '../pages/AdminSignupPage.jsx';
 import { DashboardPage } from '../pages/DashboardPage.jsx';
-import { LoginPage } from '../pages/LoginPage.jsx';
+import { EmployeeLoginPage } from '../pages/EmployeeLoginPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
-import { ROUTES } from '../constants/routes.js';
+import { ROUTES, USER_ROLES } from '../constants/routes.js';
+import { useAuth } from '../hooks/useAuth.js';
+import { getDashboardRouteForRole } from '../utils/authRedirects.js';
 import { ProtectedRoute } from './ProtectedRoute.jsx';
+
+function RootRedirect() {
+  const { isAuthenticated, role } = useAuth();
+
+  return (
+    <Navigate
+      to={isAuthenticated ? getDashboardRouteForRole(role) : ROUTES.ADMIN_LOGIN}
+      replace
+    />
+  );
+}
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-      <Route element={<ProtectedRoute />}>
+      <Route path={ROUTES.ROOT} element={<RootRedirect />} />
+      <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLoginPage />} />
+      <Route path={ROUTES.ADMIN_SIGNUP} element={<AdminSignupPage />} />
+      <Route path={ROUTES.EMPLOYEE_LOGIN} element={<EmployeeLoginPage />} />
+
+      <Route element={<ProtectedRoute allowedRole={USER_ROLES.ADMIN} />}>
         <Route element={<AppLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path={ROUTES.EMPLOYEES} element={<DashboardPage />} />
-          <Route path={ROUTES.TASKS} element={<DashboardPage />} />
+          <Route
+            path={ROUTES.ADMIN_DASHBOARD}
+            element={<DashboardPage eyebrow="Admin operations" title="Admin dashboard" />}
+          />
+          <Route
+            path={ROUTES.ADMIN_EMPLOYEES}
+            element={<DashboardPage eyebrow="Employee management" title="Employees" />}
+          />
+          <Route
+            path={ROUTES.ADMIN_TASKS}
+            element={<DashboardPage eyebrow="Task management" title="Tasks" />}
+          />
         </Route>
       </Route>
+
+      <Route element={<ProtectedRoute allowedRole={USER_ROLES.EMPLOYEE} />}>
+        <Route element={<AppLayout />}>
+          <Route
+            path={ROUTES.EMPLOYEE_DASHBOARD}
+            element={<DashboardPage eyebrow="Employee workspace" title="Employee dashboard" />}
+          />
+          <Route
+            path={ROUTES.EMPLOYEE_TASKS}
+            element={<DashboardPage eyebrow="Assigned work" title="My tasks" />}
+          />
+        </Route>
+      </Route>
+
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

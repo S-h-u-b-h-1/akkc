@@ -8,8 +8,8 @@ export function NotFoundPage() {
       <section className="content-panel compact">
         <p className="eyebrow">404</p>
         <h1>Page not found</h1>
-        <Link className="primary-button link-button" to={ROUTES.DASHBOARD}>
-          Back to dashboard
+        <Link className="primary-button link-button" to={ROUTES.ADMIN_LOGIN}>
+          Back to sign in
         </Link>
       </section>
     </main>
