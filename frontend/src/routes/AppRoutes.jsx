@@ -4,7 +4,7 @@ import { AppLayout } from '../layouts/AppLayout.jsx';
 import { AdminDashboard } from '../pages/AdminDashboard.jsx';
 import { AdminLoginPage } from '../pages/AdminLoginPage.jsx';
 import { AdminSignupPage } from '../pages/AdminSignupPage.jsx';
-import { DashboardPage } from '../pages/DashboardPage.jsx';
+import { EmployeeDashboard } from '../pages/EmployeeDashboard.jsx';
 import { EmployeeLoginPage } from '../pages/EmployeeLoginPage.jsx';
 import { NotFoundPage } from '../pages/NotFoundPage.jsx';
 import { ROUTES, USER_ROLES } from '../constants/routes.js';
@@ -52,11 +52,11 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route
             path={ROUTES.EMPLOYEE_DASHBOARD}
-            element={<DashboardPage eyebrow="Employee workspace" title="Employee dashboard" />}
+            element={<EmployeeDashboard />}
           />
           <Route
             path={ROUTES.EMPLOYEE_TASKS}
-            element={<DashboardPage eyebrow="Assigned work" title="My tasks" />}
+            element={<EmployeeDashboard />}
           />
         </Route>
       </Route>

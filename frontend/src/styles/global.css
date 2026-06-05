@@ -496,20 +496,35 @@ td {
 .filter-grid select,
 .form-grid input,
 .form-grid select,
+.form-grid textarea,
 .employee-form input {
   width: 100%;
-  min-height: 42px;
   border: 1px solid #cfd7e3;
   border-radius: 8px;
-  padding: 0 12px;
   color: #172033;
   background: #ffffff;
+}
+
+.filter-grid input,
+.filter-grid select,
+.form-grid input,
+.form-grid select,
+.employee-form input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.form-grid textarea {
+  min-height: 120px;
+  padding: 10px 12px;
+  resize: vertical;
 }
 
 .filter-grid input:focus,
 .filter-grid select:focus,
 .form-grid input:focus,
 .form-grid select:focus,
+.form-grid textarea:focus,
 .employee-form input:focus {
   border-color: #1f6feb;
   outline: 3px solid #d9e8ff;
@@ -575,6 +590,25 @@ td {
 .row-actions {
   display: flex;
   gap: 8px;
+}
+
+.employee-row-actions {
+  flex-wrap: wrap;
+}
+
+.action-button {
+  min-height: 36px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.danger-action {
+  color: #b42318;
+}
+
+.delayed-date {
+  color: #9a3412;
+  font-weight: 800;
 }
 
 .icon-button {
@@ -643,6 +677,29 @@ td {
 .form-grid .form-error,
 .employee-form .form-error {
   grid-column: 1 / -1;
+}
+
+.task-action-form {
+  grid-template-columns: 1fr;
+}
+
+.task-action-context {
+  display: grid;
+  gap: 2px;
+  border: 1px solid #eef1f5;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfe;
+}
+
+.task-action-context strong {
+  color: #172033;
+}
+
+.task-action-context span {
+  color: #657287;
+  font-size: 0.9375rem;
+  font-weight: 700;
 }
 
 .employee-panel {
