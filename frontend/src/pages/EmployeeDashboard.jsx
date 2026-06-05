@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { ROUTES } from '../constants/routes.js';
 
 import { TASK_STATUSES } from '../constants/task.js';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
@@ -48,6 +51,7 @@ const createTaskStats = (tasks) =>
   );
 
 export function EmployeeDashboard() {
+  const location = useLocation();
   const [activeAction, setActiveAction] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [error, setError] = useState('');
@@ -120,25 +124,34 @@ export function EmployeeDashboard() {
     await refreshTasks();
   };
 
+  const isDashboardRoute = location.pathname === ROUTES.EMPLOYEE_DASHBOARD || location.pathname === '/employee';
+  const isTasksRoute = location.pathname === ROUTES.EMPLOYEE_TASKS;
+
+  const headerTitle = isTasksRoute ? 'My assigned tasks' : 'Dashboard overview';
+
   return (
     <section className="page-stack employee-dashboard">
       <div className="page-header">
         <div>
           <p className="eyebrow">Employee workspace</p>
-          <h1>My assigned tasks</h1>
+          <h1>{headerTitle}</h1>
         </div>
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
 
-      <TaskStatsCards isLoading={isLoading} stats={stats} />
+      {isDashboardRoute ? (
+        <TaskStatsCards isLoading={isLoading} stats={stats} />
+      ) : null}
 
-      <EmployeeTaskTable
-        isLoading={isLoading}
-        onMarkDone={(task) => openActionModal(task, taskActionTypes.DONE)}
-        onMarkNotDone={(task) => openActionModal(task, taskActionTypes.NOT_DONE)}
-        tasks={tasks}
-      />
+      {isTasksRoute ? (
+        <EmployeeTaskTable
+          isLoading={isLoading}
+          onMarkDone={(task) => openActionModal(task, taskActionTypes.DONE)}
+          onMarkNotDone={(task) => openActionModal(task, taskActionTypes.NOT_DONE)}
+          tasks={tasks}
+        />
+      ) : null}
 
       <EmployeeTaskActionModal
         action={activeAction}

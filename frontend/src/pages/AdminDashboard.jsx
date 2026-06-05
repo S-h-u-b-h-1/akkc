@@ -1,5 +1,8 @@
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { ROUTES } from '../constants/routes.js';
 
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
 import { EmployeeManagement } from '../features/employee-management/EmployeeManagement.jsx';
@@ -39,6 +42,7 @@ const initialFilters = {
 };
 
 export function AdminDashboard() {
+  const location = useLocation();
   const [employees, setEmployees] = useState([]);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState(initialFilters);
@@ -127,39 +131,63 @@ export function AdminDashboard() {
     await refreshDashboard();
   };
 
+  const isDashboardRoute = location.pathname === ROUTES.ADMIN_DASHBOARD || location.pathname === '/admin';
+  const isEmployeesRoute = location.pathname === ROUTES.ADMIN_EMPLOYEES;
+  const isTasksRoute = location.pathname === ROUTES.ADMIN_TASKS;
+
+  const getHeaderDetails = () => {
+    if (isEmployeesRoute) {
+      return { eyebrow: 'Team access', title: 'Employee management' };
+    }
+    if (isTasksRoute) {
+      return { eyebrow: 'Task queue', title: 'Assigned tasks' };
+    }
+    return { eyebrow: 'Admin operations', title: 'Dashboard overview' };
+  };
+
+  const header = getHeaderDetails();
+
   return (
     <section className="page-stack admin-dashboard">
       <div className="page-header">
         <div>
-          <p className="eyebrow">Admin operations</p>
-          <h1>Admin dashboard</h1>
+          <p className="eyebrow">{header.eyebrow}</p>
+          <h1>{header.title}</h1>
         </div>
-        <button className="primary-button fit-button" type="button" onClick={() => setIsCreateTaskOpen(true)}>
-          <Plus size={18} aria-hidden="true" />
-          <span>Create task</span>
-        </button>
+        {isTasksRoute ? (
+          <button className="primary-button fit-button" type="button" onClick={() => setIsCreateTaskOpen(true)}>
+            <Plus size={18} aria-hidden="true" />
+            <span>Create task</span>
+          </button>
+        ) : null}
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
 
-      <TaskStatsCards isLoading={isLoading} stats={stats} />
+      {isDashboardRoute ? (
+        <TaskStatsCards isLoading={isLoading} stats={stats} />
+      ) : null}
 
-      <TaskFilters
-        employees={employees}
-        filters={filters}
-        onChange={handleFilterChange}
-        onReset={() => handleFilterChange(initialFilters)}
-      />
+      {isTasksRoute ? (
+        <>
+          <TaskFilters
+            employees={employees}
+            filters={filters}
+            onChange={handleFilterChange}
+            onReset={() => handleFilterChange(initialFilters)}
+          />
+          <TaskTable
+            isLoading={isLoading}
+            onDelete={handleDeleteTask}
+            onEdit={setTaskBeingEdited}
+            tasks={tasks}
+          />
+        </>
+      ) : null}
 
-      <div className="admin-work-grid">
-        <TaskTable
-          isLoading={isLoading}
-          onDelete={handleDeleteTask}
-          onEdit={setTaskBeingEdited}
-          tasks={tasks}
-        />
+      {isEmployeesRoute ? (
         <EmployeeManagement employees={employees} onCreateEmployee={handleCreateEmployee} />
-      </div>
+      ) : null}
 
       <CreateTaskModal
         employees={employees}
