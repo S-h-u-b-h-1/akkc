@@ -8,9 +8,9 @@ const statCards = [
   { key: 'delayedTasks', label: 'Delayed', icon: AlertTriangle, tone: 'violet' }
 ];
 
-export function TaskStatsCards({ stats }) {
+export function TaskStatsCards({ isLoading = false, stats }) {
   return (
-    <section className="stats-grid" aria-label="Task statistics">
+    <section className="stats-grid" aria-busy={isLoading} aria-label="Task statistics">
       {statCards.map((stat) => {
         const Icon = stat.icon;
 
@@ -21,7 +21,9 @@ export function TaskStatsCards({ stats }) {
             </div>
             <div>
               <span>{stat.label}</span>
-              <strong>{stats?.[stat.key] ?? 0}</strong>
+              <strong className={isLoading ? 'loading-value' : undefined}>
+                {isLoading ? '...' : (stats?.[stat.key] ?? 0)}
+              </strong>
             </div>
           </article>
         );

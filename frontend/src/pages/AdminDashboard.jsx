@@ -142,7 +142,7 @@ export function AdminDashboard() {
 
       {error ? <p className="form-error">{error}</p> : null}
 
-      <TaskStatsCards stats={stats} />
+      <TaskStatsCards isLoading={isLoading} stats={stats} />
 
       <TaskFilters
         employees={employees}

@@ -9,7 +9,7 @@ const isNotDoneActionDisabled = (task) => task.storedStatus === TASK_STATUSES.NO
 
 export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks }) {
   return (
-    <section className="content-panel">
+    <section className="content-panel" aria-busy={isLoading}>
       <div className="panel-header table-panel-header">
         <div>
           <p className="eyebrow">Assigned work</p>

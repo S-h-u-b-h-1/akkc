@@ -131,7 +131,7 @@ export function EmployeeDashboard() {
 
       {error ? <p className="form-error">{error}</p> : null}
 
-      <TaskStatsCards stats={stats} />
+      <TaskStatsCards isLoading={isLoading} stats={stats} />
 
       <EmployeeTaskTable
         isLoading={isLoading}

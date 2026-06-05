@@ -15,7 +15,7 @@ const getLatestRemark = (task) => {
 
 export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
   return (
-    <section className="content-panel">
+    <section className="content-panel" aria-busy={isLoading}>
       <div className="panel-header table-panel-header">
         <div>
           <p className="eyebrow">Task queue</p>

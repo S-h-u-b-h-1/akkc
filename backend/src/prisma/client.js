@@ -31,8 +31,17 @@ export const getPrisma = () => {
   return prismaClient;
 };
 
+export const setPrismaClientForTesting = (client) => {
+  if (env.nodeEnv === 'production') {
+    throw new Error('Test Prisma client injection is not available in production.');
+  }
+
+  prismaClient = client;
+  globalThis.prismaClient = client;
+};
+
 export const disconnectPrisma = async () => {
-  if (prismaClient) {
+  if (prismaClient?.$disconnect) {
     await prismaClient.$disconnect();
   }
 };

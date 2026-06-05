@@ -138,6 +138,17 @@ a {
   color: #1f6feb;
 }
 
+.nav-link:focus-visible,
+.sidebar-action:focus-visible,
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.icon-button:focus-visible,
+.access-link:focus-visible,
+.auth-switch-link:focus-visible {
+  outline: 3px solid #b8d6ff;
+  outline-offset: 2px;
+}
+
 .sidebar-action {
   margin-top: auto;
   width: 100%;
@@ -263,8 +274,13 @@ td {
   border-top: 1px solid #eef1f5;
 }
 
+tbody tr:hover {
+  background: #fbfcfe;
+}
+
 .empty-cell {
   color: #657287;
+  padding: 28px 24px;
   text-align: center;
 }
 
@@ -346,6 +362,11 @@ td {
   padding: 22px;
   background: #ffffff;
   box-shadow: 0 16px 36px rgb(25 37 60 / 8%);
+}
+
+.access-card:hover {
+  border-color: #b9c7d8;
+  box-shadow: 0 18px 40px rgb(25 37 60 / 10%);
 }
 
 .access-icon {
@@ -436,6 +457,10 @@ td {
   opacity: 0.68;
 }
 
+.primary-button:hover:not(:disabled) {
+  background: #1a5fc9;
+}
+
 .fit-button {
   width: fit-content;
 }
@@ -500,6 +525,11 @@ td {
   color: #172033;
   font-size: 1.75rem;
   line-height: 1;
+}
+
+.stat-card strong.loading-value {
+  color: #8a95a6;
+  letter-spacing: 0;
 }
 
 .stat-card-icon {
@@ -921,6 +951,11 @@ td {
 
   .metrics-grid {
     grid-template-columns: 1fr;
+  }
+
+  th,
+  td {
+    padding: 14px 16px;
   }
 
   .page-header,
