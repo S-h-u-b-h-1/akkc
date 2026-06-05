@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from '../layouts/AppLayout.jsx';
+import { AdminDashboard } from '../pages/AdminDashboard.jsx';
 import { AdminLoginPage } from '../pages/AdminLoginPage.jsx';
 import { AdminSignupPage } from '../pages/AdminSignupPage.jsx';
 import { DashboardPage } from '../pages/DashboardPage.jsx';
@@ -34,15 +35,15 @@ export function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route
             path={ROUTES.ADMIN_DASHBOARD}
-            element={<DashboardPage eyebrow="Admin operations" title="Admin dashboard" />}
+            element={<AdminDashboard />}
           />
           <Route
             path={ROUTES.ADMIN_EMPLOYEES}
-            element={<DashboardPage eyebrow="Employee management" title="Employees" />}
+            element={<AdminDashboard />}
           />
           <Route
             path={ROUTES.ADMIN_TASKS}
-            element={<DashboardPage eyebrow="Task management" title="Tasks" />}
+            element={<AdminDashboard />}
           />
         </Route>
       </Route>
