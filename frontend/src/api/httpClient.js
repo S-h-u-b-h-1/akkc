@@ -1,6 +1,12 @@
 import { STORAGE_KEYS } from '../constants/routes.js';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5001/api';
+const rawBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5001';
+let normalizedBase = String(rawBase).replace(/\/$/, '');
+if (!normalizedBase.endsWith('/api')) {
+  normalizedBase = `${normalizedBase}/api`;
+}
+
+export const API_BASE_URL = normalizedBase;
 
 export const httpClient = async (path, options = {}) => {
   const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
