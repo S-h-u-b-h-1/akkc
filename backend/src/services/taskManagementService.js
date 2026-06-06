@@ -168,7 +168,8 @@ export const getAdminStats = async ({ adminId }) => {
     const effectiveStatus = getEffectiveTaskStatus(task, today);
     incrementStatusSummary(summary, effectiveStatus);
     incrementGroup(clientGroups, task.clientName, task.clientName, task, today);
-    incrementGroup(employeeGroups, task.assignedEmployeeId, task.assignedEmployee.name, task, today);
+  const employeeLabel = task.assignedEmployee?.name ?? 'Unknown';
+  incrementGroup(employeeGroups, task.assignedEmployeeId, employeeLabel, task, today);
   });
 
   return {
