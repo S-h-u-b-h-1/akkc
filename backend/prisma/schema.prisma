@@ -53,6 +53,7 @@ model Task {
   domain             String       @db.VarChar(120)
   clientName         String       @db.VarChar(160)
   status             TaskStatus   @default(PENDING)
+  isHighPriority     Boolean      @default(false)
   assignedDate       DateTime     @db.Date
   dueDate            DateTime     @db.Date
   assignedEmployeeId String       @db.Uuid
@@ -67,6 +68,7 @@ model Task {
   @@index([assignedEmployeeId])
   @@index([createdByAdminId])
   @@index([status, dueDate])
+  @@index([isHighPriority, dueDate])
   @@index([assignedDate])
   @@index([domain])
   @@index([clientName])

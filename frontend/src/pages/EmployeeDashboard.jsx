@@ -24,6 +24,10 @@ const createTaskStats = (tasks) =>
     (stats, task) => {
       stats.totalTasks += 1;
 
+      if (task.isHighPriority) {
+        stats.highPriorityTasks += 1;
+      }
+
       if (task.status === TASK_STATUSES.PENDING) {
         stats.pendingTasks += 1;
       }
@@ -44,6 +48,7 @@ const createTaskStats = (tasks) =>
     },
     {
       totalTasks: 0,
+      highPriorityTasks: 0,
       pendingTasks: 0,
       completedTasks: 0,
       notDoneTasks: 0,

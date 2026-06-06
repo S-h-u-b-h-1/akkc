@@ -1,17 +1,19 @@
 import {
+  AlertTriangle,
   BriefcaseBusiness,
-  CalendarDays,
   ChartBar,
-  ClipboardCheck,
+  Flag,
+  ListChecks,
   UsersRound
 } from 'lucide-react';
 
-import { CA_COMPLIANCE_CHECKPOINTS, CA_SERVICE_LINES } from '../../constants/firm.js';
+import { CA_SERVICE_LINES } from '../../constants/firm.js';
 import { TASK_STATUSES } from '../../constants/task.js';
-import { formatDate } from '../../utils/formatters.js';
+import { formatDate, formatStatus } from '../../utils/formatters.js';
 
 const MAX_VISIBLE_ITEMS = 5;
 const OPEN_STATUSES = new Set([TASK_STATUSES.PENDING, TASK_STATUSES.DELAYED]);
+const FOLLOW_UP_STATUSES = new Set([TASK_STATUSES.NOT_DONE]);
 
 const createStatusSummary = (name, id = name) => ({
   id,
@@ -112,10 +114,49 @@ const getDueTimestamp = (task) => {
   return Number.isNaN(timestamp) ? Number.MAX_SAFE_INTEGER : timestamp;
 };
 
-const getDueSoonTasks = (tasks) =>
+const sortPriorityTasks = (tasks) =>
   [...tasks]
-    .filter((task) => OPEN_STATUSES.has(task.status ?? TASK_STATUSES.PENDING))
-    .sort((left, right) => getDueTimestamp(left) - getDueTimestamp(right))
+    .sort((left, right) => {
+      if (Boolean(left.isHighPriority) !== Boolean(right.isHighPriority)) {
+        return left.isHighPriority ? -1 : 1;
+      }
+
+      if (left.status !== right.status) {
+        if (left.status === TASK_STATUSES.DELAYED) {
+          return -1;
+        }
+
+        if (right.status === TASK_STATUSES.DELAYED) {
+          return 1;
+        }
+      }
+
+      return getDueTimestamp(left) - getDueTimestamp(right);
+    });
+
+const getOpenTasks = (tasks) =>
+  tasks.filter((task) => OPEN_STATUSES.has(task.status ?? TASK_STATUSES.PENDING));
+
+const getHighPriorityTasks = (tasks) =>
+  sortPriorityTasks(getOpenTasks(tasks).filter((task) => task.isHighPriority)).slice(
+    0,
+    MAX_VISIBLE_ITEMS
+  );
+
+const getDelayedTasks = (tasks) =>
+  sortPriorityTasks(tasks.filter((task) => task.status === TASK_STATUSES.DELAYED)).slice(
+    0,
+    MAX_VISIBLE_ITEMS
+  );
+
+const getFollowUpTasks = (tasks) =>
+  sortPriorityTasks(tasks.filter((task) => FOLLOW_UP_STATUSES.has(task.status))).slice(
+    0,
+    MAX_VISIBLE_ITEMS
+  );
+
+const getDueSoonTasks = (tasks) =>
+  sortPriorityTasks(getOpenTasks(tasks))
     .slice(0, MAX_VISIBLE_ITEMS);
 
 function InsightList({ emptyText, items, renderItem }) {
@@ -154,9 +195,65 @@ function ProgressList({ emptyText, items }) {
   );
 }
 
+function PriorityTaskList({ emptyText, isAdminView, tasks }) {
+  if (tasks.length === 0) {
+    return <p className="empty-note priority-empty">{emptyText}</p>;
+  }
+
+  return (
+    <div className="priority-task-list">
+      {tasks.map((task) => {
+        const effectiveStatus = task.status ?? TASK_STATUSES.PENDING;
+
+        return (
+          <article className="priority-task-item" key={task.id}>
+            <div>
+              <strong>{task.title}</strong>
+              <span>
+                {task.clientName} | {task.domain}
+                {isAdminView && task.assignedEmployee?.name
+                  ? ` | ${task.assignedEmployee.name}`
+                  : ''}
+              </span>
+            </div>
+            <div className="priority-task-meta">
+              {task.isHighPriority ? <span className="priority-pill high">High</span> : null}
+              <span className={`status-pill ${effectiveStatus.toLowerCase()}`}>
+                {formatStatus(effectiveStatus)}
+              </span>
+              <small>{formatDate(task.dueDate)}</small>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function PriorityLane({ description, emptyText, icon: Icon, isAdminView, tasks, title }) {
+  return (
+    <section className="priority-lane">
+      <div className="priority-lane-header">
+        <Icon size={17} aria-hidden="true" />
+        <div>
+          <h4>{title}</h4>
+          <span>{description}</span>
+        </div>
+      </div>
+      <PriorityTaskList emptyText={emptyText} isAdminView={isAdminView} tasks={tasks} />
+    </section>
+  );
+}
+
 export function PracticeInsights({ isLoading = false, scope = 'admin', stats, tasks = [] }) {
   const isAdminView = scope === 'admin';
+  const highPriorityTasks = getHighPriorityTasks(tasks);
+  const delayedTasks = getDelayedTasks(tasks);
+  const followUpTasks = getFollowUpTasks(tasks);
   const dueSoonTasks = getDueSoonTasks(tasks);
+  const openTasks = getOpenTasks(tasks);
+  const openTaskCount = openTasks.length;
+  const highPriorityOpenCount = openTasks.filter((task) => task.isHighPriority).length;
   const serviceSummary = createServiceSummary(tasks).slice(0, MAX_VISIBLE_ITEMS);
   const clientSummary = normalizeServerGroups(stats?.tasksByClient?.length ? stats.tasksByClient : []).slice(
     0,
@@ -186,42 +283,56 @@ export function PracticeInsights({ isLoading = false, scope = 'admin', stats, ta
           <p className="eyebrow">CA practice control</p>
           <h2>{isAdminView ? 'Firm workload insights' : 'My work priorities'}</h2>
         </div>
-        <span>{isLoading ? 'Refreshing...' : `${tasks.length} assignments in view`}</span>
+        <span>
+          {isLoading
+            ? 'Refreshing...'
+            : `${highPriorityOpenCount} high priority | ${openTaskCount} open`}
+        </span>
       </div>
 
       <div className="insights-grid">
         <article className="insight-panel wide">
           <div className="insight-panel-header">
-            <ClipboardCheck size={20} aria-hidden="true" />
+            <Flag size={20} aria-hidden="true" />
             <div>
-              <p className="eyebrow">Priority queue</p>
-              <h3>Due soon and delayed</h3>
+              <p className="eyebrow">Live priority board</p>
+              <h3>{isAdminView ? 'Firm work that needs attention' : 'My next actions'}</h3>
             </div>
           </div>
-          <InsightList
-            emptyText="No pending or delayed assignments in this view."
-            items={dueSoonTasks}
-            renderItem={(task) => {
-              const effectiveStatus = task.status ?? TASK_STATUSES.PENDING;
-
-              return (
-                <article className="insight-row due-row" key={task.id}>
-                  <div>
-                    <strong>{task.title}</strong>
-                    <span>
-                      {task.clientName} | {task.domain}
-                    </span>
-                  </div>
-                  <div className="due-meta">
-                    <span className={`status-pill ${effectiveStatus.toLowerCase()}`}>
-                      {effectiveStatus === TASK_STATUSES.DELAYED ? 'Delayed' : 'Pending'}
-                    </span>
-                    <small>{formatDate(task.dueDate)}</small>
-                  </div>
-                </article>
-              );
-            }}
-          />
+          <div className="priority-lanes">
+            <PriorityLane
+              description="Urgent open assignments"
+              emptyText="No high priority open work."
+              icon={Flag}
+              isAdminView={isAdminView}
+              tasks={highPriorityTasks}
+              title="High priority"
+            />
+            <PriorityLane
+              description="Past due and still open"
+              emptyText="No delayed assignments."
+              icon={AlertTriangle}
+              isAdminView={isAdminView}
+              tasks={delayedTasks}
+              title="Delayed"
+            />
+            <PriorityLane
+              description="Needs admin or client follow-up"
+              emptyText="No not-done follow-ups."
+              icon={ListChecks}
+              isAdminView={isAdminView}
+              tasks={followUpTasks}
+              title="Follow-ups"
+            />
+            <PriorityLane
+              description="Sorted by priority and due date"
+              emptyText="No open assignments."
+              icon={BriefcaseBusiness}
+              isAdminView={isAdminView}
+              tasks={dueSoonTasks}
+              title="Next due"
+            />
+          </div>
         </article>
 
         <article className="insight-panel">
@@ -258,27 +369,6 @@ export function PracticeInsights({ isLoading = false, scope = 'admin', stats, ta
             <ProgressList emptyText="No staff workload yet." items={derivedEmployeeSummary} />
           </article>
         ) : null}
-
-        <article className="insight-panel calendar-panel">
-          <div className="insight-panel-header">
-            <CalendarDays size={20} aria-hidden="true" />
-            <div>
-              <p className="eyebrow">Compliance rhythm</p>
-              <h3>Statutory checkpoints</h3>
-            </div>
-          </div>
-          <div className="calendar-list">
-            {CA_COMPLIANCE_CHECKPOINTS.slice(0, MAX_VISIBLE_ITEMS).map((checkpoint) => (
-              <article className="calendar-item" key={`${checkpoint.title}-${checkpoint.due}`}>
-                <strong>{checkpoint.title}</strong>
-                <span>{checkpoint.domain}</span>
-                <small>
-                  {checkpoint.cadence} | {checkpoint.due}
-                </small>
-              </article>
-            ))}
-          </div>
-        </article>
       </div>
     </section>
   );

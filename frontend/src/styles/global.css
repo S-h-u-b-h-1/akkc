@@ -186,7 +186,8 @@ a {
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   margin: 0;
   color: #172033;
   line-height: 1.2;
@@ -202,6 +203,10 @@ h2 {
 
 h3 {
   font-size: 1rem;
+}
+
+h4 {
+  font-size: 0.9375rem;
 }
 
 .metrics-grid {
@@ -544,7 +549,7 @@ tbody tr:hover {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -601,6 +606,10 @@ tbody tr:hover {
 
 .stat-card.red .stat-card-icon {
   background: #c2410c;
+}
+
+.stat-card.rose .stat-card-icon {
+  background: #b42318;
 }
 
 .stat-card.violet .stat-card-icon {
@@ -664,13 +673,14 @@ tbody tr:hover {
 }
 
 .insight-list,
-.calendar-list {
+.priority-task-list {
   display: grid;
   gap: 10px;
 }
 
 .insight-row,
-.calendar-item {
+.priority-task-item,
+.priority-lane {
   display: grid;
   min-width: 0;
   gap: 8px;
@@ -681,30 +691,60 @@ tbody tr:hover {
 }
 
 .insight-row strong,
-.calendar-item strong {
+.priority-task-item strong {
   color: #172033;
 }
 
 .insight-row span,
-.calendar-item span,
-.calendar-item small,
-.due-meta small {
+.priority-task-item span,
+.priority-task-item small,
+.priority-lane-header span {
   color: #657287;
   font-size: 0.875rem;
   font-weight: 700;
 }
 
-.due-row {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+.priority-lanes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.due-meta {
+.priority-lane {
+  align-content: start;
+}
+
+.priority-lane-header,
+.priority-task-meta {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.priority-lane-header svg {
+  flex: 0 0 auto;
+  color: #1f6feb;
+}
+
+.priority-lane-header > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.priority-task-item {
+  background: #ffffff;
+}
+
+.priority-task-item > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.priority-task-meta {
+  justify-content: flex-start;
 }
 
 .progress-row {
@@ -731,6 +771,14 @@ tbody tr:hover {
   border-radius: 8px;
   padding: 12px;
   background: #fbfcfe;
+}
+
+.priority-empty {
+  margin: 0;
+  border: 1px solid #eef1f5;
+  border-radius: 8px;
+  padding: 10px;
+  background: #ffffff;
 }
 
 .toolbar-panel {
@@ -762,7 +810,7 @@ tbody tr:hover {
 }
 
 .filter-grid {
-  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
 }
 
 .form-grid {
@@ -883,6 +931,30 @@ tbody tr:hover {
   color: #6941c6;
 }
 
+.priority-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: #eef1f5;
+  color: #4b5a70;
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+.priority-pill.high {
+  background: #fff1f0;
+  color: #b42318;
+}
+
+.priority-pill.standard {
+  background: #eef1f5;
+  color: #4b5a70;
+}
+
 .row-actions {
   display: flex;
   gap: 8px;
@@ -973,6 +1045,22 @@ tbody tr:hover {
 .form-grid .form-error,
 .employee-form .form-error {
   grid-column: 1 / -1;
+}
+
+.form-grid label.checkbox-field {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+  accent-color: #1f6feb;
 }
 
 .task-action-form {
@@ -1265,12 +1353,8 @@ tbody tr:hover {
     grid-column: auto;
   }
 
-  .due-row {
+  .priority-lanes {
     grid-template-columns: 1fr;
-  }
-
-  .due-meta {
-    justify-content: flex-start;
   }
 
   .fit-button,

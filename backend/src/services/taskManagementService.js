@@ -42,6 +42,7 @@ export const createAdminTask = async ({ adminId, payload }) => {
     domain: payload.domain,
     clientName: payload.clientName,
     status: TASK_STATUSES.PENDING,
+    isHighPriority: payload.isHighPriority ?? false,
     assignedDate: today,
     dueDate: toDateOnly(payload.dueDate),
     assignedEmployeeId: payload.employeeId,
@@ -56,6 +57,8 @@ export const listAdminTasks = async ({ adminId, filters = {} }) => {
   const normalizedFilters = {
     ...filters,
     date: filters.date ? toDateOnly(filters.date) : undefined,
+    isHighPriority:
+      filters.isHighPriority === undefined ? undefined : filters.isHighPriority === 'true',
     today
   };
   const tasks = await listTasksByAdmin({ adminId, filters: normalizedFilters });
@@ -104,6 +107,10 @@ export const updateAdminTask = async ({ adminId, taskId, payload }) => {
     data.status = payload.status;
   }
 
+  if (payload.isHighPriority !== undefined) {
+    data.isHighPriority = payload.isHighPriority;
+  }
+
   const task = await updateTask({ id: taskId, data });
 
   return serializeTask(task, today);
@@ -122,11 +129,16 @@ const createStatusSummary = () => ({
   pendingTasks: 0,
   completedTasks: 0,
   notDoneTasks: 0,
-  delayedTasks: 0
+  delayedTasks: 0,
+  highPriorityTasks: 0
 });
 
-const incrementStatusSummary = (summary, effectiveStatus) => {
+const incrementStatusSummary = (summary, task, effectiveStatus) => {
   summary.totalTasks += 1;
+
+  if (task.isHighPriority) {
+    summary.highPriorityTasks += 1;
+  }
 
   if (effectiveStatus === TASK_STATUSES.PENDING) {
     summary.pendingTasks += 1;
@@ -154,7 +166,7 @@ const incrementGroup = (groups, key, label, task, today) => {
     });
   }
 
-  incrementStatusSummary(groups.get(key), getEffectiveTaskStatus(task, today));
+  incrementStatusSummary(groups.get(key), task, getEffectiveTaskStatus(task, today));
 };
 
 export const getAdminStats = async ({ adminId }) => {
@@ -166,7 +178,7 @@ export const getAdminStats = async ({ adminId }) => {
 
   tasks.forEach((task) => {
     const effectiveStatus = getEffectiveTaskStatus(task, today);
-    incrementStatusSummary(summary, effectiveStatus);
+    incrementStatusSummary(summary, task, effectiveStatus);
     incrementGroup(clientGroups, task.clientName, task.clientName, task, today);
     const employeeLabel = task.assignedEmployee?.name ?? 'Unknown';
     incrementGroup(employeeGroups, task.assignedEmployeeId, employeeLabel, task, today);

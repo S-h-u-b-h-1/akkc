@@ -28,6 +28,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
           <thead>
             <tr>
               <th>Assignment</th>
+              <th>Priority</th>
               <th>Service line</th>
               <th>Client / entity</th>
               <th>Staff member</th>
@@ -40,7 +41,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="8" className="empty-cell">
+                <td colSpan="9" className="empty-cell">
                   Loading tasks...
                 </td>
               </tr>
@@ -48,7 +49,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
 
             {!isLoading && tasks.length === 0 ? (
               <tr>
-                <td colSpan="8" className="empty-cell">
+                <td colSpan="9" className="empty-cell">
                   No assignments match the current view.
                 </td>
               </tr>
@@ -59,6 +60,11 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
                   <tr key={task.id}>
                     <td className="primary-cell" data-label="Assignment">
                       {task.title}
+                    </td>
+                    <td data-label="Priority">
+                      <span className={`priority-pill ${task.isHighPriority ? 'high' : 'standard'}`}>
+                        {task.isHighPriority ? 'High' : 'Standard'}
+                      </span>
                     </td>
                     <td data-label="Service line">{task.domain}</td>
                     <td data-label="Client / entity">{task.clientName}</td>

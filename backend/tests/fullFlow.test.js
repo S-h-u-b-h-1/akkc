@@ -183,6 +183,10 @@ const createMockPrismaClient = () => {
 
   const sortTasks = (tasks) =>
     [...tasks].sort((left, right) => {
+      if (left.isHighPriority !== right.isHighPriority) {
+        return left.isHighPriority ? -1 : 1;
+      }
+
       const dueDateDifference = new Date(left.dueDate).getTime() - new Date(right.dueDate).getTime();
 
       if (dueDateDifference !== 0) {
@@ -260,6 +264,7 @@ const createMockPrismaClient = () => {
       create: async ({ data }) => {
         const task = {
           id: randomUUID(),
+          isHighPriority: false,
           ...data,
           createdAt: now(),
           updatedAt: now()
@@ -395,11 +400,13 @@ test('complete admin and employee task management flow', async () => {
       title: 'Prepare homepage QA notes',
       domain: 'Design',
       clientName: 'Acme',
-      dueDate: futureDate
+      dueDate: futureDate,
+      isHighPriority: true
     })
     .expect(201);
   const pendingTask = pendingTaskCreate.body.data.task;
   assert.equal(pendingTask.status, TASK_STATUSES.PENDING);
+  assert.equal(pendingTask.isHighPriority, true);
 
   const delayedTaskCreate = await request(app)
     .post('/api/admin/tasks')
@@ -436,6 +443,15 @@ test('complete admin and employee task management flow', async () => {
 
   const allTasks = await request(app).get('/api/admin/tasks').set(authHeader(adminToken)).expect(200);
   assert.equal(allTasks.body.data.tasks.length, 3);
+  assert.equal(allTasks.body.data.tasks[0].id, pendingTask.id);
+
+  const highPriorityTasks = await request(app)
+    .get('/api/admin/tasks')
+    .query({ isHighPriority: 'true' })
+    .set(authHeader(adminToken))
+    .expect(200);
+  assert.equal(highPriorityTasks.body.data.tasks.length, 1);
+  assert.equal(highPriorityTasks.body.data.tasks[0].id, pendingTask.id);
 
   const pendingTasks = await request(app)
     .get('/api/admin/tasks')
@@ -478,6 +494,7 @@ test('complete admin and employee task management flow', async () => {
   assert.equal(initialStats.body.data.stats.totalTasks, 3);
   assert.equal(initialStats.body.data.stats.pendingTasks, 2);
   assert.equal(initialStats.body.data.stats.delayedTasks, 1);
+  assert.equal(initialStats.body.data.stats.highPriorityTasks, 1);
   assert.equal(initialStats.body.data.stats.tasksByClient.length, 2);
   assert.equal(initialStats.body.data.stats.tasksByEmployee.length, 2);
 
@@ -499,6 +516,7 @@ test('complete admin and employee task management flow', async () => {
 
   const employeeTasks = await request(app).get('/api/employee/tasks').set(authHeader(employeeToken)).expect(200);
   assert.equal(employeeTasks.body.data.tasks.length, 2);
+  assert.equal(employeeTasks.body.data.tasks[0].isHighPriority, true);
   assert.equal(employeeTasks.body.data.tasks.some((task) => task.id === secondEmployeeTask.id), false);
 
   await request(app)
@@ -550,11 +568,13 @@ test('complete admin and employee task management flow', async () => {
       domain: 'Engineering',
       clientName: 'Acme Global',
       dueDate: addDays(5),
-      status: TASK_STATUSES.PENDING
+      status: TASK_STATUSES.PENDING,
+      isHighPriority: false
     })
     .expect(200);
   assert.equal(editedTask.body.data.task.title, 'Build Acme export v2');
   assert.equal(editedTask.body.data.task.clientName, 'Acme Global');
+  assert.equal(editedTask.body.data.task.isHighPriority, false);
 
   await request(app).delete(`/api/admin/employees/${secondEmployee.id}`).set(authHeader(adminToken)).expect(200);
   const employeesAfterDelete = await request(app).get('/api/admin/employees').set(authHeader(adminToken)).expect(200);

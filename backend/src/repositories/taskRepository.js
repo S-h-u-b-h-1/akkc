@@ -7,6 +7,7 @@ const taskSelect = Object.freeze({
   domain: true,
   clientName: true,
   status: true,
+  isHighPriority: true,
   assignedDate: true,
   dueDate: true,
   assignedEmployeeId: true,
@@ -61,6 +62,10 @@ const buildAdminTaskWhere = (adminId, filters = {}) => {
     where.assignedEmployeeId = filters.employeeId;
   }
 
+  if (filters.isHighPriority !== undefined) {
+    where.isHighPriority = filters.isHighPriority;
+  }
+
   if (filters.date) {
     where.dueDate = filters.date;
   }
@@ -92,6 +97,7 @@ export const createTask = ({
   domain,
   clientName,
   status,
+  isHighPriority,
   assignedDate,
   dueDate,
   assignedEmployeeId,
@@ -103,6 +109,7 @@ export const createTask = ({
       domain,
       clientName,
       status,
+      isHighPriority,
       assignedDate,
       dueDate,
       assignedEmployeeId,
@@ -114,7 +121,7 @@ export const createTask = ({
 export const listTasksByAdmin = ({ adminId, filters }) =>
   getPrisma().task.findMany({
     where: buildAdminTaskWhere(adminId, filters),
-    orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+    orderBy: [{ isHighPriority: 'desc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
     select: taskSelect
   });
 
@@ -132,7 +139,7 @@ export const listTasksByEmployee = (employeeId) =>
     where: {
       assignedEmployeeId: employeeId
     },
-    orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+    orderBy: [{ isHighPriority: 'desc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
     select: taskSelect
   });
 

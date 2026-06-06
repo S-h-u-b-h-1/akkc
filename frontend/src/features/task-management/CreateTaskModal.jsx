@@ -9,7 +9,8 @@ const initialForm = {
   title: '',
   domain: '',
   clientName: '',
-  dueDate: ''
+  dueDate: '',
+  isHighPriority: false
 };
 
 export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
@@ -22,9 +23,11 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
   }
 
   const updateField = (event) => {
+    const { checked, name, type, value } = event.target;
+
     setForm({
       ...form,
-      [event.target.name]: event.target.value
+      [name]: type === 'checkbox' ? checked : value
     });
   };
 
@@ -53,7 +56,8 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
         title: form.title,
         domain: form.domain,
         clientName: form.clientName,
-        dueDate: form.dueDate
+        dueDate: form.dueDate,
+        isHighPriority: form.isHighPriority
       };
       await onSubmit(payload);
       setForm(initialForm);
@@ -128,6 +132,16 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
           <label>
             <span>Due date</span>
             <input name="dueDate" type="date" value={form.dueDate} onChange={updateField} required />
+          </label>
+
+          <label className="checkbox-field">
+            <input
+              checked={form.isHighPriority}
+              name="isHighPriority"
+              type="checkbox"
+              onChange={updateField}
+            />
+            <span>Mark as high priority</span>
           </label>
 
           {error ? <p className="form-error">{error}</p> : null}

@@ -11,7 +11,8 @@ const createFormState = (task) => ({
   domain: task.domain ?? '',
   clientName: task.clientName ?? '',
   dueDate: toDateInputValue(task.dueDate),
-  status: task.storedStatus ?? task.status
+  status: task.storedStatus ?? task.status,
+  isHighPriority: Boolean(task.isHighPriority)
 });
 
 export function EditTaskModal({ employees, onClose, onSubmit, task }) {
@@ -23,9 +24,11 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
     : [form.domain, ...CA_SERVICE_LINES].filter(Boolean);
 
   const updateField = (event) => {
+    const { checked, name, type, value } = event.target;
+
     setForm({
       ...form,
-      [event.target.name]: event.target.value
+      [name]: type === 'checkbox' ? checked : value
     });
   };
 
@@ -104,6 +107,16 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
           <label>
             <span>Due date</span>
             <input name="dueDate" type="date" value={form.dueDate} onChange={updateField} required />
+          </label>
+
+          <label className="checkbox-field">
+            <input
+              checked={form.isHighPriority}
+              name="isHighPriority"
+              type="checkbox"
+              onChange={updateField}
+            />
+            <span>High priority assignment</span>
           </label>
 
           {error ? <p className="form-error">{error}</p> : null}

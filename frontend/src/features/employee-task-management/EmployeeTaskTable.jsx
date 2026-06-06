@@ -22,6 +22,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
           <thead>
             <tr>
               <th>Assignment</th>
+              <th>Priority</th>
               <th>Service line</th>
               <th>Client / entity</th>
               <th>Status</th>
@@ -32,7 +33,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="6" className="empty-cell">
+                <td colSpan="7" className="empty-cell">
                   Loading assigned work...
                 </td>
               </tr>
@@ -40,7 +41,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
 
             {!isLoading && tasks.length === 0 ? (
               <tr>
-                <td colSpan="6" className="empty-cell">
+                <td colSpan="7" className="empty-cell">
                   No client work is assigned to you right now.
                 </td>
               </tr>
@@ -51,6 +52,11 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
                   <tr key={task.id}>
                     <td className="primary-cell" data-label="Assignment">
                       {task.title}
+                    </td>
+                    <td data-label="Priority">
+                      <span className={`priority-pill ${task.isHighPriority ? 'high' : 'standard'}`}>
+                        {task.isHighPriority ? 'High' : 'Standard'}
+                      </span>
                     </td>
                     <td data-label="Service line">{task.domain}</td>
                     <td data-label="Client / entity">{task.clientName}</td>

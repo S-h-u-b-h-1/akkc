@@ -41,7 +41,8 @@ const initialFilters = {
   status: '',
   clientName: '',
   employeeId: '',
-  date: ''
+  date: '',
+  isHighPriority: ''
 };
 
 export function AdminDashboard() {

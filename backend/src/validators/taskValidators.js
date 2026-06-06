@@ -14,7 +14,8 @@ export const createTaskSchema = z.object({
       title: z.string().trim().min(2).max(180),
       domain: z.string().trim().min(1).max(120),
       clientName: z.string().trim().min(1).max(160),
-      dueDate: date
+      dueDate: date,
+      isHighPriority: z.boolean().optional()
     })
     .strict(),
   params: z.object({}).optional(),
@@ -29,7 +30,8 @@ export const listTasksSchema = z.object({
       status: status.optional(),
       clientName: z.string().trim().min(1).max(160).optional(),
       employeeId: employeeId.optional(),
-      date: date.optional()
+      date: date.optional(),
+      isHighPriority: z.enum(['true', 'false']).optional()
     })
     .strict()
     .optional()
@@ -51,7 +53,8 @@ export const updateTaskSchema = z.object({
       domain: z.string().trim().min(1).max(120).optional(),
       clientName: z.string().trim().min(1).max(160).optional(),
       dueDate: date.optional(),
-      status: status.optional()
+      status: status.optional(),
+      isHighPriority: z.boolean().optional()
     })
     .strict()
     .refine((body) => Object.values(body).some((value) => value !== undefined), {

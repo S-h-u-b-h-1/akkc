@@ -1,6 +1,6 @@
 import { Filter, RotateCcw } from 'lucide-react';
 
-import { TASK_STATUS_OPTIONS } from '../../constants/task.js';
+import { TASK_PRIORITY_FILTER_OPTIONS, TASK_STATUS_OPTIONS } from '../../constants/task.js';
 
 export function TaskFilters({ employees, filters, onChange, onReset }) {
   const updateFilter = (event) => {
@@ -56,6 +56,17 @@ export function TaskFilters({ employees, filters, onChange, onReset }) {
         <label>
           <span>Due date</span>
           <input name="date" type="date" value={filters.date} onChange={updateFilter} />
+        </label>
+
+        <label>
+          <span>Priority</span>
+          <select name="isHighPriority" value={filters.isHighPriority} onChange={updateFilter}>
+            {TASK_PRIORITY_FILTER_OPTIONS.map((priority) => (
+              <option key={priority.value} value={priority.value}>
+                {priority.label}
+              </option>
+            ))}
+          </select>
         </label>
       </div>
 
