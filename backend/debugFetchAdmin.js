@@ -7,7 +7,7 @@ async function main() {
     where: { email: 'admin@akkataruka.com' },
     // include passwordHash
   });
-  console.log('Admin record:', admin);
+  console.info('Admin record:', admin);
 }
 
 main()

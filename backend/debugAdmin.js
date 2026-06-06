@@ -1,5 +1,4 @@
 import { getPrisma } from './src/prisma/client.js';
-import { env } from './src/config/env.js';
 import 'dotenv/config';
 
 (async () => {
@@ -8,7 +7,7 @@ import 'dotenv/config';
       where: { email: 'admin@akkataruka.com' },
       select: { id: true, email: true, passwordHash: true, name: true }
     });
-    console.log('Admin record:', admin);
+    console.info('Admin record:', admin);
   } catch (e) {
     console.error('Error fetching admin:', e);
   }
