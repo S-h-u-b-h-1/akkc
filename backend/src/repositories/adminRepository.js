@@ -10,7 +10,8 @@ const publicAdminSelect = Object.freeze({
 
 export const findAdminByEmail = (email) =>
   getPrisma().admin.findUnique({
-    where: { email }
+    where: { email },
+    select: { passwordHash: true, ...publicAdminSelect }
   });
 
 export const findAdminById = (id) =>
