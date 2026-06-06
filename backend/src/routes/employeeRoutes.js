@@ -5,7 +5,7 @@ import { listTasks, markDone, markNotDone } from '../controllers/employeeTaskCon
 import { authenticate, employeeOnly } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { loginSchema } from '../validators/authValidators.js';
+import { employeeLoginSchema } from '../validators/authValidators.js';
 import {
   listEmployeeTasksSchema,
   markTaskDoneSchema,
@@ -14,7 +14,7 @@ import {
 
 const router = Router();
 
-router.post('/login', validateRequest(loginSchema), asyncHandler(login));
+router.post('/login', validateRequest(employeeLoginSchema), asyncHandler(login));
 router.get(
   '/tasks',
   authenticate,

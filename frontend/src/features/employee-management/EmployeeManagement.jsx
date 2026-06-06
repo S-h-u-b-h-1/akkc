@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 const initialForm = {
   name: '',
-  email: '',
+  username: '',
   password: '',
   department: ''
 };
@@ -28,7 +28,7 @@ export function EmployeeManagement({ employees, onCreateEmployee }) {
     try {
       const payload = {
         name: form.name,
-        email: form.email,
+        username: form.username,
         password: form.password,
         department: form.department || null
       };
@@ -46,8 +46,8 @@ export function EmployeeManagement({ employees, onCreateEmployee }) {
     <section className="content-panel employee-panel">
       <div className="panel-header">
         <div>
-          <p className="eyebrow">Team access</p>
-          <h2>Employee management</h2>
+          <p className="eyebrow">Firm team</p>
+          <h2>Staff credential management</h2>
         </div>
       </div>
 
@@ -58,8 +58,8 @@ export function EmployeeManagement({ employees, onCreateEmployee }) {
         </label>
 
         <label>
-          <span>Email</span>
-          <input name="email" type="email" value={form.email} onChange={updateField} required />
+          <span>Username</span>
+          <input name="username" value={form.username} onChange={updateField} required />
         </label>
 
         <label>
@@ -75,7 +75,7 @@ export function EmployeeManagement({ employees, onCreateEmployee }) {
         </label>
 
         <label>
-          <span>Department</span>
+          <span>Practice area</span>
           <input name="department" value={form.department} onChange={updateField} />
         </label>
 
@@ -83,22 +83,22 @@ export function EmployeeManagement({ employees, onCreateEmployee }) {
 
         <button className="primary-button fit-button" type="submit" disabled={isSubmitting}>
           <UserPlus size={17} aria-hidden="true" />
-          <span>{isSubmitting ? 'Creating...' : 'Create credentials'}</span>
+          <span>{isSubmitting ? 'Creating...' : 'Create staff login'}</span>
         </button>
       </form>
 
       <div className="employee-list">
         {employees.length === 0 ? (
-          <p className="empty-note">No employees have been created yet.</p>
+          <p className="empty-note">No staff credentials have been created yet.</p>
         ) : null}
 
         {employees.map((employee) => (
           <article className="employee-row" key={employee.id}>
             <div>
               <strong>{employee.name}</strong>
-              <span>{employee.email}</span>
+              <span>@{employee.username}</span>
             </div>
-            <small>{employee.department ?? 'No department'}</small>
+            <small>{employee.department ?? 'No practice area'}</small>
           </article>
         ))}
       </div>

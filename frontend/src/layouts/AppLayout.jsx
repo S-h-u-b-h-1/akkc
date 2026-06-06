@@ -1,19 +1,20 @@
 import { ClipboardList, LayoutDashboard, LogOut, Users } from 'lucide-react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
+import { FIRM } from '../constants/firm.js';
 import { ROUTES, USER_ROLES } from '../constants/routes.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { getLoginRouteForRole } from '../utils/authRedirects.js';
 
 const adminNavigationItems = [
   { label: 'Dashboard', to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { label: 'Employees', to: ROUTES.ADMIN_EMPLOYEES, icon: Users },
-  { label: 'Tasks', to: ROUTES.ADMIN_TASKS, icon: ClipboardList }
+  { label: 'Team', to: ROUTES.ADMIN_EMPLOYEES, icon: Users },
+  { label: 'Assignments', to: ROUTES.ADMIN_TASKS, icon: ClipboardList }
 ];
 
 const employeeNavigationItems = [
   { label: 'Dashboard', to: ROUTES.EMPLOYEE_DASHBOARD, icon: LayoutDashboard },
-  { label: 'My tasks', to: ROUTES.EMPLOYEE_TASKS, icon: ClipboardList }
+  { label: 'My work', to: ROUTES.EMPLOYEE_TASKS, icon: ClipboardList }
 ];
 
 export function AppLayout() {
@@ -31,16 +32,16 @@ export function AppLayout() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand-block">
-          <span className="brand-mark">ET</span>
+          <span className="brand-mark">AK</span>
           <div>
-            <p className="brand-name">Employee Tasks</p>
-            <p className="brand-caption">{role === USER_ROLES.ADMIN ? 'Admin' : 'Employee'}</p>
+            <p className="brand-name">{FIRM.SHORT_NAME}</p>
+            <p className="brand-caption">{role === USER_ROLES.ADMIN ? 'Admin' : 'Staff'}</p>
           </div>
         </div>
 
         <div className="sidebar-user">
           <span>{user?.name ?? 'Signed in'}</span>
-          <small>{user?.email}</small>
+          <small>{user?.email ?? (user?.username ? `@${user.username}` : FIRM.TAGLINE)}</small>
         </div>
 
         <nav className="sidebar-nav" aria-label="Primary navigation">

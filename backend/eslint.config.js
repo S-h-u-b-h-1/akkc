@@ -7,7 +7,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ['src/**/*.js', 'tests/**/*.js', 'prisma/**/*.js'],
+    files: ['*.js', 'src/**/*.js', 'tests/**/*.js', 'prisma/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

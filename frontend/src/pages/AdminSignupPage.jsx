@@ -6,12 +6,12 @@ export function AdminSignupPage() {
   return (
     <AuthForm
       alternateLink={{ label: 'Already have an admin account?', to: ROUTES.ADMIN_LOGIN }}
-      eyebrow="Admin setup"
+      eyebrow="Firm administrator setup"
       includeName
       onSubmit={adminSignup}
       role={USER_ROLES.ADMIN}
-      submitLabel="Create admin account"
-      title="Admin sign up"
+      submitLabel="Create firm admin"
+      title="Create admin account"
     />
   );
 }

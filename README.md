@@ -1,6 +1,6 @@
-# Employee Daily Task Management System
+# A K Kataruka and Company Work Desk
 
-Production-grade full-stack Employee Daily Task Management System with separate React/Vite frontend and Node.js/Express/Prisma backend.
+Full-stack practice work desk for A K Kataruka and Company, Chartered Accountants. The app separates firm administrators from staff members and helps manage daily client assignments across audit, GST, income tax, TDS, company law, accounting review, and document follow-up workflows.
 
 ## Project Structure
 
@@ -46,7 +46,7 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-Start the complete app from the repository root after environment variables are configured:
+Start the complete app from the repository root:
 
 ```bash
 npm run dev
@@ -83,10 +83,38 @@ JWT_SECRET="replace-with-a-long-random-secret"
 JWT_EXPIRES_IN=1d
 ```
 
+For production, set `CORS_ORIGIN` to the deployed frontend URL, for example:
+
+```text
+CORS_ORIGIN=https://akkc-eight.vercel.app
+```
+
 Frontend variables are defined in `frontend/.env.example`:
 
 ```text
 VITE_API_BASE_URL=http://localhost:5001/api
+```
+
+For production, set:
+
+```text
+VITE_API_BASE_URL=https://akkc.onrender.com/api
+```
+
+## Authentication
+
+- Admins sign up and log in with email and password.
+- Staff members do not sign up themselves.
+- Admins create staff credentials with username and password.
+- Staff members log in with username and password.
+- JWT tokens include user id and role.
+
+Seed credentials:
+
+```text
+Admin: admin@akkataruka.com / Admin@12345
+Staff usernames: audit.associate, tax.associate, gst.associate
+Staff password: Employee@12345
 ```
 
 ## Application Routes
@@ -97,12 +125,12 @@ VITE_API_BASE_URL=http://localhost:5001/api
 /                    Landing page
 /admin/login         Admin login
 /admin/signup        Admin signup
-/admin/dashboard     Admin dashboard
-/admin/employees     Admin dashboard employee section
-/admin/tasks         Admin dashboard task section
-/employee/login      Employee login
-/employee/dashboard  Employee assigned tasks
-/employee/tasks      Employee assigned tasks
+/admin/dashboard     Practice dashboard
+/admin/employees     Staff credential management
+/admin/tasks         Client assignments
+/employee/login      Staff login
+/employee/dashboard  Staff dashboard
+/employee/tasks      Staff assigned work
 ```
 
 ### Backend API
@@ -132,20 +160,27 @@ PUT /api/employee/tasks/:id/done
 PUT /api/employee/tasks/:id/not-done
 ```
 
+## Deployment Notes
+
+- Backend Render URL: `https://akkc.onrender.com`
+- Frontend Vercel URL: `https://akkc-eight.vercel.app/`
+- `frontend/vercel.json` rewrites all frontend routes to `index.html` so refreshing protected React routes does not return a Vercel 404.
+- If the Vercel project root is the repository root, set the build output to `frontend/dist` or deploy with the frontend folder as the Vercel root directory.
+
 ## Test Coverage
 
 Backend route tests cover:
 
 - Authentication guards and validation
 - Admin signup/login and `/api/auth/me`
-- Employee login
+- Staff username login
 - Admin employee create/list/update/delete
-- Admin task create/list/detail/update/delete
-- Task filters by status, client, employee, and date
+- Admin assignment create/list/detail/update/delete
+- Assignment filters by status, client, staff member, and date
 - Admin stats updates
-- Employee assigned-task visibility
-- Employee done/not-done updates with required remark/reason
-- Role restrictions for admin-only and employee-only routes
+- Staff assigned-work visibility
+- Staff done/not-done updates with required completion note/reason
+- Role restrictions for admin-only and staff-only routes
 
 Run tests:
 
@@ -159,4 +194,4 @@ npm test
 - Use `DATABASE_URL` from `backend/.env`.
 - Use a strong `JWT_SECRET` in local and production environments.
 - Never commit `.env`, secrets, tokens, or database dumps.
-- Employees cannot sign up themselves; admins create employee credentials.
+- Staff members cannot sign up themselves; admins create staff credentials.

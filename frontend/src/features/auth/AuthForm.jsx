@@ -7,6 +7,12 @@ import { getDashboardRouteForRole } from '../../utils/authRedirects.js';
 
 export function AuthForm({
   alternateLink,
+  credentialField = {
+    autoComplete: 'email',
+    label: 'Email address',
+    name: 'email',
+    type: 'email'
+  },
   eyebrow,
   includeName = false,
   onSubmit,
@@ -35,7 +41,7 @@ export function AuthForm({
 
     const formData = new FormData(event.currentTarget);
     const payload = {
-      email: String(formData.get('email') ?? '').trim(),
+      [credentialField.name]: String(formData.get(credentialField.name) ?? '').trim(),
       password: String(formData.get('password') ?? '')
     };
 
@@ -90,8 +96,13 @@ export function AuthForm({
           ) : null}
 
           <label>
-            <span>Email address</span>
-            <input name="email" type="email" autoComplete="email" required />
+            <span>{credentialField.label}</span>
+            <input
+              name={credentialField.name}
+              type={credentialField.type}
+              autoComplete={credentialField.autoComplete}
+              required
+            />
           </label>
 
           <label>

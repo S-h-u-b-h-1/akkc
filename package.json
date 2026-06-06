@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Full-stack Employee Daily Task Management System.",
+  "description": "Full-stack practice work desk for A K Kataruka and Company.",
   "workspaces": [
     "backend",
     "frontend"

@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, Clock3, ClipboardList, XCircle } from 'lucide-react';
 
 const statCards = [
-  { key: 'totalTasks', label: 'Total assigned', icon: ClipboardList, tone: 'blue' },
+  { key: 'totalTasks', label: 'Total assignments', icon: ClipboardList, tone: 'blue' },
   { key: 'pendingTasks', label: 'Pending', icon: Clock3, tone: 'amber' },
   { key: 'completedTasks', label: 'Completed', icon: CheckCircle2, tone: 'green' },
   { key: 'notDoneTasks', label: 'Not done', icon: XCircle, tone: 'red' },

@@ -73,6 +73,7 @@ const createMockPrismaClient = () => {
     selectedRecord(employee, {
       id: true,
       name: true,
+      username: true,
       email: true,
       department: true,
       createdByAdminId: true,
@@ -95,6 +96,7 @@ const createMockPrismaClient = () => {
         ? {
             id: employee.id,
             name: employee.name,
+            username: employee.username,
             email: employee.email
           }
         : null
@@ -114,6 +116,7 @@ const createMockPrismaClient = () => {
         ? {
             id: employee.id,
             name: employee.name,
+            username: employee.username,
             email: employee.email,
             department: employee.department
           }
@@ -214,7 +217,11 @@ const createMockPrismaClient = () => {
     employee: {
       findUnique: async ({ where, select }) => {
         const employee = store.employees.find((candidate) =>
-          where.email ? candidate.email === where.email : candidate.id === where.id
+          where.email
+            ? candidate.email === where.email
+            : where.username
+              ? candidate.username === where.username
+              : candidate.id === where.id
         );
 
         return selectedRecord(employee, select);
@@ -334,12 +341,14 @@ test('complete admin and employee task management flow', async () => {
     .send({
       name: 'Jane Employee',
       email: 'jane.flow@example.com',
+      username: 'jane.audit',
       password: 'EmployeePass123',
       department: 'Design'
     })
     .expect(201);
   const employee = employeeCreate.body.data.employee;
   assert.equal(employee.passwordHash, undefined);
+  assert.equal(employee.username, 'jane.audit');
   assert.equal(employee.department, 'Design');
 
   const secondEmployeeCreate = await request(app)
@@ -348,6 +357,7 @@ test('complete admin and employee task management flow', async () => {
     .send({
       name: 'Alex Employee',
       email: 'alex.flow@example.com',
+      username: 'alex.tax',
       password: 'EmployeePass123',
       department: 'Development'
     })
@@ -359,7 +369,7 @@ test('complete admin and employee task management flow', async () => {
     .set(authHeader(adminToken))
     .send({
       name: 'Duplicate Employee',
-      email: 'jane.flow@example.com',
+      username: 'jane.audit',
       password: 'EmployeePass123'
     })
     .expect(409);
@@ -474,7 +484,7 @@ test('complete admin and employee task management flow', async () => {
   const employeeLogin = await request(app)
     .post('/api/employee/login')
     .send({
-      email: 'jane.flow@example.com',
+      username: 'jane.audit',
       password: 'EmployeePass123'
     })
     .expect(200);
@@ -482,7 +492,7 @@ test('complete admin and employee task management flow', async () => {
 
   const employeeMe = await request(app).get('/api/auth/me').set(authHeader(employeeToken)).expect(200);
   assert.equal(employeeMe.body.data.user.role, 'EMPLOYEE');
-  assert.equal(employeeMe.body.data.user.email, 'jane.flow@example.com');
+  assert.equal(employeeMe.body.data.user.username, 'jane.audit');
 
   await request(app).get('/api/admin/employees').set(authHeader(employeeToken)).expect(403);
   await request(app).get('/api/employee/tasks').set(authHeader(adminToken)).expect(403);

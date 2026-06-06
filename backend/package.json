@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Backend API for the Employee Daily Task Management System.",
+  "description": "Backend API for A K Kataruka and Company practice work desk.",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",

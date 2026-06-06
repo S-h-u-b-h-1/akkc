@@ -29,7 +29,8 @@ model Admin {
 model Employee {
   id               String       @id @default(uuid()) @db.Uuid
   name             String       @db.VarChar(120)
-  email            String       @unique @db.VarChar(255)
+  username         String       @unique @db.VarChar(60)
+  email            String?      @unique @db.VarChar(255)
   passwordHash     String       @db.VarChar(255)
   department       String?      @db.VarChar(120)
   createdByAdminId String       @db.Uuid

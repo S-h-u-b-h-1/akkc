@@ -12,8 +12,8 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
     <section className="content-panel" aria-busy={isLoading}>
       <div className="panel-header table-panel-header">
         <div>
-          <p className="eyebrow">Assigned work</p>
-          <h2>My tasks</h2>
+          <p className="eyebrow">Client assignments</p>
+          <h2>My work</h2>
         </div>
       </div>
 
@@ -21,9 +21,9 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
         <table>
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Domain</th>
-              <th>Client name</th>
+              <th>Assignment</th>
+              <th>Service line</th>
+              <th>Client / entity</th>
               <th>Status</th>
               <th>Due date</th>
               <th>Actions</th>
@@ -33,7 +33,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
             {isLoading ? (
               <tr>
                 <td colSpan="6" className="empty-cell">
-                  Loading assigned tasks...
+                  Loading assigned work...
                 </td>
               </tr>
             ) : null}
@@ -41,7 +41,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
             {!isLoading && tasks.length === 0 ? (
               <tr>
                 <td colSpan="6" className="empty-cell">
-                  No tasks are assigned to you right now.
+                  No client work is assigned to you right now.
                 </td>
               </tr>
             ) : null}

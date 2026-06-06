@@ -31,10 +31,10 @@ export function TaskFilters({ employees, filters, onChange, onReset }) {
         </label>
 
         <label>
-          <span>Client name</span>
+          <span>Client / entity</span>
           <input
             name="clientName"
-            placeholder="Search client"
+            placeholder="Search client or entity"
             type="search"
             value={filters.clientName}
             onChange={updateFilter}
@@ -42,9 +42,9 @@ export function TaskFilters({ employees, filters, onChange, onReset }) {
         </label>
 
         <label>
-          <span>Employee</span>
+          <span>Staff member</span>
           <select name="employeeId" value={filters.employeeId} onChange={updateFilter}>
-            <option value="">All employees</option>
+            <option value="">All staff</option>
             {employees.map((employee) => (
               <option key={employee.id} value={employee.id}>
                 {employee.name}

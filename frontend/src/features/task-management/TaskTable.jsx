@@ -18,8 +18,8 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
     <section className="content-panel" aria-busy={isLoading}>
       <div className="panel-header table-panel-header">
         <div>
-          <p className="eyebrow">Task queue</p>
-          <h2>Assigned tasks</h2>
+          <p className="eyebrow">Client work</p>
+          <h2>Assignments</h2>
         </div>
       </div>
 
@@ -27,12 +27,12 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
         <table>
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Domain</th>
-              <th>Client name</th>
-              <th>Assigned employee</th>
+              <th>Assignment</th>
+              <th>Service line</th>
+              <th>Client / entity</th>
+              <th>Staff member</th>
               <th>Status</th>
-              <th>Remarks / reason</th>
+              <th>Latest note / reason</th>
               <th>Due date</th>
               <th>Actions</th>
             </tr>
@@ -49,7 +49,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
             {!isLoading && tasks.length === 0 ? (
               <tr>
                 <td colSpan="8" className="empty-cell">
-                  No tasks match the current view.
+                  No assignments match the current view.
                 </td>
               </tr>
             ) : null}

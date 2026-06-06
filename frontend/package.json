@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Frontend app for the Employee Daily Task Management System.",
+  "description": "Frontend app for A K Kataruka and Company practice work desk.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

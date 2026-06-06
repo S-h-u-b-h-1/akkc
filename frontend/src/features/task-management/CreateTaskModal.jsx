@@ -1,6 +1,8 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
 
+import { CA_SERVICE_LINES } from '../../constants/firm.js';
+
 const initialForm = {
   employeeId: '',
   title: '',
@@ -46,8 +48,8 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
       <section className="modal-panel" role="dialog" aria-modal="true" aria-labelledby="create-task-title">
         <div className="modal-header">
           <div>
-            <p className="eyebrow">Task assignment</p>
-            <h2 id="create-task-title">Create task</h2>
+            <p className="eyebrow">Client work</p>
+            <h2 id="create-task-title">Create assignment</h2>
           </div>
           <button className="icon-button" type="button" aria-label="Close" onClick={onClose}>
             <X size={18} aria-hidden="true" />
@@ -56,9 +58,9 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
 
         <form className="form-grid" onSubmit={handleSubmit}>
           <label>
-            <span>Employee</span>
+            <span>Staff member</span>
             <select name="employeeId" value={form.employeeId} onChange={updateField} required>
-              <option value="">Select employee</option>
+              <option value="">Select staff member</option>
               {employees.map((employee) => (
                 <option key={employee.id} value={employee.id}>
                   {employee.name}
@@ -68,17 +70,24 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
           </label>
 
           <label>
-            <span>Title</span>
+            <span>Assignment title</span>
             <input name="title" value={form.title} onChange={updateField} required />
           </label>
 
           <label>
-            <span>Domain</span>
-            <input name="domain" value={form.domain} onChange={updateField} required />
+            <span>Service line</span>
+            <select name="domain" value={form.domain} onChange={updateField} required>
+              <option value="">Select service line</option>
+              {CA_SERVICE_LINES.map((serviceLine) => (
+                <option key={serviceLine} value={serviceLine}>
+                  {serviceLine}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label>
-            <span>Client name</span>
+            <span>Client / entity</span>
             <input name="clientName" value={form.clientName} onChange={updateField} required />
           </label>
 
@@ -94,7 +103,7 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
               Cancel
             </button>
             <button className="primary-button fit-button" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create task'}
+              {isSubmitting ? 'Creating...' : 'Create assignment'}
             </button>
           </div>
         </form>

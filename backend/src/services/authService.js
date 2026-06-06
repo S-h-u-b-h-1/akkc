@@ -1,6 +1,10 @@
 import { API_MESSAGES, HTTP_STATUS, USER_ROLES } from '../constants/api.js';
 import { createAdmin, findAdminByEmail, findAdminById } from '../repositories/adminRepository.js';
-import { findEmployeeByEmail, findEmployeeById } from '../repositories/employeeRepository.js';
+import {
+  findEmployeeByEmail,
+  findEmployeeById,
+  findEmployeeByUsername
+} from '../repositories/employeeRepository.js';
 import { AppError } from '../utils/appError.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import { signAuthToken } from '../utils/token.js';
@@ -55,8 +59,8 @@ export const loginAdmin = async ({ email, password }) => {
   });
 };
 
-export const loginEmployee = async ({ email, password }) => {
-  const employee = await findEmployeeByEmail(email);
+export const loginEmployee = async ({ username, password }) => {
+  const employee = await findEmployeeByUsername(username);
 
   if (!employee || employee.deletedAt || !(await verifyPassword(password, employee.passwordHash))) {
     throw new AppError(API_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
@@ -66,6 +70,7 @@ export const loginEmployee = async ({ email, password }) => {
     user: {
       id: employee.id,
       name: employee.name,
+      username: employee.username,
       email: employee.email,
       department: employee.department,
       createdByAdminId: employee.createdByAdminId,

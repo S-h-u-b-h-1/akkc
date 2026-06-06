@@ -6,10 +6,10 @@ export function AdminLoginPage() {
   return (
     <AuthForm
       alternateLink={{ label: 'Create an admin account', to: ROUTES.ADMIN_SIGNUP }}
-      eyebrow="Admin workspace"
+      eyebrow="A K Kataruka and Company"
       onSubmit={adminLogin}
       role={USER_ROLES.ADMIN}
-      submitLabel="Sign in as admin"
+      submitLabel="Sign in to firm dashboard"
       title="Admin sign in"
     />
   );

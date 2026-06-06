@@ -6,11 +6,17 @@ export function EmployeeLoginPage() {
   return (
     <AuthForm
       alternateLink={{ label: 'Admin sign in', to: ROUTES.ADMIN_LOGIN }}
-      eyebrow="Employee workspace"
+      credentialField={{
+        autoComplete: 'username',
+        label: 'Username',
+        name: 'username',
+        type: 'text'
+      }}
+      eyebrow="A K Kataruka and Company"
       onSubmit={employeeLogin}
       role={USER_ROLES.EMPLOYEE}
-      submitLabel="Sign in as employee"
-      title="Employee sign in"
+      submitLabel="Sign in to staff workspace"
+      title="Staff sign in"
     />
   );
 }

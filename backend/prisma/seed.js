@@ -16,15 +16,17 @@ const prisma = new PrismaClient({
 
 const ids = Object.freeze({
   admin: '2f5a6b4a-8dc5-4e9e-bd6f-b2f2a1a57a11',
-  employeeDesign: 'db27f099-a327-492e-a9f0-3513ab4c5b7e',
-  employeeEngineering: '5ab62f7c-3b8f-4944-9f27-63671a7f3e54',
-  employeeOperations: '66ab9d93-e537-4d80-a043-28c06ecda784',
-  taskPending: 'a20d7f12-b8e6-4681-84c6-f97d6f3d9c22',
-  taskCompleted: 'c76251bb-cf70-40e3-bcc4-7c071dcc62e9',
-  taskNotDone: 'e729f7de-7240-4927-a821-fbe4535afab8',
-  taskDelayed: '906092cb-fd02-4f4c-8e41-77848e655ef3',
-  completedUpdate: 'df1e8725-1360-4fb7-b17c-d8a899cd59c7',
-  notDoneUpdate: '7e41324c-d624-4e47-8fe9-744c8fd8cadb'
+  employeeAudit: 'db27f099-a327-492e-a9f0-3513ab4c5b7e',
+  employeeTax: '5ab62f7c-3b8f-4944-9f27-63671a7f3e54',
+  employeeGst: '66ab9d93-e537-4d80-a043-28c06ecda784',
+  taskGst: 'a20d7f12-b8e6-4681-84c6-f97d6f3d9c22',
+  taskAudit: 'c76251bb-cf70-40e3-bcc4-7c071dcc62e9',
+  taskTds: 'e729f7de-7240-4927-a821-fbe4535afab8',
+  taskRoc: '906092cb-fd02-4f4c-8e41-77848e655ef3',
+  taskItr: 'a61f93cd-2c26-4fa2-9a2b-2bd8da83928f',
+  taskBooks: 'f5215f72-28fb-40a1-b0a9-a61a71e36f29',
+  auditUpdate: 'df1e8725-1360-4fb7-b17c-d8a899cd59c7',
+  tdsUpdate: '7e41324c-d624-4e47-8fe9-744c8fd8cadb'
 });
 
 const daysFromToday = (days) => {
@@ -41,218 +43,277 @@ const main = async () => {
   ]);
 
   const admin = await prisma.admin.upsert({
-    where: { email: 'admin@akkc.local' },
+    where: { id: ids.admin },
     update: {
-      name: 'System Admin',
+      name: 'A K Kataruka Admin',
+      email: 'admin@akkataruka.com',
       passwordHash: adminPasswordHash
     },
     create: {
       id: ids.admin,
-      name: 'System Admin',
-      email: 'admin@akkc.local',
+      name: 'A K Kataruka Admin',
+      email: 'admin@akkataruka.com',
       passwordHash: adminPasswordHash
     }
   });
 
   const employees = await Promise.all([
     prisma.employee.upsert({
-      where: { email: 'aisha.design@akkc.local' },
+      where: { id: ids.employeeAudit },
       update: {
-        name: 'Aisha Mehta',
+        name: 'Kavita Sharma',
+        username: 'audit.associate',
+        email: 'kavita.audit@akkataruka.com',
         passwordHash: employeePasswordHash,
-        department: 'Design',
+        department: 'Audit & Assurance',
         createdByAdminId: admin.id,
         deletedAt: null
       },
       create: {
-        id: ids.employeeDesign,
-        name: 'Aisha Mehta',
-        email: 'aisha.design@akkc.local',
+        id: ids.employeeAudit,
+        name: 'Kavita Sharma',
+        username: 'audit.associate',
+        email: 'kavita.audit@akkataruka.com',
         passwordHash: employeePasswordHash,
-        department: 'Design',
+        department: 'Audit & Assurance',
         createdByAdminId: admin.id
       }
     }),
     prisma.employee.upsert({
-      where: { email: 'rohan.engineering@akkc.local' },
+      where: { id: ids.employeeTax },
       update: {
-        name: 'Rohan Iyer',
+        name: 'Arjun Mehta',
+        username: 'tax.associate',
+        email: 'arjun.tax@akkataruka.com',
         passwordHash: employeePasswordHash,
-        department: 'Engineering',
+        department: 'Income Tax',
         createdByAdminId: admin.id,
         deletedAt: null
       },
       create: {
-        id: ids.employeeEngineering,
-        name: 'Rohan Iyer',
-        email: 'rohan.engineering@akkc.local',
+        id: ids.employeeTax,
+        name: 'Arjun Mehta',
+        username: 'tax.associate',
+        email: 'arjun.tax@akkataruka.com',
         passwordHash: employeePasswordHash,
-        department: 'Engineering',
+        department: 'Income Tax',
         createdByAdminId: admin.id
       }
     }),
     prisma.employee.upsert({
-      where: { email: 'neha.operations@akkc.local' },
+      where: { id: ids.employeeGst },
       update: {
-        name: 'Neha Shah',
+        name: 'Meera Iyer',
+        username: 'gst.associate',
+        email: 'meera.gst@akkataruka.com',
         passwordHash: employeePasswordHash,
-        department: 'Operations',
+        department: 'GST & Indirect Tax',
         createdByAdminId: admin.id,
         deletedAt: null
       },
       create: {
-        id: ids.employeeOperations,
-        name: 'Neha Shah',
-        email: 'neha.operations@akkc.local',
+        id: ids.employeeGst,
+        name: 'Meera Iyer',
+        username: 'gst.associate',
+        email: 'meera.gst@akkataruka.com',
         passwordHash: employeePasswordHash,
-        department: 'Operations',
+        department: 'GST & Indirect Tax',
         createdByAdminId: admin.id
       }
     })
   ]);
 
-  const [designEmployee, engineeringEmployee, operationsEmployee] = employees;
+  const [auditEmployee, taxEmployee, gstEmployee] = employees;
 
   const tasks = await Promise.all([
     prisma.task.upsert({
-      where: { id: ids.taskPending },
+      where: { id: ids.taskGst },
       update: {
-        title: 'Prepare daily design handoff',
-        domain: 'Design',
-        clientName: 'Northstar Retail',
+        title: 'Reconcile GSTR-2B with purchase register',
+        domain: 'GST Compliance',
+        clientName: 'Khandelwal Industries Pvt Ltd',
         status: TaskStatus.PENDING,
         assignedDate: daysFromToday(0),
         dueDate: daysFromToday(1),
-        assignedEmployeeId: designEmployee.id,
+        assignedEmployeeId: gstEmployee.id,
         createdByAdminId: admin.id
       },
       create: {
-        id: ids.taskPending,
-        title: 'Prepare daily design handoff',
-        domain: 'Design',
-        clientName: 'Northstar Retail',
+        id: ids.taskGst,
+        title: 'Reconcile GSTR-2B with purchase register',
+        domain: 'GST Compliance',
+        clientName: 'Khandelwal Industries Pvt Ltd',
         status: TaskStatus.PENDING,
         assignedDate: daysFromToday(0),
         dueDate: daysFromToday(1),
-        assignedEmployeeId: designEmployee.id,
+        assignedEmployeeId: gstEmployee.id,
         createdByAdminId: admin.id
       }
     }),
     prisma.task.upsert({
-      where: { id: ids.taskCompleted },
+      where: { id: ids.taskAudit },
       update: {
-        title: 'Deploy attendance report endpoint',
-        domain: 'Engineering',
-        clientName: 'Acme Finance',
+        title: 'Finalize Form 3CD tax audit observations',
+        domain: 'Audit & Assurance',
+        clientName: 'Madhav Textiles LLP',
         status: TaskStatus.COMPLETED,
         assignedDate: daysFromToday(-2),
         dueDate: daysFromToday(0),
-        assignedEmployeeId: engineeringEmployee.id,
+        assignedEmployeeId: auditEmployee.id,
         createdByAdminId: admin.id
       },
       create: {
-        id: ids.taskCompleted,
-        title: 'Deploy attendance report endpoint',
-        domain: 'Engineering',
-        clientName: 'Acme Finance',
+        id: ids.taskAudit,
+        title: 'Finalize Form 3CD tax audit observations',
+        domain: 'Audit & Assurance',
+        clientName: 'Madhav Textiles LLP',
         status: TaskStatus.COMPLETED,
         assignedDate: daysFromToday(-2),
         dueDate: daysFromToday(0),
-        assignedEmployeeId: engineeringEmployee.id,
+        assignedEmployeeId: auditEmployee.id,
         createdByAdminId: admin.id
       }
     }),
     prisma.task.upsert({
-      where: { id: ids.taskNotDone },
+      where: { id: ids.taskTds },
       update: {
-        title: 'Collect vendor invoice confirmations',
-        domain: 'Operations',
-        clientName: 'Greenline Logistics',
+        title: 'Collect missing TDS challans for Q4 return',
+        domain: 'TDS Compliance',
+        clientName: 'Shree Logistics',
         status: TaskStatus.NOT_DONE,
         assignedDate: daysFromToday(-1),
         dueDate: daysFromToday(0),
-        assignedEmployeeId: operationsEmployee.id,
+        assignedEmployeeId: taxEmployee.id,
         createdByAdminId: admin.id
       },
       create: {
-        id: ids.taskNotDone,
-        title: 'Collect vendor invoice confirmations',
-        domain: 'Operations',
-        clientName: 'Greenline Logistics',
+        id: ids.taskTds,
+        title: 'Collect missing TDS challans for Q4 return',
+        domain: 'TDS Compliance',
+        clientName: 'Shree Logistics',
         status: TaskStatus.NOT_DONE,
         assignedDate: daysFromToday(-1),
         dueDate: daysFromToday(0),
-        assignedEmployeeId: operationsEmployee.id,
+        assignedEmployeeId: taxEmployee.id,
         createdByAdminId: admin.id
       }
     }),
     prisma.task.upsert({
-      where: { id: ids.taskDelayed },
+      where: { id: ids.taskRoc },
       update: {
-        title: 'Finalize weekly client summary',
-        domain: 'Operations',
-        clientName: 'BluePeak Services',
+        title: 'Prepare ROC annual filing checklist',
+        domain: 'Company Law',
+        clientName: 'Nirmal Foods Pvt Ltd',
         status: TaskStatus.DELAYED,
         assignedDate: daysFromToday(-4),
         dueDate: daysFromToday(-1),
-        assignedEmployeeId: operationsEmployee.id,
+        assignedEmployeeId: auditEmployee.id,
         createdByAdminId: admin.id
       },
       create: {
-        id: ids.taskDelayed,
-        title: 'Finalize weekly client summary',
-        domain: 'Operations',
-        clientName: 'BluePeak Services',
+        id: ids.taskRoc,
+        title: 'Prepare ROC annual filing checklist',
+        domain: 'Company Law',
+        clientName: 'Nirmal Foods Pvt Ltd',
         status: TaskStatus.DELAYED,
         assignedDate: daysFromToday(-4),
         dueDate: daysFromToday(-1),
-        assignedEmployeeId: operationsEmployee.id,
+        assignedEmployeeId: auditEmployee.id,
+        createdByAdminId: admin.id
+      }
+    }),
+    prisma.task.upsert({
+      where: { id: ids.taskItr },
+      update: {
+        title: 'Review documents for individual ITR filing',
+        domain: 'Income Tax',
+        clientName: 'Rohit Agarwal',
+        status: TaskStatus.PENDING,
+        assignedDate: daysFromToday(0),
+        dueDate: daysFromToday(3),
+        assignedEmployeeId: taxEmployee.id,
+        createdByAdminId: admin.id
+      },
+      create: {
+        id: ids.taskItr,
+        title: 'Review documents for individual ITR filing',
+        domain: 'Income Tax',
+        clientName: 'Rohit Agarwal',
+        status: TaskStatus.PENDING,
+        assignedDate: daysFromToday(0),
+        dueDate: daysFromToday(3),
+        assignedEmployeeId: taxEmployee.id,
+        createdByAdminId: admin.id
+      }
+    }),
+    prisma.task.upsert({
+      where: { id: ids.taskBooks },
+      update: {
+        title: 'Verify monthly books and bank reconciliation',
+        domain: 'Accounting Review',
+        clientName: 'Aarav Retail Stores',
+        status: TaskStatus.PENDING,
+        assignedDate: daysFromToday(0),
+        dueDate: daysFromToday(2),
+        assignedEmployeeId: gstEmployee.id,
+        createdByAdminId: admin.id
+      },
+      create: {
+        id: ids.taskBooks,
+        title: 'Verify monthly books and bank reconciliation',
+        domain: 'Accounting Review',
+        clientName: 'Aarav Retail Stores',
+        status: TaskStatus.PENDING,
+        assignedDate: daysFromToday(0),
+        dueDate: daysFromToday(2),
+        assignedEmployeeId: gstEmployee.id,
         createdByAdminId: admin.id
       }
     })
   ]);
 
-  const [, completedTask, notDoneTask] = tasks;
+  const [, auditTask, tdsTask] = tasks;
 
   await Promise.all([
     prisma.taskUpdate.upsert({
-      where: { id: ids.completedUpdate },
+      where: { id: ids.auditUpdate },
       update: {
-        taskId: completedTask.id,
-        employeeId: engineeringEmployee.id,
+        taskId: auditTask.id,
+        employeeId: auditEmployee.id,
         status: TaskStatus.COMPLETED,
-        remark: 'Endpoint deployed and smoke tested successfully.',
+        remark: 'Reviewed depreciation, GST turnover reconciliation, and clause-wise notes.',
         reason: null
       },
       create: {
-        id: ids.completedUpdate,
-        taskId: completedTask.id,
-        employeeId: engineeringEmployee.id,
+        id: ids.auditUpdate,
+        taskId: auditTask.id,
+        employeeId: auditEmployee.id,
         status: TaskStatus.COMPLETED,
-        remark: 'Endpoint deployed and smoke tested successfully.'
+        remark: 'Reviewed depreciation, GST turnover reconciliation, and clause-wise notes.'
       }
     }),
     prisma.taskUpdate.upsert({
-      where: { id: ids.notDoneUpdate },
+      where: { id: ids.tdsUpdate },
       update: {
-        taskId: notDoneTask.id,
-        employeeId: operationsEmployee.id,
+        taskId: tdsTask.id,
+        employeeId: taxEmployee.id,
         status: TaskStatus.NOT_DONE,
         remark: null,
-        reason: 'Two vendors have not confirmed invoice receipt yet.'
+        reason: 'Client has not shared two challans and one revised deductee detail.'
       },
       create: {
-        id: ids.notDoneUpdate,
-        taskId: notDoneTask.id,
-        employeeId: operationsEmployee.id,
+        id: ids.tdsUpdate,
+        taskId: tdsTask.id,
+        employeeId: taxEmployee.id,
         status: TaskStatus.NOT_DONE,
-        reason: 'Two vendors have not confirmed invoice receipt yet.'
+        reason: 'Client has not shared two challans and one revised deductee detail.'
       }
     })
   ]);
 
   console.info('Database seeded successfully.');
-  console.info('Admin login: admin@akkc.local / Admin@12345');
+  console.info('Admin login: admin@akkataruka.com / Admin@12345');
+  console.info('Employee usernames: audit.associate, tax.associate, gst.associate');
   console.info('Employee sample password: Employee@12345');
 };
 

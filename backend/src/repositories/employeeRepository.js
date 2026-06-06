@@ -3,6 +3,7 @@ import { getPrisma } from '../prisma/client.js';
 const publicEmployeeSelect = Object.freeze({
   id: true,
   name: true,
+  username: true,
   email: true,
   department: true,
   createdByAdminId: true,
@@ -14,6 +15,11 @@ const publicEmployeeSelect = Object.freeze({
 export const findEmployeeByEmail = (email) =>
   getPrisma().employee.findUnique({
     where: { email }
+  });
+
+export const findEmployeeByUsername = (username) =>
+  getPrisma().employee.findUnique({
+    where: { username }
   });
 
 export const findEmployeeById = (id) =>
@@ -44,10 +50,11 @@ export const listActiveEmployeesByAdmin = (adminId) =>
     select: publicEmployeeSelect
   });
 
-export const createEmployee = ({ name, email, passwordHash, department, createdByAdminId }) =>
+export const createEmployee = ({ name, username, email, passwordHash, department, createdByAdminId }) =>
   getPrisma().employee.create({
     data: {
       name,
+      username,
       email,
       passwordHash,
       department,

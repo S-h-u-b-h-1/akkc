@@ -137,12 +137,12 @@ export function AdminDashboard() {
 
   const getHeaderDetails = () => {
     if (isEmployeesRoute) {
-      return { eyebrow: 'Team access', title: 'Employee management' };
+      return { eyebrow: 'Firm team', title: 'Staff credential management' };
     }
     if (isTasksRoute) {
-      return { eyebrow: 'Task queue', title: 'Assigned tasks' };
+      return { eyebrow: 'Client work', title: 'Assignments' };
     }
-    return { eyebrow: 'Admin operations', title: 'Dashboard overview' };
+    return { eyebrow: 'A K Kataruka and Company', title: 'Practice dashboard' };
   };
 
   const header = getHeaderDetails();
@@ -157,7 +157,7 @@ export function AdminDashboard() {
         {isTasksRoute ? (
           <button className="primary-button fit-button" type="button" onClick={() => setIsCreateTaskOpen(true)}>
             <Plus size={18} aria-hidden="true" />
-            <span>Create task</span>
+            <span>Create assignment</span>
           </button>
         ) : null}
       </div>

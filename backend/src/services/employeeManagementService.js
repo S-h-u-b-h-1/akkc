@@ -4,6 +4,7 @@ import {
   createEmployee,
   findActiveEmployeeByAdmin,
   findEmployeeByEmail,
+  findEmployeeByUsername,
   listActiveEmployeesByAdmin,
   softDeleteEmployee,
   updateEmployee
@@ -11,9 +12,13 @@ import {
 import { AppError } from '../utils/appError.js';
 import { hashPassword } from '../utils/password.js';
 
-const normalizeDepartment = ({ department, domain }) => {
+const normalizeDepartment = ({ department, domain, practiceArea }) => {
   if (department !== undefined) {
     return department;
+  }
+
+  if (practiceArea !== undefined) {
+    return practiceArea;
   }
 
   if (domain !== undefined) {
@@ -40,6 +45,10 @@ const assertEmployeeExistsForAdmin = async ({ id, adminId }) => {
 };
 
 const assertEmailIsAvailable = async ({ email, currentEmployeeId }) => {
+  if (!email) {
+    return;
+  }
+
   const [existingAdmin, existingEmployee] = await Promise.all([
     findAdminByEmail(email),
     findEmployeeByEmail(email)
@@ -52,13 +61,24 @@ const assertEmailIsAvailable = async ({ email, currentEmployeeId }) => {
   }
 };
 
+const assertUsernameIsAvailable = async ({ username, currentEmployeeId }) => {
+  const existingEmployee = await findEmployeeByUsername(username);
+  const belongsToCurrentEmployee = existingEmployee?.id === currentEmployeeId;
+
+  if (existingEmployee && !belongsToCurrentEmployee) {
+    throw new AppError(API_MESSAGES.USERNAME_ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
+  }
+};
+
 export const createAdminEmployee = async ({ adminId, payload }) => {
+  await assertUsernameIsAvailable({ username: payload.username });
   await assertEmailIsAvailable({ email: payload.email });
 
   const passwordHash = await hashPassword(payload.password);
   const employee = await createEmployee({
     name: payload.name,
-    email: payload.email,
+    username: payload.username,
+    email: payload.email ?? null,
     passwordHash,
     department: normalizeDepartment(payload) ?? null,
     createdByAdminId: adminId
@@ -76,7 +96,14 @@ export const listAdminEmployees = async ({ adminId }) => {
 export const updateAdminEmployee = async ({ adminId, employeeId, payload }) => {
   await assertEmployeeExistsForAdmin({ id: employeeId, adminId });
 
-  if (payload.email) {
+  if (payload.username) {
+    await assertUsernameIsAvailable({
+      username: payload.username,
+      currentEmployeeId: employeeId
+    });
+  }
+
+  if (payload.email !== undefined) {
     await assertEmailIsAvailable({
       email: payload.email,
       currentEmployeeId: employeeId
@@ -88,6 +115,10 @@ export const updateAdminEmployee = async ({ adminId, employeeId, payload }) => {
 
   if (payload.name !== undefined) {
     data.name = payload.name;
+  }
+
+  if (payload.username !== undefined) {
+    data.username = payload.username;
   }
 
   if (payload.email !== undefined) {

@@ -346,6 +346,32 @@ tbody tr:hover {
   font-size: 1.1rem;
 }
 
+.landing-use-cases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 620px;
+}
+
+.use-case-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border: 1px solid #dce2ea;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #344054;
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.use-case-chip svg {
+  color: #1f6feb;
+  flex: 0 0 auto;
+}
+
 .landing-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

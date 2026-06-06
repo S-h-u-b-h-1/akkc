@@ -127,13 +127,13 @@ export function EmployeeDashboard() {
   const isDashboardRoute = location.pathname === ROUTES.EMPLOYEE_DASHBOARD || location.pathname === '/employee';
   const isTasksRoute = location.pathname === ROUTES.EMPLOYEE_TASKS;
 
-  const headerTitle = isTasksRoute ? 'My assigned tasks' : 'Dashboard overview';
+  const headerTitle = isTasksRoute ? 'My client assignments' : 'Staff dashboard';
 
   return (
     <section className="page-stack employee-dashboard">
       <div className="page-header">
         <div>
-          <p className="eyebrow">Employee workspace</p>
+          <p className="eyebrow">A K Kataruka and Company</p>
           <h1>{headerTitle}</h1>
         </div>
       </div>

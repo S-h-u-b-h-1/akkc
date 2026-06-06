@@ -3,19 +3,19 @@ import { useState } from 'react';
 
 const actionContent = Object.freeze({
   done: {
-    eyebrow: 'Complete task',
+    eyebrow: 'Complete assignment',
     title: 'Mark as done',
-    fieldLabel: 'Remark',
-    placeholder: 'Add a completion remark',
-    requiredMessage: 'Remark is required.',
-    submitLabel: 'Submit remark',
+    fieldLabel: 'Completion note',
+    placeholder: 'Add a brief note about the filing, review, or client follow-up completed',
+    requiredMessage: 'Completion note is required.',
+    submitLabel: 'Submit note',
     submittingLabel: 'Submitting...'
   },
   notDone: {
-    eyebrow: 'Task outcome',
+    eyebrow: 'Assignment outcome',
     title: 'Mark as not done',
-    fieldLabel: 'Reason',
-    placeholder: 'Explain why this task was not completed',
+    fieldLabel: 'Blocker reason',
+    placeholder: 'Explain what is blocking this client work',
     requiredMessage: 'Reason is required.',
     submitLabel: 'Submit reason',
     submittingLabel: 'Submitting...'

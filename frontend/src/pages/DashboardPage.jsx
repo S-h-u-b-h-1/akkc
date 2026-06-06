@@ -1,11 +1,11 @@
 const metrics = [
-  { label: 'Open tasks', value: '0', tone: 'blue' },
+  { label: 'Open assignments', value: '0', tone: 'blue' },
   { label: 'Due today', value: '0', tone: 'amber' },
   { label: 'Completed', value: '0', tone: 'green' },
-  { label: 'Employees', value: '0', tone: 'violet' }
+  { label: 'Staff', value: '0', tone: 'violet' }
 ];
 
-export function DashboardPage({ eyebrow = 'Operations', title = 'Dashboard' }) {
+export function DashboardPage({ eyebrow = 'A K Kataruka and Company', title = 'Practice dashboard' }) {
   return (
     <section className="page-stack">
       <div className="page-header">
@@ -26,15 +26,15 @@ export function DashboardPage({ eyebrow = 'Operations', title = 'Dashboard' }) {
 
       <section className="content-panel">
         <div className="panel-header">
-          <h2>Daily task overview</h2>
+          <h2>Daily client work overview</h2>
         </div>
 
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Task</th>
-                <th>Owner</th>
+                <th>Assignment</th>
+                <th>Staff member</th>
                 <th>Status</th>
                 <th>Due date</th>
               </tr>
@@ -42,7 +42,7 @@ export function DashboardPage({ eyebrow = 'Operations', title = 'Dashboard' }) {
             <tbody>
               <tr>
                 <td colSpan="4" className="empty-cell">
-                  No task records are available yet.
+                  No assignment records are available yet.
                 </td>
               </tr>
             </tbody>

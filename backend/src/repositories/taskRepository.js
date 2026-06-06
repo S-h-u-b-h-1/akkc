@@ -17,6 +17,7 @@ const taskSelect = Object.freeze({
     select: {
       id: true,
       name: true,
+      username: true,
       email: true,
       department: true
     }
@@ -36,6 +37,7 @@ const taskSelect = Object.freeze({
         select: {
           id: true,
           name: true,
+          username: true,
           email: true
         }
       }
