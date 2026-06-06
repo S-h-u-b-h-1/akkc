@@ -19,13 +19,3 @@ export const findAdminById = (id) =>
     where: { id },
     select: publicAdminSelect
   });
-
-export const createAdmin = ({ name, email, passwordHash }) =>
-  getPrisma().admin.create({
-    data: {
-      name,
-      email,
-      passwordHash
-    },
-    select: publicAdminSelect
-  });

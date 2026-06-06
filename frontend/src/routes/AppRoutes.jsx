@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from '../layouts/AppLayout.jsx';
 import { AdminDashboard } from '../pages/AdminDashboard.jsx';
 import { AdminLoginPage } from '../pages/AdminLoginPage.jsx';
-import { AdminSignupPage } from '../pages/AdminSignupPage.jsx';
 import { EmployeeDashboard } from '../pages/EmployeeDashboard.jsx';
 import { EmployeeLoginPage } from '../pages/EmployeeLoginPage.jsx';
 import { LandingPage } from '../pages/LandingPage.jsx';
@@ -28,7 +27,6 @@ export function AppRoutes() {
     <Routes>
       <Route path={ROUTES.ROOT} element={<RootRoute />} />
       <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLoginPage />} />
-      <Route path={ROUTES.ADMIN_SIGNUP} element={<AdminSignupPage />} />
       <Route path={ROUTES.EMPLOYEE_LOGIN} element={<EmployeeLoginPage />} />
 
       <Route element={<ProtectedRoute allowedRole={USER_ROLES.ADMIN} />}>

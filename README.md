@@ -103,7 +103,8 @@ VITE_API_BASE_URL=https://akkc.onrender.com/api
 
 ## Authentication
 
-- Admins sign up and log in with email and password.
+- Admins sign in with email and password.
+- Admin accounts are provisioned by seed data or direct secure database administration, not public signup.
 - Staff members do not sign up themselves.
 - Admins create staff credentials with username and password.
 - Staff members log in with username and password.
@@ -124,7 +125,6 @@ Staff password: Employee@12345
 ```text
 /                    Landing page
 /admin/login         Admin login
-/admin/signup        Admin signup
 /admin/dashboard     Team AKKC dashboard
 /admin/employees     Staff credential management
 /admin/tasks         Client assignments
@@ -138,7 +138,6 @@ Staff password: Employee@12345
 ```text
 GET  /api/health
 
-POST /api/admin/signup
 POST /api/admin/login
 POST /api/employee/login
 GET  /api/auth/me
@@ -173,7 +172,7 @@ PUT /api/employee/tasks/:id/not-done
 Backend route tests cover:
 
 - Authentication guards and validation
-- Admin signup/login and `/api/auth/me`
+- Admin login and `/api/auth/me`
 - Staff username login
 - Admin employee create/list/update/delete
 - Admin assignment create/list/detail/update/delete

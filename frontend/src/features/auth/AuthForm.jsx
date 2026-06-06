@@ -15,7 +15,6 @@ export function AuthForm({
     type: 'email'
   },
   eyebrow,
-  includeName = false,
   onSubmit,
   role,
   submitLabel,
@@ -45,10 +44,6 @@ export function AuthForm({
       [credentialField.name]: String(formData.get(credentialField.name) ?? '').trim(),
       password: String(formData.get('password') ?? '')
     };
-
-    if (includeName) {
-      payload.name = String(formData.get('name') ?? '').trim();
-    }
 
     try {
       const response = await onSubmit(payload);
@@ -87,13 +82,6 @@ export function AuthForm({
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          {includeName ? (
-            <label>
-              <span>Name</span>
-              <input name="name" type="text" autoComplete="name" required minLength="2" />
-            </label>
-          ) : null}
-
           <label>
             <span>{credentialField.label}</span>
             <input
@@ -109,7 +97,7 @@ export function AuthForm({
             <input
               name="password"
               type="password"
-              autoComplete={includeName ? 'new-password' : 'current-password'}
+              autoComplete="current-password"
               required
               minLength="8"
             />

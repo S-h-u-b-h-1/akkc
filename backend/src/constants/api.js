@@ -11,7 +11,6 @@ export const HTTP_STATUS = Object.freeze({
 
 export const API_MESSAGES = Object.freeze({
   HEALTH_OK: 'Service is healthy.',
-  ADMIN_CREATED: 'Admin account created successfully.',
   EMPLOYEE_CREATED: 'Employee created successfully.',
   EMPLOYEES_FETCHED: 'Employees fetched successfully.',
   EMPLOYEE_UPDATED: 'Employee updated successfully.',

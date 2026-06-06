@@ -6,7 +6,7 @@ import {
   listEmployees,
   updateEmployee
 } from '../controllers/adminEmployeeController.js';
-import { login, signup } from '../controllers/adminAuthController.js';
+import { login } from '../controllers/adminAuthController.js';
 import {
   createTask,
   deleteTask,
@@ -18,7 +18,7 @@ import {
 import { adminOnly, authenticate } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import { adminSignupSchema, loginSchema } from '../validators/authValidators.js';
+import { loginSchema } from '../validators/authValidators.js';
 import {
   createEmployeeSchema,
   employeeIdParamSchema,
@@ -34,7 +34,6 @@ import {
 
 const router = Router();
 
-router.post('/signup', validateRequest(adminSignupSchema), asyncHandler(signup));
 router.post('/login', validateRequest(loginSchema), asyncHandler(login));
 router.post(
   '/employees',

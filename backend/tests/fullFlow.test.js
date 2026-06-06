@@ -12,6 +12,7 @@ process.env.DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://test:test@l
 const { default: app } = await import('../src/app.js');
 const { TASK_STATUSES } = await import('../src/constants/task.js');
 const { setPrismaClientForTesting } = await import('../src/prisma/client.js');
+const { hashPassword } = await import('../src/utils/password.js');
 
 const isoDate = (date) => date.toISOString().slice(0, 10);
 
@@ -59,9 +60,9 @@ const compareDate = (left, operator, right) => {
   return false;
 };
 
-const createMockPrismaClient = () => {
+const createMockPrismaClient = ({ admins = [] } = {}) => {
   const store = {
-    admins: [],
+    admins: admins.map(cloneRecord),
     employees: [],
     tasks: [],
     taskUpdates: []
@@ -312,20 +313,21 @@ const createMockPrismaClient = () => {
 const authHeader = (token) => ({ Authorization: `Bearer ${token}` });
 
 test('complete admin and employee task management flow', async () => {
-  setPrismaClientForTesting(createMockPrismaClient());
-
-  const adminSignup = await request(app)
-    .post('/api/admin/signup')
-    .send({
-      name: 'Operations Admin',
-      email: 'admin.flow@example.com',
-      password: 'StrongPass123'
+  const adminPasswordHash = await hashPassword('StrongPass123');
+  setPrismaClientForTesting(
+    createMockPrismaClient({
+      admins: [
+        {
+          id: randomUUID(),
+          name: 'Operations Admin',
+          email: 'admin.flow@example.com',
+          passwordHash: adminPasswordHash,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ]
     })
-    .expect(201);
-
-  assert.equal(adminSignup.body.success, true);
-  assert.equal(adminSignup.body.data.user.role, 'ADMIN');
-  assert.equal(adminSignup.body.data.user.passwordHash, undefined);
+  );
 
   const adminLogin = await request(app)
     .post('/api/admin/login')

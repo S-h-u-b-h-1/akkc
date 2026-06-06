@@ -1,12 +1,11 @@
 import { API_MESSAGES, HTTP_STATUS, USER_ROLES } from '../constants/api.js';
-import { createAdmin, findAdminByEmail, findAdminById } from '../repositories/adminRepository.js';
+import { findAdminByEmail, findAdminById } from '../repositories/adminRepository.js';
 import {
-  findEmployeeByEmail,
   findEmployeeById,
   findEmployeeByUsername
 } from '../repositories/employeeRepository.js';
 import { AppError } from '../utils/appError.js';
-import { hashPassword, verifyPassword } from '../utils/password.js';
+import { verifyPassword } from '../utils/password.js';
 import { signAuthToken } from '../utils/token.js';
 
 const buildAuthResponse = ({ user, role }) => ({
@@ -16,29 +15,6 @@ const buildAuthResponse = ({ user, role }) => ({
     role
   }
 });
-
-const assertEmailIsAvailable = async (email) => {
-  const [existingAdmin, existingEmployee] = await Promise.all([
-    findAdminByEmail(email),
-    findEmployeeByEmail(email)
-  ]);
-
-  if (existingAdmin || existingEmployee) {
-    throw new AppError(API_MESSAGES.EMAIL_ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
-  }
-};
-
-export const signupAdmin = async ({ name, email, password }) => {
-  await assertEmailIsAvailable(email);
-
-  const passwordHash = await hashPassword(password);
-  const admin = await createAdmin({ name, email, passwordHash });
-
-  return buildAuthResponse({
-    user: admin,
-    role: USER_ROLES.ADMIN
-  });
-};
 
 export const loginAdmin = async ({ email, password }) => {
   const admin = await findAdminByEmail(email);
