@@ -1,7 +1,8 @@
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
+import { BrandLogo } from '../../components/BrandLogo.jsx';
 import { useAuth } from '../../hooks/useAuth.js';
 import { getDashboardRouteForRole } from '../../utils/authRedirects.js';
 
@@ -78,9 +79,7 @@ export function AuthForm({
     <main className="auth-page">
       <section className="auth-panel" aria-labelledby="auth-title">
         <div className="auth-heading">
-          <span className="auth-icon" aria-hidden="true">
-            <ShieldCheck size={20} />
-          </span>
+          <BrandLogo className="auth-logo" showText={false} />
           <div>
             <p className="eyebrow">{eyebrow}</p>
             <h1 id="auth-title">{title}</h1>

@@ -41,3 +41,14 @@ export const createAdminEmployee = (payload) =>
     method: 'POST',
     body: JSON.stringify(payload)
   });
+
+export const updateAdminEmployee = (employeeId, payload) =>
+  httpClient(`/admin/employees/${employeeId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+
+export const deleteAdminEmployee = (employeeId) =>
+  httpClient(`/admin/employees/${employeeId}`, {
+    method: 'DELETE'
+  });

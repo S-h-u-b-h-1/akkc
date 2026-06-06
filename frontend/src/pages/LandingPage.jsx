@@ -1,6 +1,5 @@
 import {
   BadgeIndianRupee,
-  Building2,
   ClipboardCheck,
   FileSpreadsheet,
   FileText,
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { BrandLogo } from '../components/BrandLogo.jsx';
 import { FIRM } from '../constants/firm.js';
 import { ROUTES } from '../constants/routes.js';
 
@@ -45,19 +45,13 @@ export function LandingPage() {
   return (
     <main className="landing-page">
       <header className="landing-header">
-        <div className="brand-block">
-          <span className="brand-mark">AK</span>
-          <div>
-            <p className="brand-name">{FIRM.NAME}</p>
-            <p className="brand-caption">{FIRM.TAGLINE}</p>
-          </div>
-        </div>
+        <BrandLogo className="brand-block" />
       </header>
 
       <section className="landing-hero" aria-labelledby="landing-title">
         <div className="landing-copy">
           <div className="landing-icon">
-            <Building2 size={24} aria-hidden="true" />
+            <img src={FIRM.LOGO_URL} alt="CA logo" loading="eager" referrerPolicy="no-referrer" />
           </div>
           <p className="eyebrow">{FIRM.TAGLINE}</p>
           <h1 id="landing-title">{FIRM.NAME}</h1>

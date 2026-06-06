@@ -125,11 +125,11 @@ Staff password: Employee@12345
 /                    Landing page
 /admin/login         Admin login
 /admin/signup        Admin signup
-/admin/dashboard     Practice dashboard
+/admin/dashboard     Team AKKC dashboard
 /admin/employees     Staff credential management
 /admin/tasks         Client assignments
 /employee/login      Staff login
-/employee/dashboard  Staff dashboard
+/employee/dashboard  Team AKKC staff dashboard
 /employee/tasks      Staff assigned work
 ```
 

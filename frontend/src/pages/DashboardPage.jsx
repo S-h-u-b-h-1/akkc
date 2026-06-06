@@ -5,7 +5,7 @@ const metrics = [
   { label: 'Staff', value: '0', tone: 'violet' }
 ];
 
-export function DashboardPage({ eyebrow = 'A K Kataruka and Company', title = 'Practice dashboard' }) {
+export function DashboardPage({ eyebrow = 'A K Kataruka and Company', title = 'Team AKKC' }) {
   return (
     <section className="page-stack">
       <div className="page-header">

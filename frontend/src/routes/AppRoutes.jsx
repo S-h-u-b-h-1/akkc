@@ -34,6 +34,10 @@ export function AppRoutes() {
       <Route element={<ProtectedRoute allowedRole={USER_ROLES.ADMIN} />}>
         <Route element={<AppLayout />}>
           <Route
+            path={ROUTES.ADMIN_ROOT}
+            element={<AdminDashboard />}
+          />
+          <Route
             path={ROUTES.ADMIN_DASHBOARD}
             element={<AdminDashboard />}
           />
@@ -45,11 +49,19 @@ export function AppRoutes() {
             path={ROUTES.ADMIN_TASKS}
             element={<AdminDashboard />}
           />
+          <Route
+            path="/admin/*"
+            element={<Navigate to={ROUTES.ADMIN_DASHBOARD} replace />}
+          />
         </Route>
       </Route>
 
       <Route element={<ProtectedRoute allowedRole={USER_ROLES.EMPLOYEE} />}>
         <Route element={<AppLayout />}>
+          <Route
+            path={ROUTES.EMPLOYEE_ROOT}
+            element={<EmployeeDashboard />}
+          />
           <Route
             path={ROUTES.EMPLOYEE_DASHBOARD}
             element={<EmployeeDashboard />}
@@ -57,6 +69,10 @@ export function AppRoutes() {
           <Route
             path={ROUTES.EMPLOYEE_TASKS}
             element={<EmployeeDashboard />}
+          />
+          <Route
+            path="/employee/*"
+            element={<Navigate to={ROUTES.EMPLOYEE_DASHBOARD} replace />}
           />
         </Route>
       </Route>

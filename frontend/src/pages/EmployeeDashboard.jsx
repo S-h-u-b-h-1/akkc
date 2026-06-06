@@ -124,10 +124,11 @@ export function EmployeeDashboard() {
     await refreshTasks();
   };
 
-  const isDashboardRoute = location.pathname === ROUTES.EMPLOYEE_DASHBOARD || location.pathname === '/employee';
+  const isDashboardRoute =
+    location.pathname === ROUTES.EMPLOYEE_DASHBOARD || location.pathname === ROUTES.EMPLOYEE_ROOT;
   const isTasksRoute = location.pathname === ROUTES.EMPLOYEE_TASKS;
 
-  const headerTitle = isTasksRoute ? 'My client assignments' : 'Staff dashboard';
+  const headerTitle = isTasksRoute ? 'My client assignments' : 'Team AKKC';
 
   return (
     <section className="page-stack employee-dashboard">

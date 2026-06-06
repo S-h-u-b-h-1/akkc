@@ -13,10 +13,12 @@ import { TaskTable } from '../features/task-management/TaskTable.jsx';
 import {
   createAdminEmployee,
   createAdminTask,
+  deleteAdminEmployee,
   deleteAdminTask,
   getAdminEmployees,
   getAdminStats,
   getAdminTasks,
+  updateAdminEmployee,
   updateAdminTask
 } from '../services/adminService.js';
 
@@ -122,8 +124,12 @@ export function AdminDashboard() {
       return;
     }
 
-    await deleteAdminTask(task.id);
-    await refreshDashboard();
+    try {
+      await deleteAdminTask(task.id);
+      await refreshDashboard();
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
   };
 
   const handleCreateEmployee = async (payload) => {
@@ -131,7 +137,28 @@ export function AdminDashboard() {
     await refreshDashboard();
   };
 
-  const isDashboardRoute = location.pathname === ROUTES.ADMIN_DASHBOARD || location.pathname === '/admin';
+  const handleUpdateEmployee = async (employeeId, payload) => {
+    await updateAdminEmployee(employeeId, payload);
+    await refreshDashboard();
+  };
+
+  const handleDeleteEmployee = async (employee) => {
+    const shouldDelete = window.confirm(`Delete login credentials for ${employee.name}?`);
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await deleteAdminEmployee(employee.id);
+      await refreshDashboard();
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
+  };
+
+  const isDashboardRoute =
+    location.pathname === ROUTES.ADMIN_DASHBOARD || location.pathname === ROUTES.ADMIN_ROOT;
   const isEmployeesRoute = location.pathname === ROUTES.ADMIN_EMPLOYEES;
   const isTasksRoute = location.pathname === ROUTES.ADMIN_TASKS;
 
@@ -142,7 +169,7 @@ export function AdminDashboard() {
     if (isTasksRoute) {
       return { eyebrow: 'Client work', title: 'Assignments' };
     }
-    return { eyebrow: 'A K Kataruka and Company', title: 'Practice dashboard' };
+    return { eyebrow: 'A K Kataruka and Company', title: 'Team AKKC' };
   };
 
   const header = getHeaderDetails();
@@ -186,7 +213,12 @@ export function AdminDashboard() {
       ) : null}
 
       {isEmployeesRoute ? (
-        <EmployeeManagement employees={employees} onCreateEmployee={handleCreateEmployee} />
+        <EmployeeManagement
+          employees={employees}
+          onCreateEmployee={handleCreateEmployee}
+          onDeleteEmployee={handleDeleteEmployee}
+          onUpdateEmployee={handleUpdateEmployee}
+        />
       ) : null}
 
       <CreateTaskModal
