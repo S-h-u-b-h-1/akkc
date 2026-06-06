@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 import { ROUTES } from '../constants/routes.js';
 
+import { PracticeInsights } from '../features/dashboard-analytics/PracticeInsights.jsx';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
 import { EmployeeManagement } from '../features/employee-management/EmployeeManagement.jsx';
 import { CreateTaskModal } from '../features/task-management/CreateTaskModal.jsx';
@@ -192,7 +193,10 @@ export function AdminDashboard() {
       {error ? <p className="form-error">{error}</p> : null}
 
       {isDashboardRoute ? (
-        <TaskStatsCards isLoading={isLoading} stats={stats} />
+        <>
+          <TaskStatsCards isLoading={isLoading} stats={stats} />
+          <PracticeInsights isLoading={isLoading} scope="admin" stats={stats} tasks={tasks} />
+        </>
       ) : null}
 
       {isTasksRoute ? (

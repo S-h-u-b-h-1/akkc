@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants/routes.js';
 
 import { TASK_STATUSES } from '../constants/task.js';
+import { PracticeInsights } from '../features/dashboard-analytics/PracticeInsights.jsx';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
 import { EmployeeTaskActionModal } from '../features/employee-task-management/EmployeeTaskActionModal.jsx';
 import { EmployeeTaskTable } from '../features/employee-task-management/EmployeeTaskTable.jsx';
@@ -142,7 +143,10 @@ export function EmployeeDashboard() {
       {error ? <p className="form-error">{error}</p> : null}
 
       {isDashboardRoute ? (
-        <TaskStatsCards isLoading={isLoading} stats={stats} />
+        <>
+          <TaskStatsCards isLoading={isLoading} stats={stats} />
+          <PracticeInsights isLoading={isLoading} scope="employee" stats={stats} tasks={tasks} />
+        </>
       ) : null}
 
       {isTasksRoute ? (

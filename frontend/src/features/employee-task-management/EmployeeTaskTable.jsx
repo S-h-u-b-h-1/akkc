@@ -18,7 +18,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
       </div>
 
       <div className="table-wrap">
-        <table>
+        <table className="responsive-table">
           <thead>
             <tr>
               <th>Assignment</th>
@@ -49,18 +49,23 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
             {!isLoading
               ? tasks.map((task) => (
                   <tr key={task.id}>
-                    <td className="primary-cell">{task.title}</td>
-                    <td>{task.domain}</td>
-                    <td>{task.clientName}</td>
-                    <td>
+                    <td className="primary-cell" data-label="Assignment">
+                      {task.title}
+                    </td>
+                    <td data-label="Service line">{task.domain}</td>
+                    <td data-label="Client / entity">{task.clientName}</td>
+                    <td data-label="Status">
                       <span className={`status-pill ${task.status?.toLowerCase()}`}>
                         {formatStatus(task.status ?? TASK_STATUSES.PENDING)}
                       </span>
                     </td>
-                    <td className={task.status === TASK_STATUSES.DELAYED ? 'delayed-date' : undefined}>
+                    <td
+                      className={task.status === TASK_STATUSES.DELAYED ? 'delayed-date' : undefined}
+                      data-label="Due date"
+                    >
                       {formatDate(task.dueDate)}
                     </td>
-                    <td>
+                    <td data-label="Actions">
                       <div className="row-actions employee-row-actions">
                         <button
                           className="secondary-button action-button"

@@ -1,10 +1,11 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
 
-import { CA_SERVICE_LINES } from '../../constants/firm.js';
+import { CA_ASSIGNMENT_TEMPLATES, CA_SERVICE_LINES } from '../../constants/firm.js';
 
 const initialForm = {
   employeeId: '',
+  templateKey: '',
   title: '',
   domain: '',
   clientName: '',
@@ -27,13 +28,34 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
     });
   };
 
+  const updateTemplate = (event) => {
+    const nextTemplateKey = event.target.value;
+    const selectedTemplate = CA_ASSIGNMENT_TEMPLATES.find(
+      (template) => template.label === nextTemplateKey
+    );
+
+    setForm({
+      ...form,
+      templateKey: nextTemplateKey,
+      title: selectedTemplate?.title ?? form.title,
+      domain: selectedTemplate?.domain ?? form.domain
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
     setIsSubmitting(true);
 
     try {
-      await onSubmit(form);
+      const payload = {
+        employeeId: form.employeeId,
+        title: form.title,
+        domain: form.domain,
+        clientName: form.clientName,
+        dueDate: form.dueDate
+      };
+      await onSubmit(payload);
       setForm(initialForm);
       onClose();
     } catch (submitError) {
@@ -64,6 +86,18 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
               {employees.map((employee) => (
                 <option key={employee.id} value={employee.id}>
                   {employee.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>CA workflow template</span>
+            <select name="templateKey" value={form.templateKey} onChange={updateTemplate}>
+              <option value="">Start from blank assignment</option>
+              {CA_ASSIGNMENT_TEMPLATES.map((template) => (
+                <option key={template.label} value={template.label}>
+                  {template.label}
                 </option>
               ))}
             </select>

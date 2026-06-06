@@ -24,7 +24,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
       </div>
 
       <div className="table-wrap">
-        <table>
+        <table className="responsive-table">
           <thead>
             <tr>
               <th>Assignment</th>
@@ -57,18 +57,22 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
             {!isLoading
               ? tasks.map((task) => (
                   <tr key={task.id}>
-                    <td className="primary-cell">{task.title}</td>
-                    <td>{task.domain}</td>
-                    <td>{task.clientName}</td>
-                    <td>{task.assignedEmployee?.name ?? '-'}</td>
-                    <td>
+                    <td className="primary-cell" data-label="Assignment">
+                      {task.title}
+                    </td>
+                    <td data-label="Service line">{task.domain}</td>
+                    <td data-label="Client / entity">{task.clientName}</td>
+                    <td data-label="Staff member">{task.assignedEmployee?.name ?? '-'}</td>
+                    <td data-label="Status">
                       <span className={`status-pill ${task.status?.toLowerCase()}`}>
                         {formatStatus(task.status ?? TASK_STATUSES.PENDING)}
                       </span>
                     </td>
-                    <td className="wrap-cell">{getLatestRemark(task)}</td>
-                    <td>{formatDate(task.dueDate)}</td>
-                    <td>
+                    <td className="wrap-cell" data-label="Latest note / reason">
+                      {getLatestRemark(task)}
+                    </td>
+                    <td data-label="Due date">{formatDate(task.dueDate)}</td>
+                    <td data-label="Actions">
                       <div className="row-actions">
                         <button
                           className="icon-button"
