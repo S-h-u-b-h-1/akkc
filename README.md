@@ -165,6 +165,7 @@ PUT /api/employee/tasks/:id/not-done
 - Backend Render URL: `https://akkc.onrender.com`
 - Frontend Vercel URL: `https://akkc-eight.vercel.app/`
 - `frontend/vercel.json` rewrites all frontend routes to `index.html` so refreshing protected React routes does not return a Vercel 404.
+- The backend `start` script runs `prisma migrate deploy` before starting Express so Render applies pending production migrations, including the staff `username` column.
 - If the Vercel project root is the repository root, set the build output to `frontend/dist` or deploy with the frontend folder as the Vercel root directory.
 
 ## Test Coverage
