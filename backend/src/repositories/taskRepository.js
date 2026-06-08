@@ -87,6 +87,48 @@ const buildAdminTaskWhere = (adminId, filters = {}) => {
   return where;
 };
 
+const buildEmployeeTaskWhere = (employeeId, filters = {}) => {
+  const where = {
+    assignedEmployeeId: employeeId
+  };
+
+  if (filters.clientName) {
+    where.clientName = {
+      contains: filters.clientName,
+      mode: 'insensitive'
+    };
+  }
+
+  if (filters.isHighPriority !== undefined) {
+    where.isHighPriority = filters.isHighPriority;
+  }
+
+  if (filters.date) {
+    where.dueDate = filters.date;
+  }
+
+  if (filters.status === TASK_STATUSES.DELAYED) {
+    where.OR = [
+      { status: TASK_STATUSES.DELAYED },
+      {
+        status: TASK_STATUSES.PENDING,
+        dueDate: {
+          lt: filters.today
+        }
+      }
+    ];
+  } else if (filters.status === TASK_STATUSES.PENDING) {
+    where.status = TASK_STATUSES.PENDING;
+    where.dueDate = {
+      gte: filters.today
+    };
+  } else if (filters.status) {
+    where.status = filters.status;
+  }
+
+  return where;
+};
+
 export const createTask = ({
   title,
   domain,
@@ -129,11 +171,9 @@ export const findTaskByAdmin = ({ id, adminId }) =>
     select: taskSelect
   });
 
-export const listTasksByEmployee = (employeeId) =>
+export const listTasksByEmployee = ({ employeeId, filters = {} }) =>
   getPrisma().task.findMany({
-    where: {
-      assignedEmployeeId: employeeId
-    },
+    where: buildEmployeeTaskWhere(employeeId, filters),
     orderBy: [{ isHighPriority: 'desc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
     select: taskSelect
   });

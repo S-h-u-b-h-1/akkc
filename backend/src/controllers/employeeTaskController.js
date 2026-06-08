@@ -8,7 +8,8 @@ import { sendSuccess } from '../utils/apiResponse.js';
 
 export const listTasks = async (req, res) => {
   const tasks = await listEmployeeTasks({
-    employeeId: req.user.id
+    employeeId: req.user.id,
+    filters: req.validated.query
   });
 
   return sendSuccess(res, {

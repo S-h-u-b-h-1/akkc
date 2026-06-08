@@ -7,6 +7,7 @@ import { TASK_STATUSES } from '../constants/task.js';
 import { PracticeInsights } from '../features/dashboard-analytics/PracticeInsights.jsx';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
 import { EmployeeTaskActionModal } from '../features/employee-task-management/EmployeeTaskActionModal.jsx';
+import { EmployeeTaskFilters } from '../features/task-management/EmployeeTaskFilters.jsx';
 import { EmployeeTaskTable } from '../features/employee-task-management/EmployeeTaskTable.jsx';
 import {
   getEmployeeTasks,
@@ -56,11 +57,19 @@ const createTaskStats = (tasks) =>
     }
   );
 
+const initialFilters = {
+  status: '',
+  clientName: '',
+  date: '',
+  isHighPriority: ''
+};
+
 export function EmployeeDashboard() {
   const location = useLocation();
   const [activeAction, setActiveAction] = useState(null);
   const [activeTask, setActiveTask] = useState(null);
   const [error, setError] = useState('');
+  const [filters, setFilters] = useState(initialFilters);
   const [isLoading, setIsLoading] = useState(true);
   const [tasks, setTasks] = useState([]);
   const stats = useMemo(() => createTaskStats(tasks), [tasks]);
@@ -68,7 +77,7 @@ export function EmployeeDashboard() {
   useEffect(() => {
     let isCurrent = true;
 
-    getEmployeeTasks()
+    getEmployeeTasks(filters)
       .then((response) => {
         if (!isCurrent) {
           return;
@@ -91,14 +100,14 @@ export function EmployeeDashboard() {
     return () => {
       isCurrent = false;
     };
-  }, []);
+  }, [filters]);
 
   const refreshTasks = async () => {
     setError('');
     setIsLoading(true);
 
     try {
-      const response = await getEmployeeTasks();
+      const response = await getEmployeeTasks(filters);
       setTasks(response.data?.tasks ?? []);
       setError('');
     } catch (loadError) {
@@ -106,6 +115,12 @@ export function EmployeeDashboard() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFilterChange = (nextFilters) => {
+    setError('');
+    setIsLoading(true);
+    setFilters(nextFilters);
   };
 
   const openActionModal = (task, action) => {
@@ -146,6 +161,14 @@ export function EmployeeDashboard() {
       </div>
 
       {error ? <p className="form-error">{error}</p> : null}
+
+      {isDashboardRoute || isTasksRoute ? (
+        <EmployeeTaskFilters
+          filters={filters}
+          onChange={handleFilterChange}
+          onReset={() => handleFilterChange(initialFilters)}
+        />
+      ) : null}
 
       {isDashboardRoute ? (
         <>

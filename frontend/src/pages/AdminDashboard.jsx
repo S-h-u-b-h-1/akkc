@@ -348,6 +348,15 @@ export function AdminDashboard() {
 
       {error ? <p className="form-error">{error}</p> : null}
 
+      {isDashboardRoute || isTasksRoute ? (
+        <TaskFilters
+          employees={employees}
+          filters={filters}
+          onChange={handleFilterChange}
+          onReset={() => handleFilterChange(initialFilters)}
+        />
+      ) : null}
+
       {isDashboardRoute ? (
         <>
           <TaskStatsCards isLoading={isLoading} stats={stats} />
@@ -368,20 +377,12 @@ export function AdminDashboard() {
 
 
       {isTasksRoute ? (
-        <>
-          <TaskFilters
-            employees={employees}
-            filters={filters}
-            onChange={handleFilterChange}
-            onReset={() => handleFilterChange(initialFilters)}
-          />
-          <TaskTable
-            isLoading={isLoading}
-            onDelete={handleDeleteTask}
-            onEdit={setTaskBeingEdited}
-            tasks={tasks}
-          />
-        </>
+        <TaskTable
+          isLoading={isLoading}
+          onDelete={handleDeleteTask}
+          onEdit={setTaskBeingEdited}
+          tasks={tasks}
+        />
       ) : null}
 
       {isEmployeesRoute ? (

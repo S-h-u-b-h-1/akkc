@@ -69,7 +69,15 @@ export const updateTaskSchema = z.object({
 export const listEmployeeTasksSchema = z.object({
   body: z.object({}).optional(),
   params: z.object({}).optional(),
-  query: z.object({}).optional()
+  query: z
+    .object({
+      status: status.optional(),
+      clientName: z.string().trim().min(1).max(160).optional(),
+      date: date.optional(),
+      isHighPriority: z.enum(['true', 'false']).optional()
+    })
+    .strict()
+    .optional()
 });
 
 export const markTaskDoneSchema = z.object({

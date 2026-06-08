@@ -7,7 +7,7 @@ import {
   updateTaskStatusWithEmployeeUpdate
 } from '../repositories/taskRepository.js';
 import { AppError } from '../utils/appError.js';
-import { todayDateOnly } from '../utils/date.js';
+import { toDateOnly, todayDateOnly } from '../utils/date.js';
 import { serializeTask } from '../utils/taskPresenter.js';
 
 const assertActiveEmployee = async (employeeId) => {
@@ -30,11 +30,18 @@ const assertEmployeeTask = async ({ taskId, employeeId }) => {
   return task;
 };
 
-export const listEmployeeTasks = async ({ employeeId }) => {
+export const listEmployeeTasks = async ({ employeeId, filters = {} }) => {
   await assertActiveEmployee(employeeId);
 
   const today = todayDateOnly();
-  const tasks = await listTasksByEmployee(employeeId);
+  const normalizedFilters = {
+    ...filters,
+    date: filters.date ? toDateOnly(filters.date) : undefined,
+    isHighPriority:
+      filters.isHighPriority === undefined ? undefined : filters.isHighPriority === 'true',
+    today
+  };
+  const tasks = await listTasksByEmployee({ employeeId, filters: normalizedFilters });
 
   return tasks.map((task) => serializeTask(task, today));
 };

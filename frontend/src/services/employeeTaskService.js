@@ -1,6 +1,9 @@
 import { httpClient } from '../api/httpClient.js';
 
-export const getEmployeeTasks = () => httpClient('/employee/tasks');
+export const getEmployeeTasks = (filters = {}) => {
+  const query = new URLSearchParams(filters).toString();
+  return httpClient(`/employee/tasks${query ? `?${query}` : ''}`);
+};
 
 export const markEmployeeTaskDone = (taskId, payload) =>
   httpClient(`/employee/tasks/${taskId}/done`, {
