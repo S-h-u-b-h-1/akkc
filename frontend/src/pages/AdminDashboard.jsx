@@ -23,18 +23,83 @@ import {
   updateAdminTask
 } from '../services/adminService.js';
 
-const fetchDashboardSnapshot = async (filters) => {
-  const [statsResponse, tasksResponse, employeesResponse] = await Promise.all([
-    getAdminStats(),
-    getAdminTasks(filters),
-    getAdminEmployees()
-  ]);
+const getRouteRequirements = (pathname) => {
+  const isDashboardRoute =
+    pathname === ROUTES.ADMIN_DASHBOARD || pathname === ROUTES.ADMIN_ROOT;
+  const isEmployeesRoute = pathname === ROUTES.ADMIN_EMPLOYEES;
+  const isTasksRoute = pathname === ROUTES.ADMIN_TASKS;
 
   return {
-    employees: employeesResponse.data?.employees ?? [],
-    stats: statsResponse.data?.stats ?? null,
-    tasks: tasksResponse.data?.tasks ?? []
+    employees: isEmployeesRoute || isTasksRoute,
+    stats: isDashboardRoute,
+    tasks: isDashboardRoute || isTasksRoute
   };
+};
+
+const fetchDashboardSnapshot = async ({ filters, requirements }) => {
+  const snapshot = {};
+  const errors = [];
+  const requests = [];
+
+  if (requirements.stats) {
+    requests.push(
+      getAdminStats()
+        .then((response) => {
+          snapshot.stats = response.data?.stats ?? null;
+        })
+        .catch((error) => {
+          errors.push(error.message);
+        })
+    );
+  }
+
+  if (requirements.tasks) {
+    requests.push(
+      getAdminTasks(filters)
+        .then((response) => {
+          snapshot.tasks = response.data?.tasks ?? [];
+        })
+        .catch((error) => {
+          errors.push(error.message);
+        })
+    );
+  }
+
+  if (requirements.employees) {
+    requests.push(
+      getAdminEmployees()
+        .then((response) => {
+          snapshot.employees = response.data?.employees ?? [];
+        })
+        .catch((error) => {
+          errors.push(error.message);
+        })
+    );
+  }
+
+  await Promise.all(requests);
+
+  if (errors.length > 0) {
+    const error = new Error([...new Set(errors)].join(' '));
+    error.snapshot = snapshot;
+    throw error;
+  }
+
+  return snapshot;
+};
+
+const applySnapshot = (snapshot, setters) => {
+  if (Object.hasOwn(snapshot, 'stats')) {
+    setters.setStats(snapshot.stats);
+  }
+
+  if (Object.hasOwn(snapshot, 'tasks')) {
+    setters.setTasks(snapshot.tasks);
+  }
+
+  if (Object.hasOwn(snapshot, 'employees')) {
+    setters.setEmployees(snapshot.employees);
+  }
 };
 
 const initialFilters = {
@@ -58,20 +123,22 @@ export function AdminDashboard() {
 
   useEffect(() => {
     let isCurrent = true;
+    const requirements = getRouteRequirements(location.pathname);
 
-    fetchDashboardSnapshot(filters)
+    fetchDashboardSnapshot({ filters, requirements })
       .then((snapshot) => {
         if (!isCurrent) {
           return;
         }
 
-        setStats(snapshot.stats);
-        setTasks(snapshot.tasks);
-        setEmployees(snapshot.employees);
+        applySnapshot(snapshot, { setEmployees, setStats, setTasks });
         setError('');
       })
       .catch((loadError) => {
         if (isCurrent) {
+          if (loadError.snapshot) {
+            applySnapshot(loadError.snapshot, { setEmployees, setStats, setTasks });
+          }
           setError(loadError.message);
         }
       })
@@ -84,19 +151,23 @@ export function AdminDashboard() {
     return () => {
       isCurrent = false;
     };
-  }, [filters]);
+  }, [filters, location.pathname]);
 
   const refreshDashboard = async () => {
     setError('');
     setIsLoading(true);
 
     try {
-      const snapshot = await fetchDashboardSnapshot(filters);
-      setStats(snapshot.stats);
-      setTasks(snapshot.tasks);
-      setEmployees(snapshot.employees);
+      const snapshot = await fetchDashboardSnapshot({
+        filters,
+        requirements: getRouteRequirements(location.pathname)
+      });
+      applySnapshot(snapshot, { setEmployees, setStats, setTasks });
       setError('');
     } catch (loadError) {
+      if (loadError.snapshot) {
+        applySnapshot(loadError.snapshot, { setEmployees, setStats, setTasks });
+      }
       setError(loadError.message);
     } finally {
       setIsLoading(false);

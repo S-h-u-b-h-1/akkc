@@ -17,5 +17,9 @@ export const errorHandler = (error, _req, res, _next) => {
     payload.stack = error.stack;
   }
 
+  if (!error.isOperational) {
+    console.error(error);
+  }
+
   return res.status(statusCode).json(payload);
 };
