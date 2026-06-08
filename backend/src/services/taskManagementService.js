@@ -182,7 +182,7 @@ const incrementStatusSummary = (summary, task, effectiveStatus) => {
   }
 
   if (task.billItem) {
-    summary.billedValue += Number(task.billAmount || 0);
+    summary.billedValue += Number(task.billItem.amount || 0);
   } else if (
     task.status === TASK_STATUSES.COMPLETED &&
     task.isBillable &&

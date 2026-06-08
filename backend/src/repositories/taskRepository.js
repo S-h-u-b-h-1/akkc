@@ -28,7 +28,8 @@ const taskSelect = Object.freeze({
   billItem: {
     select: {
       id: true,
-      billId: true
+      billId: true,
+      amount: true
     }
   },
   updates: {
