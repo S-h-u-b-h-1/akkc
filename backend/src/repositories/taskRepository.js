@@ -25,6 +25,12 @@ const taskSelect = Object.freeze({
       username: true
     }
   },
+  billItem: {
+    select: {
+      id: true,
+      billId: true
+    }
+  },
   updates: {
     orderBy: {
       createdAt: 'desc'

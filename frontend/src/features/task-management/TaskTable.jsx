@@ -33,6 +33,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
               <th>Client / entity</th>
               <th>Staff member</th>
               <th>Status</th>
+              <th>Billing</th>
               <th>Latest note / reason</th>
               <th>Due date</th>
               <th>Actions</th>
@@ -41,7 +42,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="9" className="empty-cell">
+                <td colSpan="10" className="empty-cell">
                   Loading tasks...
                 </td>
               </tr>
@@ -49,7 +50,7 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
 
             {!isLoading && tasks.length === 0 ? (
               <tr>
-                <td colSpan="9" className="empty-cell">
+                <td colSpan="10" className="empty-cell">
                   No assignments match the current view.
                 </td>
               </tr>
@@ -75,6 +76,15 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
                       <span className={`status-pill ${task.status?.toLowerCase()}`}>
                         {formatStatus(task.status ?? TASK_STATUSES.PENDING)}
                       </span>
+                    </td>
+                    <td data-label="Billing">
+                      {task.billItem ? (
+                        <span className="status-badge status-emailed">Billed</span>
+                      ) : task.isBillable ? (
+                        <span className="status-badge status-draft">Unbilled</span>
+                      ) : (
+                        <span className="empty-text">-</span>
+                      )}
                     </td>
                     <td className="wrap-cell" data-label="Latest note / reason">
                       {getLatestRemark(task)}

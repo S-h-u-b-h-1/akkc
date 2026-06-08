@@ -356,17 +356,20 @@ tbody tr:hover {
 }
 
 .landing-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 48px;
-  width: min(100%, 1120px);
+  text-align: center;
+  max-width: 800px;
   margin: 0 auto;
+  gap: 32px;
 }
 
 .landing-copy {
-  display: grid;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 .landing-icon {
@@ -401,6 +404,7 @@ tbody tr:hover {
 .landing-use-cases {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   max-width: 620px;
 }
@@ -424,10 +428,17 @@ tbody tr:hover {
   flex: 0 0 auto;
 }
 
+.landing-options-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .landing-options {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  width: min(100%, 800px);
 }
 
 .access-card {
@@ -575,39 +586,47 @@ tbody tr:hover {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 108px;
-  border: 1px solid #dce2ea;
-  border-radius: 8px;
-  padding: 18px;
+  gap: 16px;
+  min-height: 120px;
+  border: 1px solid #eef1f5;
+  border-radius: 12px;
+  padding: 24px;
   background: #ffffff;
-  box-shadow: 0 12px 30px rgb(25 37 60 / 6%);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
 }
 
 .stat-card span {
   display: block;
-  color: #657287;
-  font-size: 0.875rem;
-  font-weight: 700;
+  color: #64748b;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .stat-card strong {
   display: block;
-  margin-top: 4px;
-  color: #172033;
-  font-size: 1.75rem;
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 2rem;
   line-height: 1;
 }
 
 .stat-card strong.loading-value {
-  color: #8a95a6;
+  color: #94a3b8;
   letter-spacing: 0;
 }
 
@@ -615,67 +634,54 @@ tbody tr:hover {
   display: inline-grid;
   flex: 0 0 auto;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   color: #ffffff;
   background: #1f6feb;
 }
 
-.stat-card.amber .stat-card-icon {
-  background: #b7791f;
-}
-
-.stat-card.green .stat-card-icon {
-  background: #238636;
-}
-
-.stat-card.red .stat-card-icon {
-  background: #c2410c;
-}
-
-.stat-card.rose .stat-card-icon {
-  background: #b42318;
-}
-
-.stat-card.violet .stat-card-icon {
-  background: #8250df;
-}
+.stat-card.amber .stat-card-icon { background: #d97706; }
+.stat-card.green .stat-card-icon { background: #16a34a; }
+.stat-card.red .stat-card-icon { background: #dc2626; }
+.stat-card.rose .stat-card-icon { background: #e11d48; }
+.stat-card.violet .stat-card-icon { background: #7c3aed; }
 
 .section-heading {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
+  margin-top: 24px;
 }
 
 .section-heading span {
-  color: #657287;
-  font-size: 0.875rem;
-  font-weight: 800;
+  color: #64748b;
+  font-size: 0.9375rem;
+  font-weight: 600;
 }
 
 .practice-insights {
   display: grid;
-  gap: 16px;
+  gap: 24px;
 }
 
 .insights-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 32px;
 }
 
 .insight-panel {
   display: grid;
   align-content: start;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
-  border: 1px solid #dce2ea;
-  border-radius: 8px;
-  padding: 18px;
+  border: 1px solid #eef1f5;
+  border-radius: 12px;
+  padding: 28px;
   background: #ffffff;
-  box-shadow: 0 12px 30px rgb(25 37 60 / 6%);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04);
 }
 
 .insight-panel.wide {

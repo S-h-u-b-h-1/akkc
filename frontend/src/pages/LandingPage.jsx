@@ -73,7 +73,9 @@ export function LandingPage() {
             })}
           </div>
         </div>
+      </section>
 
+      <section className="landing-options-section">
         <div className="landing-options" aria-label="Choose login type">
           {accessOptions.map((option) => {
             const Icon = option.icon;
@@ -81,14 +83,14 @@ export function LandingPage() {
             return (
               <article className="access-card" key={option.to}>
                 <div className="access-icon">
-                  <Icon size={22} aria-hidden="true" />
+                  <Icon size={26} aria-hidden="true" />
                 </div>
                 <div>
                   <h2>{option.title}</h2>
                   <p>{option.description}</p>
                 </div>
                 <Link className="primary-button access-link" to={option.to}>
-                  <LogIn size={17} aria-hidden="true" />
+                  <LogIn size={18} aria-hidden="true" />
                   <span>{option.buttonLabel}</span>
                 </Link>
               </article>

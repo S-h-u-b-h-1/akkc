@@ -152,7 +152,10 @@ const createStatusSummary = () => ({
   completedTasks: 0,
   notDoneTasks: 0,
   delayedTasks: 0,
-  highPriorityTasks: 0
+  highPriorityTasks: 0,
+  unbilledTasks: 0,
+  unbilledValue: 0,
+  billedValue: 0
 });
 
 const incrementStatusSummary = (summary, task, effectiveStatus) => {
@@ -176,6 +179,17 @@ const incrementStatusSummary = (summary, task, effectiveStatus) => {
 
   if (effectiveStatus === TASK_STATUSES.DELAYED) {
     summary.delayedTasks += 1;
+  }
+
+  if (task.billItem) {
+    summary.billedValue += Number(task.billAmount || 0);
+  } else if (
+    task.status === TASK_STATUSES.COMPLETED &&
+    task.isBillable &&
+    task.billingApprovalStatus === 'APPROVED_FOR_BILLING'
+  ) {
+    summary.unbilledTasks += 1;
+    summary.unbilledValue += Number(task.billAmount || 0);
   }
 };
 
