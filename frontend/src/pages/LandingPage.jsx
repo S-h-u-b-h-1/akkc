@@ -1,11 +1,5 @@
 import {
-  BadgeIndianRupee,
-  ClipboardCheck,
-  FileSpreadsheet,
-  FileText,
-  Landmark,
   LogIn,
-  ReceiptText,
   ShieldCheck,
   UserRound
 } from 'lucide-react';
@@ -32,15 +26,6 @@ const accessOptions = Object.freeze([
   }
 ]);
 
-const useCases = Object.freeze([
-  { label: 'GST returns', icon: ReceiptText },
-  { label: 'Tax audits', icon: ClipboardCheck },
-  { label: 'Income-tax filings', icon: BadgeIndianRupee },
-  { label: 'TDS follow-ups', icon: FileSpreadsheet },
-  { label: 'ROC compliance', icon: Landmark },
-  { label: 'Client documents', icon: FileText }
-]);
-
 export function LandingPage() {
   return (
     <main className="landing-page">
@@ -56,22 +41,8 @@ export function LandingPage() {
           <p className="eyebrow">{FIRM.TAGLINE}</p>
           <h1 id="landing-title">{FIRM.NAME}</h1>
           <p className="landing-summary">
-            A focused work desk for assigning client compliance work, collecting staff updates,
-            and reviewing daily progress across the firm.
+            Built on trust, driven by excellence, and committed to empowering businesses with strategic financial solutions and lasting partnerships.
           </p>
-
-          <div className="landing-use-cases" aria-label="Chartered accountancy workflows">
-            {useCases.map((useCase) => {
-              const Icon = useCase.icon;
-
-              return (
-                <span className="use-case-chip" key={useCase.label}>
-                  <Icon size={16} aria-hidden="true" />
-                  {useCase.label}
-                </span>
-              );
-            })}
-          </div>
         </div>
       </section>
 
