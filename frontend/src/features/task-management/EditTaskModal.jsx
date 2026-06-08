@@ -22,9 +22,6 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
   const [form, setForm] = useState(() => createFormState(task));
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const serviceLineOptions = CA_SERVICE_LINES.includes(form.domain)
-    ? CA_SERVICE_LINES
-    : [form.domain, ...CA_SERVICE_LINES].filter(Boolean);
 
   const updateField = (event) => {
     const { checked, name, type, value } = event.target;
@@ -100,13 +97,19 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
 
           <label>
             <span>Service line</span>
-            <select name="domain" value={form.domain} onChange={updateField} required>
-              {serviceLineOptions.map((serviceLine) => (
-                <option key={serviceLine} value={serviceLine}>
-                  {serviceLine}
-                </option>
+            <input 
+              name="domain" 
+              list="edit-domain-options" 
+              value={form.domain} 
+              onChange={updateField} 
+              placeholder="Select or type service line"
+              required 
+            />
+            <datalist id="edit-domain-options">
+              {CA_SERVICE_LINES.map((serviceLine) => (
+                <option key={serviceLine} value={serviceLine} />
               ))}
-            </select>
+            </datalist>
           </label>
 
           <label>

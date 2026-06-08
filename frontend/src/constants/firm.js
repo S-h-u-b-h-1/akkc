@@ -12,43 +12,54 @@ export const CA_SERVICE_LINES = Object.freeze([
   'Income Tax',
   'TDS Compliance',
   'Company Law',
-  'Accounting Review'
+  'Accounting Review',
+  'Litigation & Appeals',
+  'Consulting & Advisory',
+  'Regulatory Compliance',
+  'Miscellaneous'
 ]);
 
 export const CA_ASSIGNMENT_TEMPLATES = Object.freeze([
-  {
-    label: 'GSTR-3B monthly filing',
-    title: 'Prepare and review GSTR-3B filing',
-    domain: 'GST Compliance'
-  },
-  {
-    label: 'GSTR-1 outward supplies',
-    title: 'Reconcile outward supplies for GSTR-1',
-    domain: 'GST Compliance'
-  },
-  {
-    label: 'Quarterly TDS return',
-    title: 'Prepare quarterly TDS return working',
-    domain: 'TDS Compliance'
-  },
-  {
-    label: 'Tax audit Form 3CD',
-    title: 'Review Form 3CD clauses and audit notes',
-    domain: 'Audit & Assurance'
-  },
-  {
-    label: 'Income-tax return review',
-    title: 'Review documents for income-tax return filing',
-    domain: 'Income Tax'
-  },
-  {
-    label: 'ROC annual filing checklist',
-    title: 'Prepare ROC annual filing checklist',
-    domain: 'Company Law'
-  },
-  {
-    label: 'Monthly books review',
-    title: 'Verify monthly books and bank reconciliation',
-    domain: 'Accounting Review'
-  }
+  { label: 'GSTR 9', title: 'GSTR 9', domain: 'GST Compliance' },
+  { label: 'GSTR 9C', title: 'GSTR 9C', domain: 'GST Compliance' },
+  { label: 'DSC', title: 'DSC', domain: 'Company Law' },
+  { label: 'GSTR 7', title: 'GSTR 7', domain: 'GST Compliance' },
+  { label: 'GST Registration/Cancellation', title: 'GST Registration/Cancellation', domain: 'GST Compliance' },
+  { label: 'GST Return', title: 'GST Return', domain: 'GST Compliance' },
+  { label: 'Appeal Fees', title: 'Appeal Fees', domain: 'Litigation & Appeals' },
+  { label: 'Income Tax Filing', title: 'Income Tax Filing', domain: 'Income Tax' },
+  { label: 'Professional fees', title: 'Professional fees', domain: 'Consulting & Advisory' },
+  { label: 'MSME Petition', title: 'MSME Petition', domain: 'Consulting & Advisory' },
+  { label: 'RBI Return', title: 'RBI Return', domain: 'Regulatory Compliance' },
+  { label: 'Trade License', title: 'Trade License', domain: 'Regulatory Compliance' },
+  { label: 'Professional Tax', title: 'Professional Tax', domain: 'Regulatory Compliance' },
+  { label: 'AOC -1', title: 'AOC -1', domain: 'Company Law' },
+  { label: 'AOC - 4 - CFS', title: 'AOC - 4 - CFS', domain: 'Company Law' },
+  { label: 'CHG -4 - Form', title: 'CHG -4 - Form', domain: 'Company Law' },
+  { label: 'DIR - 12', title: 'DIR - 12', domain: 'Company Law' },
+  { label: 'DIR - 3 KYC', title: 'DIR - 3 KYC', domain: 'Company Law' },
+  { label: 'DPT 3', title: 'DPT 3', domain: 'Company Law' },
+  { label: "Form extract to auditor's report", title: "Form extract to auditor's report", domain: 'Audit & Assurance' },
+  { label: 'form extract to board report', title: 'form extract to board report', domain: 'Company Law' },
+  { label: 'LLP form 11', title: 'LLP form 11', domain: 'Company Law' },
+  { label: 'LLP form 8', title: 'LLP form 8', domain: 'Company Law' },
+  { label: 'ROC ADT 1', title: 'ROC ADT 1', domain: 'Company Law' },
+  { label: 'ROC AOC - 4', title: 'ROC AOC - 4', domain: 'Company Law' },
+  { label: 'ROC CHG 1', title: 'ROC CHG 1', domain: 'Company Law' },
+  { label: 'ROC FORM INC 22', title: 'ROC FORM INC 22', domain: 'Company Law' },
+  { label: 'ROC Matter', title: 'ROC Matter', domain: 'Company Law' },
+  { label: 'ROC MGT 14', title: 'ROC MGT 14', domain: 'Company Law' },
+  { label: 'ROC MGT 7A', title: 'ROC MGT 7A', domain: 'Company Law' },
+  { label: 'TDS 27 EQ', title: 'TDS 27 EQ', domain: 'TDS Compliance' },
+  { label: 'TDS 24Q', title: 'TDS 24Q', domain: 'TDS Compliance' },
+  { label: 'TDS 26Q', title: 'TDS 26Q', domain: 'TDS Compliance' },
+  { label: 'Annual Compliance', title: 'Annual Compliance', domain: 'Regulatory Compliance' },
+  { label: 'Documentation of Closure', title: 'Documentation of Closure', domain: 'Company Law' },
+  { label: 'Projected Financial Statement', title: 'Projected Financial Statement', domain: 'Consulting & Advisory' },
+  { label: 'Certification', title: 'Certification', domain: 'Audit & Assurance' },
+  { label: 'STATUTORY AUDIT', title: 'STATUTORY AUDIT', domain: 'Audit & Assurance' },
+  { label: 'TAX AUDIT 3CD', title: 'TAX AUDIT 3CD', domain: 'Audit & Assurance' },
+  { label: 'ACCOUNTING CHARGES', title: 'ACCOUNTING CHARGES', domain: 'Accounting Review' },
+  { label: 'DRAFTING', title: 'DRAFTING', domain: 'Consulting & Advisory' },
+  { label: 'MISC', title: '', domain: '' }
 ]);

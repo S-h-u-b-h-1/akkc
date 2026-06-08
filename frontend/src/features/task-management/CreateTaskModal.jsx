@@ -120,14 +120,19 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
 
           <label>
             <span>Service line</span>
-            <select name="domain" value={form.domain} onChange={updateField} required>
-              <option value="">Select service line</option>
+            <input 
+              name="domain" 
+              list="domain-options" 
+              value={form.domain} 
+              onChange={updateField} 
+              placeholder="Select or type service line"
+              required 
+            />
+            <datalist id="domain-options">
               {CA_SERVICE_LINES.map((serviceLine) => (
-                <option key={serviceLine} value={serviceLine}>
-                  {serviceLine}
-                </option>
+                <option key={serviceLine} value={serviceLine} />
               ))}
-            </select>
+            </datalist>
           </label>
 
           <label>
