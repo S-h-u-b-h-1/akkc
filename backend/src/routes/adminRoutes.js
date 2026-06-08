@@ -43,6 +43,16 @@ import {
   taskIdParamSchema,
   updateTaskSchema
 } from '../validators/taskValidators.js';
+import {
+  listArchivedAdmins,
+  listArchivedEmployees,
+  permanentlyDeleteAdmin,
+  permanentlyDeleteEmployee
+} from '../controllers/dataMaintenanceController.js';
+import {
+  emptyMaintenanceQuerySchema,
+  maintenanceRecordIdParamSchema
+} from '../validators/dataMaintenanceValidators.js';
 
 const router = Router();
 
@@ -74,6 +84,34 @@ router.delete(
   adminOnly,
   validateRequest(adminIdParamSchema),
   asyncHandler(deleteAdmin)
+);
+router.get(
+  '/maintenance/archived-admins',
+  authenticate,
+  adminOnly,
+  validateRequest(emptyMaintenanceQuerySchema),
+  asyncHandler(listArchivedAdmins)
+);
+router.delete(
+  '/maintenance/archived-admins/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(maintenanceRecordIdParamSchema),
+  asyncHandler(permanentlyDeleteAdmin)
+);
+router.get(
+  '/maintenance/archived-employees',
+  authenticate,
+  adminOnly,
+  validateRequest(emptyMaintenanceQuerySchema),
+  asyncHandler(listArchivedEmployees)
+);
+router.delete(
+  '/maintenance/archived-employees/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(maintenanceRecordIdParamSchema),
+  asyncHandler(permanentlyDeleteEmployee)
 );
 router.post(
   '/employees',

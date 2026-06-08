@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants/routes.js';
 
 import { AdminManagement } from '../features/admin-management/AdminManagement.jsx';
+import { DataMaintenance } from '../features/data-maintenance/DataMaintenance.jsx';
 import { PracticeInsights } from '../features/dashboard-analytics/PracticeInsights.jsx';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
 import { EmployeeManagement } from '../features/employee-management/EmployeeManagement.jsx';
@@ -23,6 +24,10 @@ import {
   getAdminEmployees,
   getAdminStats,
   getAdminTasks,
+  getArchivedAdminAccounts,
+  getArchivedEmployeeAccounts,
+  permanentlyDeleteAdminAccount,
+  permanentlyDeleteEmployeeAccount,
   updateAdminAccount,
   updateAdminEmployee,
   updateAdminTask
@@ -34,10 +39,13 @@ const getRouteRequirements = (pathname) => {
     pathname === ROUTES.ADMIN_DASHBOARD || pathname === ROUTES.ADMIN_ROOT;
   const isAdminsRoute = pathname === ROUTES.ADMIN_ADMINS;
   const isEmployeesRoute = pathname === ROUTES.ADMIN_EMPLOYEES;
+  const isMaintenanceRoute = pathname === ROUTES.ADMIN_MAINTENANCE;
   const isTasksRoute = pathname === ROUTES.ADMIN_TASKS;
 
   return {
     admins: isAdminsRoute,
+    archivedAdmins: isMaintenanceRoute,
+    archivedEmployees: isMaintenanceRoute,
     employees: isEmployeesRoute || isTasksRoute,
     stats: isDashboardRoute,
     tasks: isDashboardRoute || isTasksRoute
@@ -97,6 +105,30 @@ const fetchDashboardSnapshot = async ({ filters, requirements }) => {
     );
   }
 
+  if (requirements.archivedAdmins) {
+    requests.push(
+      getArchivedAdminAccounts()
+        .then((response) => {
+          snapshot.archivedAdmins = response.data?.admins ?? [];
+        })
+        .catch((error) => {
+          errors.push(error.message);
+        })
+    );
+  }
+
+  if (requirements.archivedEmployees) {
+    requests.push(
+      getArchivedEmployeeAccounts()
+        .then((response) => {
+          snapshot.archivedEmployees = response.data?.employees ?? [];
+        })
+        .catch((error) => {
+          errors.push(error.message);
+        })
+    );
+  }
+
   await Promise.all(requests);
 
   if (errors.length > 0) {
@@ -124,6 +156,14 @@ const applySnapshot = (snapshot, setters) => {
   if (Object.hasOwn(snapshot, 'admins')) {
     setters.setAdmins(snapshot.admins);
   }
+
+  if (Object.hasOwn(snapshot, 'archivedAdmins')) {
+    setters.setArchivedAdmins(snapshot.archivedAdmins);
+  }
+
+  if (Object.hasOwn(snapshot, 'archivedEmployees')) {
+    setters.setArchivedEmployees(snapshot.archivedEmployees);
+  }
 };
 
 const initialFilters = {
@@ -138,6 +178,8 @@ export function AdminDashboard() {
   const location = useLocation();
   const { user } = useAuth();
   const [admins, setAdmins] = useState([]);
+  const [archivedAdmins, setArchivedAdmins] = useState([]);
+  const [archivedEmployees, setArchivedEmployees] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState(initialFilters);
@@ -157,13 +199,27 @@ export function AdminDashboard() {
           return;
         }
 
-        applySnapshot(snapshot, { setAdmins, setEmployees, setStats, setTasks });
+        applySnapshot(snapshot, {
+          setAdmins,
+          setArchivedAdmins,
+          setArchivedEmployees,
+          setEmployees,
+          setStats,
+          setTasks
+        });
         setError('');
       })
       .catch((loadError) => {
         if (isCurrent) {
           if (loadError.snapshot) {
-            applySnapshot(loadError.snapshot, { setAdmins, setEmployees, setStats, setTasks });
+            applySnapshot(loadError.snapshot, {
+              setAdmins,
+              setArchivedAdmins,
+              setArchivedEmployees,
+              setEmployees,
+              setStats,
+              setTasks
+            });
           }
           setError(loadError.message);
         }
@@ -188,11 +244,25 @@ export function AdminDashboard() {
         filters,
         requirements: getRouteRequirements(location.pathname)
       });
-      applySnapshot(snapshot, { setAdmins, setEmployees, setStats, setTasks });
+      applySnapshot(snapshot, {
+        setAdmins,
+        setArchivedAdmins,
+        setArchivedEmployees,
+        setEmployees,
+        setStats,
+        setTasks
+      });
       setError('');
     } catch (loadError) {
       if (loadError.snapshot) {
-        applySnapshot(loadError.snapshot, { setAdmins, setEmployees, setStats, setTasks });
+        applySnapshot(loadError.snapshot, {
+          setAdmins,
+          setArchivedAdmins,
+          setArchivedEmployees,
+          setEmployees,
+          setStats,
+          setTasks
+        });
       }
       setError(loadError.message);
     } finally {
@@ -247,7 +317,7 @@ export function AdminDashboard() {
   };
 
   const handleDeleteAdmin = async (admin) => {
-    const shouldDelete = window.confirm(`Delete admin login for ${admin.name}?`);
+    const shouldDelete = window.confirm(`Archive admin login for ${admin.name}?`);
 
     if (!shouldDelete) {
       return;
@@ -267,7 +337,7 @@ export function AdminDashboard() {
   };
 
   const handleDeleteEmployee = async (employee) => {
-    const shouldDelete = window.confirm(`Delete login credentials for ${employee.name}?`);
+    const shouldDelete = window.confirm(`Archive login credentials for ${employee.name}?`);
 
     if (!shouldDelete) {
       return;
@@ -281,10 +351,45 @@ export function AdminDashboard() {
     }
   };
 
+  const handlePermanentlyDeleteAdmin = async (admin) => {
+    const shouldDelete = window.confirm(
+      `Permanently delete archived admin "${admin.name}" from the online database?`
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await permanentlyDeleteAdminAccount(admin.id);
+      await refreshDashboard();
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
+  };
+
+  const handlePermanentlyDeleteEmployee = async (employee) => {
+    const shouldDelete = window.confirm(
+      `Permanently delete archived staff login "${employee.name}" from the online database?`
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await permanentlyDeleteEmployeeAccount(employee.id);
+      await refreshDashboard();
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
+  };
+
   const isDashboardRoute =
     location.pathname === ROUTES.ADMIN_DASHBOARD || location.pathname === ROUTES.ADMIN_ROOT;
   const isAdminsRoute = location.pathname === ROUTES.ADMIN_ADMINS;
   const isEmployeesRoute = location.pathname === ROUTES.ADMIN_EMPLOYEES;
+  const isMaintenanceRoute = location.pathname === ROUTES.ADMIN_MAINTENANCE;
   const isTasksRoute = location.pathname === ROUTES.ADMIN_TASKS;
 
   const getHeaderDetails = () => {
@@ -293,6 +398,9 @@ export function AdminDashboard() {
     }
     if (isEmployeesRoute) {
       return { eyebrow: 'Firm team', title: 'Staff credential management' };
+    }
+    if (isMaintenanceRoute) {
+      return { eyebrow: 'Database maintenance', title: 'Data cleanup' };
     }
     if (isTasksRoute) {
       return { eyebrow: 'Client work', title: 'Assignments' };
@@ -333,6 +441,16 @@ export function AdminDashboard() {
           onCreateAdmin={handleCreateAdmin}
           onDeleteAdmin={handleDeleteAdmin}
           onUpdateAdmin={handleUpdateAdmin}
+        />
+      ) : null}
+
+      {isMaintenanceRoute ? (
+        <DataMaintenance
+          archivedAdmins={archivedAdmins}
+          archivedEmployees={archivedEmployees}
+          isLoading={isLoading}
+          onDeleteAdmin={handlePermanentlyDeleteAdmin}
+          onDeleteEmployee={handlePermanentlyDeleteEmployee}
         />
       ) : null}
 

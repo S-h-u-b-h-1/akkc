@@ -48,6 +48,10 @@ export function AppRoutes() {
             element={<AdminDashboard />}
           />
           <Route
+            path={ROUTES.ADMIN_MAINTENANCE}
+            element={<AdminDashboard />}
+          />
+          <Route
             path={ROUTES.ADMIN_TASKS}
             element={<AdminDashboard />}
           />

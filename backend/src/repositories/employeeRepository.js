@@ -38,6 +38,18 @@ export const findActiveEmployeeByAdmin = ({ id, adminId }) =>
     select: publicEmployeeSelect
   });
 
+export const findArchivedEmployeeByAdmin = ({ id, adminId }) =>
+  getPrisma().employee.findFirst({
+    where: {
+      id,
+      createdByAdminId: adminId,
+      deletedAt: {
+        not: null
+      }
+    },
+    select: publicEmployeeSelect
+  });
+
 export const listActiveEmployeesByAdmin = (adminId) =>
   getPrisma().employee.findMany({
     where: {
@@ -46,6 +58,20 @@ export const listActiveEmployeesByAdmin = (adminId) =>
     },
     orderBy: {
       createdAt: 'desc'
+    },
+    select: publicEmployeeSelect
+  });
+
+export const listArchivedEmployeesByAdmin = (adminId) =>
+  getPrisma().employee.findMany({
+    where: {
+      createdByAdminId: adminId,
+      deletedAt: {
+        not: null
+      }
+    },
+    orderBy: {
+      deletedAt: 'desc'
     },
     select: publicEmployeeSelect
   });
@@ -60,6 +86,12 @@ export const createEmployee = ({ name, username, email, passwordHash, department
       department,
       createdByAdminId
     },
+    select: publicEmployeeSelect
+  });
+
+export const hardDeleteEmployee = (id) =>
+  getPrisma().employee.delete({
+    where: { id },
     select: publicEmployeeSelect
   });
 

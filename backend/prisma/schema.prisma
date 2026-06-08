@@ -39,8 +39,8 @@ model Employee {
   email            String?      @unique @db.VarChar(255)
   passwordHash     String       @db.VarChar(255)
   department       String?      @db.VarChar(120)
-  createdByAdminId String       @db.Uuid
-  createdByAdmin   Admin        @relation("AdminCreatedEmployees", fields: [createdByAdminId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  createdByAdminId String?      @db.Uuid
+  createdByAdmin   Admin?       @relation("AdminCreatedEmployees", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   assignedTasks    Task[]       @relation("EmployeeAssignedTasks")
   taskUpdates      TaskUpdate[] @relation("EmployeeTaskUpdates")
   createdAt        DateTime     @default(now())
@@ -62,15 +62,14 @@ model Task {
   isHighPriority     Boolean      @default(false)
   assignedDate       DateTime     @db.Date
   dueDate            DateTime     @db.Date
-  assignedEmployeeId String       @db.Uuid
-  createdByAdminId   String       @db.Uuid
-  assignedEmployee   Employee     @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  createdByAdmin     Admin        @relation("AdminCreatedTasks", fields: [createdByAdminId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  assignedEmployeeId String?      @db.Uuid
+  createdByAdminId   String?      @db.Uuid
+  assignedEmployee   Employee?    @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdByAdmin     Admin?       @relation("AdminCreatedTasks", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   updates            TaskUpdate[] @relation("TaskUpdates")
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @default(now()) @updatedAt
 
-  @@unique([id, assignedEmployeeId])
   @@index([assignedEmployeeId])
   @@index([createdByAdminId])
   @@index([status, dueDate])
@@ -83,12 +82,12 @@ model Task {
 model TaskUpdate {
   id         String     @id @default(uuid()) @db.Uuid
   taskId     String     @db.Uuid
-  employeeId String     @db.Uuid
+  employeeId String?    @db.Uuid
   status     TaskStatus
   remark     String?    @db.Text
   reason     String?    @db.Text
-  task       Task       @relation("TaskUpdates", fields: [taskId, employeeId], references: [id, assignedEmployeeId], onDelete: Cascade, onUpdate: Cascade)
-  employee   Employee   @relation("EmployeeTaskUpdates", fields: [employeeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  task       Task       @relation("TaskUpdates", fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  employee   Employee?  @relation("EmployeeTaskUpdates", fields: [employeeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   createdAt  DateTime   @default(now())
 
   @@index([taskId])

@@ -34,6 +34,20 @@ export const deleteAdminAccount = (adminId) =>
     method: 'DELETE'
   });
 
+export const getArchivedAdminAccounts = () => httpClient('/admin/maintenance/archived-admins');
+
+export const permanentlyDeleteAdminAccount = (adminId) =>
+  httpClient(`/admin/maintenance/archived-admins/${adminId}`, {
+    method: 'DELETE'
+  });
+
+export const getArchivedEmployeeAccounts = () => httpClient('/admin/maintenance/archived-employees');
+
+export const permanentlyDeleteEmployeeAccount = (employeeId) =>
+  httpClient(`/admin/maintenance/archived-employees/${employeeId}`, {
+    method: 'DELETE'
+  });
+
 export const getAdminTasks = (filters) => httpClient(`/admin/tasks${buildQueryString(filters)}`);
 
 export const createAdminTask = (payload) =>

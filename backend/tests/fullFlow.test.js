@@ -141,13 +141,21 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
     };
   };
 
-  const matchesEmployeeWhere = (employee, where) =>
-    Object.entries(where).every(([key, value]) => {
-      if (value === null) {
-        return employee[key] === null;
-      }
+  const matchesRecordValue = (recordValue, condition) => {
+    if (condition && typeof condition === 'object' && 'not' in condition) {
+      return recordValue !== condition.not;
+    }
 
-      return employee[key] === value;
+    if (condition === null) {
+      return recordValue === null;
+    }
+
+    return recordValue === condition;
+  };
+
+  const matchesRecordWhere = (record, where) =>
+    Object.entries(where).every(([key, value]) => {
+      return matchesRecordValue(record[key], value);
     });
 
   const matchesDueDate = (task, condition) => {
@@ -219,17 +227,13 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
         return selectedRecord(admin, select);
       },
       findFirst: async ({ where }) => {
-        const admin = store.admins.find((candidate) =>
-          Object.entries(where).every(([key, value]) => candidate[key] === value)
-        );
+        const admin = store.admins.find((candidate) => matchesRecordWhere(candidate, where));
 
         return publicAdmin(admin);
       },
       findMany: async ({ where }) =>
         store.admins
-          .filter((admin) =>
-            Object.entries(where).every(([key, value]) => admin[key] === value)
-          )
+          .filter((admin) => matchesRecordWhere(admin, where))
           .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
           .map(publicAdmin),
       create: async ({ data, select }) => {
@@ -262,6 +266,35 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
         Object.assign(admin, data, { updatedAt: now() });
 
         return publicAdmin(admin);
+      },
+      updateMany: async ({ where, data }) => {
+        const admins = store.admins.filter((candidate) => matchesRecordWhere(candidate, where));
+        admins.forEach((admin) => Object.assign(admin, data, { updatedAt: now() }));
+
+        return { count: admins.length };
+      },
+      delete: async ({ where }) => {
+        const adminIndex = store.admins.findIndex((candidate) => candidate.id === where.id);
+        const [admin] = store.admins.splice(adminIndex, 1);
+
+        store.admins.forEach((candidate) => {
+          if (candidate.createdByAdminId === admin.id) {
+            candidate.createdByAdminId = null;
+            candidate.createdByAdmin = null;
+          }
+        });
+        store.employees.forEach((employee) => {
+          if (employee.createdByAdminId === admin.id) {
+            employee.createdByAdminId = null;
+          }
+        });
+        store.tasks.forEach((task) => {
+          if (task.createdByAdminId === admin.id) {
+            task.createdByAdminId = null;
+          }
+        });
+
+        return publicAdmin(admin);
       }
     },
     employee: {
@@ -277,13 +310,13 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
         return selectedRecord(employee, select);
       },
       findFirst: async ({ where }) => {
-        const employee = store.employees.find((candidate) => matchesEmployeeWhere(candidate, where));
+        const employee = store.employees.find((candidate) => matchesRecordWhere(candidate, where));
 
         return publicEmployee(employee);
       },
       findMany: async ({ where }) =>
         store.employees
-          .filter((employee) => matchesEmployeeWhere(employee, where))
+          .filter((employee) => matchesRecordWhere(employee, where))
           .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
           .map(publicEmployee),
       create: async ({ data }) => {
@@ -302,6 +335,29 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
       update: async ({ where, data }) => {
         const employee = store.employees.find((candidate) => candidate.id === where.id);
         Object.assign(employee, data, { updatedAt: now() });
+
+        return publicEmployee(employee);
+      },
+      updateMany: async ({ where, data }) => {
+        const employees = store.employees.filter((candidate) => matchesRecordWhere(candidate, where));
+        employees.forEach((employee) => Object.assign(employee, data, { updatedAt: now() }));
+
+        return { count: employees.length };
+      },
+      delete: async ({ where }) => {
+        const employeeIndex = store.employees.findIndex((candidate) => candidate.id === where.id);
+        const [employee] = store.employees.splice(employeeIndex, 1);
+
+        store.tasks.forEach((task) => {
+          if (task.assignedEmployeeId === employee.id) {
+            task.assignedEmployeeId = null;
+          }
+        });
+        store.taskUpdates.forEach((update) => {
+          if (update.employeeId === employee.id) {
+            update.employeeId = null;
+          }
+        });
 
         return publicEmployee(employee);
       }
@@ -327,6 +383,12 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
         Object.assign(task, data, { updatedAt: now() });
 
         return publicTask(task);
+      },
+      updateMany: async ({ where, data }) => {
+        const tasks = store.tasks.filter((candidate) => matchesTaskWhere(candidate, where));
+        tasks.forEach((task) => Object.assign(task, data, { updatedAt: now() }));
+
+        return { count: tasks.length };
       },
       delete: async ({ where }) => {
         const taskIndex = store.tasks.findIndex((candidate) => candidate.id === where.id);
@@ -666,6 +728,35 @@ test('complete admin and employee task management flow', async () => {
   const employeesAfterDelete = await request(app).get('/api/admin/employees').set(authHeader(adminToken)).expect(200);
   assert.equal(employeesAfterDelete.body.data.employees.length, 1);
 
+  const archivedEmployees = await request(app)
+    .get('/api/admin/maintenance/archived-employees')
+    .set(authHeader(adminToken))
+    .expect(200);
+  assert.equal(archivedEmployees.body.data.employees.length, 1);
+  assert.equal(archivedEmployees.body.data.employees[0].username, 'alex.tax');
+
+  await request(app)
+    .delete(`/api/admin/maintenance/archived-employees/${secondEmployee.id}`)
+    .set(authHeader(adminToken))
+    .expect(200);
+  const archivedEmployeesAfterCleanup = await request(app)
+    .get('/api/admin/maintenance/archived-employees')
+    .set(authHeader(adminToken))
+    .expect(200);
+  assert.equal(archivedEmployeesAfterCleanup.body.data.employees.length, 0);
+
+  const reusedEmployee = await request(app)
+    .post('/api/admin/employees')
+    .set(authHeader(adminToken))
+    .send({
+      name: 'Replacement Analyst',
+      username: 'alex.tax',
+      password: 'Employee@12345',
+      department: 'Audit'
+    })
+    .expect(201);
+  assert.equal(reusedEmployee.body.data.employee.username, 'alex.tax');
+
   await request(app).delete(`/api/admin/tasks/${secondEmployeeTask.id}`).set(authHeader(adminToken)).expect(200);
   const tasksAfterDelete = await request(app).get('/api/admin/tasks').set(authHeader(adminToken)).expect(200);
   assert.equal(tasksAfterDelete.body.data.tasks.length, 2);
@@ -681,4 +772,21 @@ test('complete admin and employee task management flow', async () => {
       password: 'AdminPass123'
     })
     .expect(401);
+
+  const archivedAdmins = await request(app)
+    .get('/api/admin/maintenance/archived-admins')
+    .set(authHeader(adminToken))
+    .expect(200);
+  assert.equal(archivedAdmins.body.data.admins.length, 1);
+  assert.equal(archivedAdmins.body.data.admins[0].email, 'second.admin@example.com');
+
+  await request(app)
+    .delete(`/api/admin/maintenance/archived-admins/${createdAdmin.id}`)
+    .set(authHeader(adminToken))
+    .expect(200);
+  const archivedAdminsAfterCleanup = await request(app)
+    .get('/api/admin/maintenance/archived-admins')
+    .set(authHeader(adminToken))
+    .expect(200);
+  assert.equal(archivedAdminsAfterCleanup.body.data.admins.length, 0);
 });

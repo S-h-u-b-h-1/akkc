@@ -128,6 +128,7 @@ Staff password: Employee@12345
 /admin/dashboard     Team AKKC dashboard
 /admin/admins        Admin access management
 /admin/employees     Staff credential management
+/admin/data-cleanup  Archived record cleanup
 /admin/tasks         Client assignments
 /employee/login      Staff login
 /employee/dashboard  Team AKKC staff dashboard
@@ -147,6 +148,11 @@ POST   /api/admin/admins
 GET    /api/admin/admins
 PUT    /api/admin/admins/:id
 DELETE /api/admin/admins/:id
+
+GET    /api/admin/maintenance/archived-admins
+DELETE /api/admin/maintenance/archived-admins/:id
+GET    /api/admin/maintenance/archived-employees
+DELETE /api/admin/maintenance/archived-employees/:id
 
 POST   /api/admin/employees
 GET    /api/admin/employees
@@ -170,8 +176,9 @@ PUT /api/employee/tasks/:id/not-done
 - Backend Render URL: `https://akkc.onrender.com`
 - Frontend Vercel URL: `https://akkc-eight.vercel.app/`
 - `frontend/vercel.json` rewrites all frontend routes to `index.html` so refreshing protected React routes does not return a Vercel 404.
-- The backend `start` script runs `prisma migrate deploy` before starting Express so Render applies pending production migrations, including the staff `username` column.
+- The backend `start` script runs `prisma migrate deploy` before starting Express so Render applies pending production migrations, including record-cleanup relationship changes.
 - If the Vercel project root is the repository root, set the build output to `frontend/dist` or deploy with the frontend folder as the Vercel root directory.
+- Use `/admin/data-cleanup` to permanently remove archived staff/admin logins from the online database after they have been archived from the normal admin screens.
 
 ## Test Coverage
 
@@ -180,6 +187,7 @@ Backend route tests cover:
 - Authentication guards and validation
 - Admin login and `/api/auth/me`
 - Protected admin account create/list/update/delete
+- Archived admin/staff cleanup with permanent delete
 - Staff username login
 - Admin employee create/list/update/delete
 - Admin assignment create/list/detail/update/delete

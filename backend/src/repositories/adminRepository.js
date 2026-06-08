@@ -38,6 +38,17 @@ export const findActiveAdminById = (id) =>
     select: publicAdminSelect
   });
 
+export const findArchivedAdminById = (id) =>
+  getPrisma().admin.findFirst({
+    where: {
+      id,
+      deletedAt: {
+        not: null
+      }
+    },
+    select: publicAdminSelect
+  });
+
 export const listActiveAdmins = () =>
   getPrisma().admin.findMany({
     where: {
@@ -45,6 +56,19 @@ export const listActiveAdmins = () =>
     },
     orderBy: {
       createdAt: 'desc'
+    },
+    select: publicAdminSelect
+  });
+
+export const listArchivedAdmins = () =>
+  getPrisma().admin.findMany({
+    where: {
+      deletedAt: {
+        not: null
+      }
+    },
+    orderBy: {
+      deletedAt: 'desc'
     },
     select: publicAdminSelect
   });
@@ -58,6 +82,27 @@ export const createAdmin = ({ name, email, passwordHash, createdByAdminId }) =>
       createdByAdminId
     },
     select: publicAdminSelect
+  });
+
+export const hardDeleteAdmin = ({ id, replacementAdminId }) =>
+  getPrisma().$transaction(async (transaction) => {
+    await transaction.admin.updateMany({
+      where: { createdByAdminId: id },
+      data: { createdByAdminId: replacementAdminId }
+    });
+    await transaction.employee.updateMany({
+      where: { createdByAdminId: id },
+      data: { createdByAdminId: replacementAdminId }
+    });
+    await transaction.task.updateMany({
+      where: { createdByAdminId: id },
+      data: { createdByAdminId: replacementAdminId }
+    });
+
+    return transaction.admin.delete({
+      where: { id },
+      select: publicAdminSelect
+    });
   });
 
 export const updateAdmin = ({ id, data }) =>
