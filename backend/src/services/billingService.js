@@ -104,8 +104,10 @@ export const emailBillToClient = async (adminId, billId) => {
     throw new AppError('Client email is missing from this bill.', HTTP_STATUS.BAD_REQUEST);
   }
 
-  // Generate PDF if not already generated
-  if (!bill.pdfUrl) {
+  let pdfPath = bill.pdfUrl ? path.join(BACKEND_ROOT, bill.pdfUrl) : null;
+
+  // Generate PDF if not already generated or if missing from ephemeral storage
+  if (!pdfPath || !fs.existsSync(pdfPath)) {
     const pdfUrl = await generateBillPdf(bill);
     bill = await updateBillPdfStatus(bill.id, pdfUrl);
     // Reload bill to ensure pdfUrl is present in memory
@@ -122,6 +124,7 @@ export const emailBillToClient = async (adminId, billId) => {
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -133,13 +136,15 @@ export const getBillPdfPath = async (adminId, billId) => {
     throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
   }
 
-  // Generate PDF if not already generated
-  if (!bill.pdfUrl) {
+  let pdfPath = bill.pdfUrl ? path.join(BACKEND_ROOT, bill.pdfUrl) : null;
+
+  // Generate PDF if not already generated, or if the file was deleted from ephemeral storage
+  if (!pdfPath || !fs.existsSync(pdfPath)) {
     const pdfUrl = await generateBillPdf(bill);
     bill = await updateBillPdfStatus(bill.id, pdfUrl);
     bill = await getBillById(adminId, billId);
+    pdfPath = path.join(BACKEND_ROOT, bill.pdfUrl);
   }
 
-  const pdfPath = path.join(BACKEND_ROOT, bill.pdfUrl);
   return pdfPath;
 };
