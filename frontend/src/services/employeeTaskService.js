@@ -1,8 +1,15 @@
 import { httpClient } from '../api/httpClient.js';
 
 export const getEmployeeTasks = (filters = {}) => {
-  const query = new URLSearchParams(filters).toString();
-  return httpClient(`/employee/tasks${query ? `?${query}` : ''}`);
+  const query = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) {
+      query.append(key, value);
+    }
+  });
+  
+  const queryString = query.toString();
+  return httpClient(`/employee/tasks${queryString ? `?${queryString}` : ''}`);
 };
 
 export const markEmployeeTaskDone = (taskId, payload) =>
