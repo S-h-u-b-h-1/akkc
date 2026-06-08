@@ -47,10 +47,7 @@ export function AppRoutes() {
             path={ROUTES.ADMIN_EMPLOYEES}
             element={<AdminDashboard />}
           />
-          <Route
-            path={ROUTES.ADMIN_MAINTENANCE}
-            element={<AdminDashboard />}
-          />
+
           <Route
             path={ROUTES.ADMIN_TASKS}
             element={<AdminDashboard />}
