@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -346,7 +346,13 @@ export function AdminDashboard() {
         ) : null}
       </div>
 
-      {error ? <p className="form-error">{error}</p> : null}
+      {error && (
+        <div className="error-toast">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+          <button className="icon-button" onClick={() => setError('')}>&times;</button>
+        </div>
+      )}
 
       {isDashboardRoute || isTasksRoute ? (
         <TaskFilters

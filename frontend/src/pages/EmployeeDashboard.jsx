@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
 
 import { ROUTES } from '../constants/routes.js';
 
@@ -163,7 +164,13 @@ export function EmployeeDashboard() {
         </div>
       </div>
 
-      {error ? <p className="form-error">{error}</p> : null}
+      {error && (
+        <div className="error-toast">
+          <AlertCircle size={20} />
+          <span>{error}</span>
+          <button className="icon-button" onClick={() => setError('')}>&times;</button>
+        </div>
+      )}
 
       {isDashboardRoute || isTasksRoute ? (
         <EmployeeTaskFilters
