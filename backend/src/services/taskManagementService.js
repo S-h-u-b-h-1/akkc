@@ -1,6 +1,6 @@
 import { API_MESSAGES, HTTP_STATUS } from '../constants/api.js';
 import { TASK_STATUSES } from '../constants/task.js';
-import { findActiveEmployeeByAdmin } from '../repositories/employeeRepository.js';
+import { findEmployeeByAdmin } from '../repositories/employeeRepository.js';
 import {
   createTask,
   deleteTask,
@@ -14,7 +14,7 @@ import { toDateOnly, todayDateOnly } from '../utils/date.js';
 import { getEffectiveTaskStatus, serializeTask } from '../utils/taskPresenter.js';
 
 const assertEmployeeCanReceiveTask = async ({ employeeId, adminId }) => {
-  const employee = await findActiveEmployeeByAdmin({ id: employeeId, adminId });
+  const employee = await findEmployeeByAdmin({ id: employeeId, adminId });
 
   if (!employee) {
     throw new AppError(API_MESSAGES.EMPLOYEE_NOT_FOUND, HTTP_STATUS.NOT_FOUND);

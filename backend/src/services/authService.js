@@ -19,7 +19,7 @@ const buildAuthResponse = ({ user, role }) => ({
 export const loginAdmin = async ({ username, password }) => {
   const admin = await findAdminByUsername(username);
 
-  if (!admin || admin.deletedAt || !(await verifyPassword(password, admin.passwordHash))) {
+  if (!admin || !(await verifyPassword(password, admin.passwordHash))) {
     throw new AppError(API_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
   }
 
@@ -37,7 +37,7 @@ export const loginAdmin = async ({ username, password }) => {
 export const loginEmployee = async ({ username, password }) => {
   const employee = await findEmployeeByUsername(username);
 
-  if (!employee || employee.deletedAt || !(await verifyPassword(password, employee.passwordHash))) {
+  if (!employee || !(await verifyPassword(password, employee.passwordHash))) {
     throw new AppError(API_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
   }
 
@@ -57,15 +57,12 @@ export const getCurrentUser = async ({ id, role }) => {
   if (role === USER_ROLES.ADMIN) {
     const admin = await findAdminById(id);
 
-    if (!admin || admin.deletedAt) {
+    if (!admin) {
       throw new AppError(API_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
     }
 
-    const activeAdmin = { ...admin };
-    delete activeAdmin.deletedAt;
-
     return {
-      ...activeAdmin,
+      ...admin,
       role
     };
   }
@@ -73,15 +70,12 @@ export const getCurrentUser = async ({ id, role }) => {
   if (role === USER_ROLES.EMPLOYEE) {
     const employee = await findEmployeeById(id);
 
-    if (!employee || employee.deletedAt) {
+    if (!employee) {
       throw new AppError(API_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
     }
 
-    const activeEmployee = { ...employee };
-    delete activeEmployee.deletedAt;
-
     return {
-      ...activeEmployee,
+      ...employee,
       role
     };
   }

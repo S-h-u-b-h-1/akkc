@@ -11,8 +11,7 @@ const publicAdminSelect = Object.freeze({
     }
   },
   createdAt: true,
-  updatedAt: true,
-  deletedAt: true
+  updatedAt: true
 });
 
 export const findAdminByUsername = (username) =>
@@ -27,46 +26,10 @@ export const findAdminById = (id) =>
     select: publicAdminSelect
   });
 
-export const findActiveAdminById = (id) =>
-  getPrisma().admin.findFirst({
-    where: {
-      id,
-      deletedAt: null
-    },
-    select: publicAdminSelect
-  });
-
-export const findArchivedAdminById = (id) =>
-  getPrisma().admin.findFirst({
-    where: {
-      id,
-      deletedAt: {
-        not: null
-      }
-    },
-    select: publicAdminSelect
-  });
-
-export const listActiveAdmins = () =>
+export const listAdmins = () =>
   getPrisma().admin.findMany({
-    where: {
-      deletedAt: null
-    },
     orderBy: {
       createdAt: 'desc'
-    },
-    select: publicAdminSelect
-  });
-
-export const listArchivedAdmins = () =>
-  getPrisma().admin.findMany({
-    where: {
-      deletedAt: {
-        not: null
-      }
-    },
-    orderBy: {
-      deletedAt: 'desc'
     },
     select: publicAdminSelect
   });
@@ -81,7 +44,7 @@ export const createAdmin = ({ username, passwordHash, createdByAdminId }) =>
     select: publicAdminSelect
   });
 
-export const hardDeleteAdmin = ({ id, replacementAdminId }) =>
+export const deleteAdmin = ({ id, replacementAdminId }) =>
   getPrisma().$transaction(async (transaction) => {
     await transaction.admin.updateMany({
       where: { createdByAdminId: id },
@@ -106,14 +69,5 @@ export const updateAdmin = ({ id, data }) =>
   getPrisma().admin.update({
     where: { id },
     data,
-    select: publicAdminSelect
-  });
-
-export const softDeleteAdmin = (id) =>
-  getPrisma().admin.update({
-    where: { id },
-    data: {
-      deletedAt: new Date()
-    },
     select: publicAdminSelect
   });

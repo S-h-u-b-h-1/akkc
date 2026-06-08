@@ -1,24 +1,18 @@
 import { API_MESSAGES, HTTP_STATUS } from '../constants/api.js';
 import {
   createAdmin,
-  findActiveAdminById,
+  findAdminById,
   findAdminByUsername,
-  listActiveAdmins,
-  softDeleteAdmin,
+  listAdmins,
+  deleteAdmin,
   updateAdmin
 } from '../repositories/adminRepository.js';
 import { findEmployeeByUsername } from '../repositories/employeeRepository.js';
 import { AppError } from '../utils/appError.js';
 import { hashPassword } from '../utils/password.js';
 
-const sanitizeAdmin = (admin) => {
-  const sanitizedAdmin = { ...admin };
-  delete sanitizedAdmin.deletedAt;
-  return sanitizedAdmin;
-};
-
 const assertAdminExists = async (adminId) => {
-  const admin = await findActiveAdminById(adminId);
+  const admin = await findAdminById(adminId);
 
   if (!admin) {
     throw new AppError(API_MESSAGES.ADMIN_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -51,12 +45,12 @@ export const createAdminAccount = async ({ currentAdminId, payload }) => {
     createdByAdminId: currentAdminId
   });
 
-  return sanitizeAdmin(admin);
+  return admin;
 };
 
 export const listAdminAccounts = async () => {
-  const admins = await listActiveAdmins();
-  return admins.map(sanitizeAdmin);
+  const admins = await listAdmins();
+  return admins;
 };
 
 export const updateAdminAccount = async ({ adminId, payload }) => {
@@ -80,7 +74,7 @@ export const updateAdminAccount = async ({ adminId, payload }) => {
   }
 
   const admin = await updateAdmin({ id: adminId, data });
-  return sanitizeAdmin(admin);
+  return admin;
 };
 
 export const deleteAdminAccount = async ({ currentAdminId, adminId }) => {
@@ -90,6 +84,6 @@ export const deleteAdminAccount = async ({ currentAdminId, adminId }) => {
     throw new AppError(API_MESSAGES.CANNOT_DELETE_SELF, HTTP_STATUS.BAD_REQUEST);
   }
 
-  const admin = await softDeleteAdmin(adminId);
-  return sanitizeAdmin(admin);
+  const admin = await deleteAdmin({ id: adminId, replacementAdminId: currentAdminId });
+  return admin;
 };

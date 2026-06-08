@@ -2,23 +2,17 @@ import { API_MESSAGES, HTTP_STATUS } from '../constants/api.js';
 import { findAdminByUsername } from '../repositories/adminRepository.js';
 import {
   createEmployee,
-  findActiveEmployeeByAdmin,
+  findEmployeeByAdmin,
   findEmployeeByUsername,
-  listActiveEmployeesByAdmin,
-  softDeleteEmployee,
+  listEmployeesByAdmin,
+  deleteEmployee,
   updateEmployee
 } from '../repositories/employeeRepository.js';
 import { AppError } from '../utils/appError.js';
 import { hashPassword } from '../utils/password.js';
 
-const sanitizeEmployee = (employee) => {
-  const sanitizedEmployee = { ...employee };
-  delete sanitizedEmployee.deletedAt;
-  return sanitizedEmployee;
-};
-
 const assertEmployeeExistsForAdmin = async ({ id, adminId }) => {
-  const employee = await findActiveEmployeeByAdmin({ id, adminId });
+  const employee = await findEmployeeByAdmin({ id, adminId });
 
   if (!employee) {
     throw new AppError(API_MESSAGES.EMPLOYEE_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -49,13 +43,13 @@ export const createAdminEmployee = async ({ adminId, payload }) => {
     createdByAdminId: adminId
   });
 
-  return sanitizeEmployee(employee);
+  return employee;
 };
 
 export const listAdminEmployees = async ({ adminId }) => {
-  const employees = await listActiveEmployeesByAdmin(adminId);
+  const employees = await listEmployeesByAdmin(adminId);
 
-  return employees.map(sanitizeEmployee);
+  return employees;
 };
 
 export const updateAdminEmployee = async ({ adminId, employeeId, payload }) => {
@@ -80,13 +74,13 @@ export const updateAdminEmployee = async ({ adminId, employeeId, payload }) => {
 
   const employee = await updateEmployee({ id: employeeId, data });
 
-  return sanitizeEmployee(employee);
+  return employee;
 };
 
 export const deleteAdminEmployee = async ({ adminId, employeeId }) => {
   await assertEmployeeExistsForAdmin({ id: employeeId, adminId });
 
-  const employee = await softDeleteEmployee(employeeId);
+  const employee = await deleteEmployee(employeeId);
 
-  return sanitizeEmployee(employee);
+  return employee;
 };

@@ -24,11 +24,9 @@ model Admin {
   tasks            Task[]     @relation("AdminCreatedTasks")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @default(now()) @updatedAt
-  deletedAt        DateTime?
 
   @@index([createdByAdminId])
   @@index([createdAt])
-  @@index([deletedAt])
 }
 
 model Employee {
@@ -41,11 +39,9 @@ model Employee {
   taskUpdates      TaskUpdate[] @relation("EmployeeTaskUpdates")
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @default(now()) @updatedAt
-  deletedAt        DateTime?
 
   @@index([createdByAdminId])
   @@index([createdAt])
-  @@index([deletedAt])
 }
 
 model Task {
@@ -59,7 +55,7 @@ model Task {
   dueDate            DateTime     @db.Date
   assignedEmployeeId String?      @db.Uuid
   createdByAdminId   String?      @db.Uuid
-  assignedEmployee   Employee?    @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  assignedEmployee   Employee?    @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdByAdmin     Admin?       @relation("AdminCreatedTasks", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   updates            TaskUpdate[] @relation("TaskUpdates")
   createdAt          DateTime     @default(now())

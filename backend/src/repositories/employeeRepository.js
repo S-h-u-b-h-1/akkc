@@ -5,8 +5,7 @@ const publicEmployeeSelect = Object.freeze({
   username: true,
   createdByAdminId: true,
   createdAt: true,
-  updatedAt: true,
-  deletedAt: true
+  updatedAt: true
 });
 
 export const findEmployeeByUsername = (username) =>
@@ -20,50 +19,22 @@ export const findEmployeeById = (id) =>
     select: publicEmployeeSelect
   });
 
-export const findActiveEmployeeByAdmin = ({ id, adminId }) =>
+export const findEmployeeByAdmin = ({ id, adminId }) =>
   getPrisma().employee.findFirst({
     where: {
       id,
-      createdByAdminId: adminId,
-      deletedAt: null
+      createdByAdminId: adminId
     },
     select: publicEmployeeSelect
   });
 
-export const findArchivedEmployeeByAdmin = ({ id, adminId }) =>
-  getPrisma().employee.findFirst({
-    where: {
-      id,
-      createdByAdminId: adminId,
-      deletedAt: {
-        not: null
-      }
-    },
-    select: publicEmployeeSelect
-  });
-
-export const listActiveEmployeesByAdmin = (adminId) =>
+export const listEmployeesByAdmin = (adminId) =>
   getPrisma().employee.findMany({
     where: {
-      createdByAdminId: adminId,
-      deletedAt: null
+      createdByAdminId: adminId
     },
     orderBy: {
       createdAt: 'desc'
-    },
-    select: publicEmployeeSelect
-  });
-
-export const listArchivedEmployeesByAdmin = (adminId) =>
-  getPrisma().employee.findMany({
-    where: {
-      createdByAdminId: adminId,
-      deletedAt: {
-        not: null
-      }
-    },
-    orderBy: {
-      deletedAt: 'desc'
     },
     select: publicEmployeeSelect
   });
@@ -78,7 +49,7 @@ export const createEmployee = ({ username, passwordHash, createdByAdminId }) =>
     select: publicEmployeeSelect
   });
 
-export const hardDeleteEmployee = (id) =>
+export const deleteEmployee = (id) =>
   getPrisma().employee.delete({
     where: { id },
     select: publicEmployeeSelect
@@ -88,14 +59,5 @@ export const updateEmployee = ({ id, data }) =>
   getPrisma().employee.update({
     where: { id },
     data,
-    select: publicEmployeeSelect
-  });
-
-export const softDeleteEmployee = (id) =>
-  getPrisma().employee.update({
-    where: { id },
-    data: {
-      deletedAt: new Date()
-    },
     select: publicEmployeeSelect
   });
