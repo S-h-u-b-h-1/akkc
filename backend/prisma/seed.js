@@ -47,8 +47,7 @@ const main = async () => {
 	    update: {
 	      username: 'admin',
 	      passwordHash: adminPasswordHash,
-	      createdByAdminId: null,
-	      deletedAt: null
+	      createdByAdminId: null
 	    },
 	    create: {
 	      id: ids.admin,
@@ -64,8 +63,7 @@ const main = async () => {
 	      update: {
 	        username: 'audit.associate',
 	        passwordHash: employeePasswordHash,
-	        createdByAdminId: admin.id,
-	        deletedAt: null
+	        createdByAdminId: admin.id
 	      },
 	      create: {
 	        id: ids.employeeAudit,
@@ -79,8 +77,7 @@ const main = async () => {
 	      update: {
 	        username: 'tax.associate',
 	        passwordHash: employeePasswordHash,
-	        createdByAdminId: admin.id,
-	        deletedAt: null
+	        createdByAdminId: admin.id
 	      },
 	      create: {
 	        id: ids.employeeTax,
@@ -94,8 +91,7 @@ const main = async () => {
 	      update: {
 	        username: 'gst.associate',
 	        passwordHash: employeePasswordHash,
-	        createdByAdminId: admin.id,
-	        deletedAt: null
+	        createdByAdminId: admin.id
 	      },
 	      create: {
 	        id: ids.employeeGst,
@@ -115,8 +111,12 @@ const main = async () => {
         title: 'Reconcile GSTR-2B with purchase register',
         domain: 'GST Compliance',
         clientName: 'Khandelwal Industries Pvt Ltd',
+        clientEmail: 'billing@khandelwal.in',
         status: TaskStatus.PENDING,
         isHighPriority: true,
+        isBillable: true,
+        billAmount: 15000,
+        billingApprovalStatus: 'PENDING_EMPLOYEE_CONFIRMATION',
         assignedDate: daysFromToday(0),
         dueDate: daysFromToday(1),
         assignedEmployeeId: gstEmployee.id,
@@ -127,8 +127,12 @@ const main = async () => {
         title: 'Reconcile GSTR-2B with purchase register',
         domain: 'GST Compliance',
         clientName: 'Khandelwal Industries Pvt Ltd',
+        clientEmail: 'billing@khandelwal.in',
         status: TaskStatus.PENDING,
         isHighPriority: true,
+        isBillable: true,
+        billAmount: 15000,
+        billingApprovalStatus: 'PENDING_EMPLOYEE_CONFIRMATION',
         assignedDate: daysFromToday(0),
         dueDate: daysFromToday(1),
         assignedEmployeeId: gstEmployee.id,
@@ -141,8 +145,12 @@ const main = async () => {
         title: 'Finalize Form 3CD tax audit observations',
         domain: 'Audit & Assurance',
         clientName: 'Madhav Textiles LLP',
+        clientEmail: 'finance@madhavtextiles.com',
         status: TaskStatus.COMPLETED,
         isHighPriority: false,
+        isBillable: true,
+        billAmount: 55000,
+        billingApprovalStatus: 'APPROVED_FOR_BILLING',
         assignedDate: daysFromToday(-2),
         dueDate: daysFromToday(0),
         assignedEmployeeId: auditEmployee.id,
@@ -153,8 +161,12 @@ const main = async () => {
         title: 'Finalize Form 3CD tax audit observations',
         domain: 'Audit & Assurance',
         clientName: 'Madhav Textiles LLP',
+        clientEmail: 'finance@madhavtextiles.com',
         status: TaskStatus.COMPLETED,
         isHighPriority: false,
+        isBillable: true,
+        billAmount: 55000,
+        billingApprovalStatus: 'APPROVED_FOR_BILLING',
         assignedDate: daysFromToday(-2),
         dueDate: daysFromToday(0),
         assignedEmployeeId: auditEmployee.id,
@@ -169,6 +181,7 @@ const main = async () => {
         clientName: 'Shree Logistics',
         status: TaskStatus.NOT_DONE,
         isHighPriority: true,
+        isBillable: false,
         assignedDate: daysFromToday(-1),
         dueDate: daysFromToday(0),
         assignedEmployeeId: taxEmployee.id,
@@ -181,6 +194,7 @@ const main = async () => {
         clientName: 'Shree Logistics',
         status: TaskStatus.NOT_DONE,
         isHighPriority: true,
+        isBillable: false,
         assignedDate: daysFromToday(-1),
         dueDate: daysFromToday(0),
         assignedEmployeeId: taxEmployee.id,
@@ -245,8 +259,12 @@ const main = async () => {
         title: 'Verify monthly books and bank reconciliation',
         domain: 'Accounting Review',
         clientName: 'Aarav Retail Stores',
+        clientEmail: 'accounts@aaravretail.in',
         status: TaskStatus.PENDING,
         isHighPriority: false,
+        isBillable: true,
+        billAmount: 12000,
+        billingApprovalStatus: 'PENDING_EMPLOYEE_CONFIRMATION',
         assignedDate: daysFromToday(0),
         dueDate: daysFromToday(2),
         assignedEmployeeId: gstEmployee.id,
@@ -257,8 +275,12 @@ const main = async () => {
         title: 'Verify monthly books and bank reconciliation',
         domain: 'Accounting Review',
         clientName: 'Aarav Retail Stores',
+        clientEmail: 'accounts@aaravretail.in',
         status: TaskStatus.PENDING,
         isHighPriority: false,
+        isBillable: true,
+        billAmount: 12000,
+        billingApprovalStatus: 'PENDING_EMPLOYEE_CONFIRMATION',
         assignedDate: daysFromToday(0),
         dueDate: daysFromToday(2),
         assignedEmployeeId: gstEmployee.id,

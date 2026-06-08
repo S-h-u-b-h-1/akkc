@@ -37,12 +37,18 @@ export const createAdminTask = async ({ adminId, payload }) => {
   await assertEmployeeCanReceiveTask({ employeeId: payload.employeeId, adminId });
 
   const today = todayDateOnly();
+  const isBillable = payload.isBillable ?? false;
+
   const task = await createTask({
     title: payload.title,
     domain: payload.domain,
     clientName: payload.clientName,
+    clientEmail: payload.clientEmail || null,
     status: TASK_STATUSES.PENDING,
     isHighPriority: payload.isHighPriority ?? false,
+    isBillable,
+    billAmount: isBillable ? payload.billAmount : null,
+    billingApprovalStatus: isBillable ? 'PENDING_EMPLOYEE_CONFIRMATION' : 'NOT_REQUIRED',
     assignedDate: today,
     dueDate: toDateOnly(payload.dueDate),
     assignedEmployeeId: payload.employeeId,
@@ -109,6 +115,22 @@ export const updateAdminTask = async ({ adminId, taskId, payload }) => {
 
   if (payload.isHighPriority !== undefined) {
     data.isHighPriority = payload.isHighPriority;
+  }
+
+  if (payload.isBillable !== undefined) {
+    data.isBillable = payload.isBillable;
+    data.billingApprovalStatus = data.isBillable ? 'PENDING_EMPLOYEE_CONFIRMATION' : 'NOT_REQUIRED';
+    if (!data.isBillable) {
+      data.billAmount = null;
+    }
+  }
+
+  if (payload.billAmount !== undefined && payload.isBillable !== false) {
+    data.billAmount = payload.billAmount;
+  }
+
+  if (payload.clientEmail !== undefined) {
+    data.clientEmail = payload.clientEmail === '' ? null : payload.clientEmail;
   }
 
   const task = await updateTask({ id: taskId, data });

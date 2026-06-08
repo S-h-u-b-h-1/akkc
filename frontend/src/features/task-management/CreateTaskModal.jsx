@@ -9,8 +9,11 @@ const initialForm = {
   title: '',
   domain: '',
   clientName: '',
+  clientEmail: '',
   dueDate: '',
-  isHighPriority: false
+  isHighPriority: false,
+  isBillable: false,
+  billAmount: ''
 };
 
 export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
@@ -56,8 +59,11 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
         title: form.title,
         domain: form.domain,
         clientName: form.clientName,
+        clientEmail: form.clientEmail || undefined,
         dueDate: form.dueDate,
-        isHighPriority: form.isHighPriority
+        isHighPriority: form.isHighPriority,
+        isBillable: form.isBillable,
+        billAmount: form.isBillable ? Number(form.billAmount) : undefined
       };
       await onSubmit(payload);
       setForm(initialForm);
@@ -133,6 +139,36 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
             <span>Due date</span>
             <input name="dueDate" type="date" value={form.dueDate} onChange={updateField} required />
           </label>
+
+          <label>
+            <span>Client email (optional for billing)</span>
+            <input name="clientEmail" type="email" value={form.clientEmail} onChange={updateField} />
+          </label>
+
+          <label className="checkbox-field">
+            <input
+              checked={form.isBillable}
+              name="isBillable"
+              type="checkbox"
+              onChange={updateField}
+            />
+            <span>Is this task billable?</span>
+          </label>
+
+          {form.isBillable && (
+            <label>
+              <span>Bill amount (INR)</span>
+              <input 
+                name="billAmount" 
+                type="number" 
+                min="0" 
+                step="0.01" 
+                value={form.billAmount} 
+                onChange={updateField} 
+                required 
+              />
+            </label>
+          )}
 
           <label className="checkbox-field">
             <input

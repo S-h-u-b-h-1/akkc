@@ -13,6 +13,20 @@ enum TaskStatus {
   DELAYED
 }
 
+enum BillingApprovalStatus {
+  NOT_REQUIRED
+  PENDING_EMPLOYEE_CONFIRMATION
+  APPROVED_FOR_BILLING
+  REJECTED_FOR_BILLING
+}
+
+enum BillStatus {
+  DRAFT
+  GENERATED
+  EMAILED
+  CANCELLED
+}
+
 model Admin {
   id               String     @id @default(uuid()) @db.Uuid
   username         String     @unique @db.VarChar(60)
@@ -22,6 +36,7 @@ model Admin {
   createdAdmins    Admin[]    @relation("AdminCreatedAdmins")
   employees        Employee[] @relation("AdminCreatedEmployees")
   tasks            Task[]     @relation("AdminCreatedTasks")
+  bills            Bill[]     @relation("AdminCreatedBills")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @default(now()) @updatedAt
 
@@ -48,16 +63,22 @@ model Task {
   id                 String       @id @default(uuid()) @db.Uuid
   title              String       @db.VarChar(180)
   domain             String       @db.VarChar(120)
-  clientName         String       @db.VarChar(160)
-  status             TaskStatus   @default(PENDING)
-  isHighPriority     Boolean      @default(false)
-  assignedDate       DateTime     @db.Date
+  clientName            String                @db.VarChar(160)
+  clientEmail           String?               @db.VarChar(255)
+  status                TaskStatus            @default(PENDING)
+  isHighPriority        Boolean               @default(false)
+  isBillable            Boolean               @default(false)
+  billingApprovalStatus BillingApprovalStatus @default(NOT_REQUIRED)
+  billAmount            Decimal?              @db.Decimal(10, 2)
+  billingRemarks        String?               @db.Text
+  assignedDate          DateTime              @db.Date
   dueDate            DateTime     @db.Date
   assignedEmployeeId String?      @db.Uuid
   createdByAdminId   String?      @db.Uuid
   assignedEmployee   Employee?    @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdByAdmin     Admin?       @relation("AdminCreatedTasks", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   updates            TaskUpdate[] @relation("TaskUpdates")
+  billItem           BillItem?    @relation("TaskBillItem")
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @default(now()) @updatedAt
 
@@ -85,4 +106,44 @@ model TaskUpdate {
   @@index([employeeId])
   @@index([status])
   @@index([createdAt])
+}
+
+model Bill {
+  id               String       @id @default(uuid()) @db.Uuid
+  billNumber       String       @unique @db.VarChar(50)
+  clientName       String       @db.VarChar(160)
+  clientEmail      String?      @db.VarChar(255)
+  totalAmount      Decimal      @default(0) @db.Decimal(12, 2)
+  status           BillStatus   @default(DRAFT)
+  pdfUrl           String?      @db.Text
+  generatedAt      DateTime?    @db.Timestamptz
+  emailedAt        DateTime?    @db.Timestamptz
+  createdByAdminId String?      @db.Uuid
+  createdByAdmin   Admin?       @relation("AdminCreatedBills", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  items            BillItem[]   @relation("BillItems")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @default(now()) @updatedAt
+
+  @@index([createdByAdminId])
+  @@index([clientName])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model BillItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  billId     String   @db.Uuid
+  taskId     String   @unique @db.Uuid
+  taskTitle  String   @db.VarChar(180)
+  taskDomain String   @db.VarChar(120)
+  clientName String   @db.VarChar(160)
+  amount     Decimal  @db.Decimal(10, 2)
+  remarks    String?  @db.Text
+  
+  bill       Bill     @relation("BillItems", fields: [billId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  task       Task     @relation("TaskBillItem", fields: [taskId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  
+  createdAt  DateTime @default(now())
+
+  @@index([billId])
 }

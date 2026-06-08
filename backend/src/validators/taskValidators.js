@@ -15,9 +15,16 @@ export const createTaskSchema = z.object({
       domain: z.string().trim().min(1).max(120),
       clientName: z.string().trim().min(1).max(160),
       dueDate: date,
-      isHighPriority: z.boolean().optional()
+      isHighPriority: z.boolean().optional(),
+      isBillable: z.boolean(),
+      billAmount: z.number().positive().optional(),
+      clientEmail: z.string().email().optional().or(z.literal(''))
     })
-    .strict(),
+    .strict()
+    .refine((data) => !data.isBillable || data.billAmount !== undefined, {
+      message: 'billAmount is required when task is billable',
+      path: ['billAmount']
+    }),
   params: z.object({}).optional(),
   query: z.object({}).optional()
 });
@@ -54,11 +61,19 @@ export const updateTaskSchema = z.object({
       clientName: z.string().trim().min(1).max(160).optional(),
       dueDate: date.optional(),
       status: status.optional(),
-      isHighPriority: z.boolean().optional()
+      isHighPriority: z.boolean().optional(),
+      isBillable: z.boolean().optional(),
+      billAmount: z.number().positive().optional(),
+      clientEmail: z.string().email().optional().or(z.literal(''))
     })
     .strict()
-    .refine((body) => Object.values(body).some((value) => value !== undefined), {
-      message: 'At least one field must be provided.'
+    .refine((data) => {
+      if (data.isBillable && data.billAmount === undefined) {
+        return false;
+      }
+      return Object.values(data).some((value) => value !== undefined);
+    }, {
+      message: 'At least one field must be provided, and billAmount is required if making task billable.'
     }),
   params: z.object({
     id: taskId
@@ -83,7 +98,9 @@ export const listEmployeeTasksSchema = z.object({
 export const markTaskDoneSchema = z.object({
   body: z
     .object({
-      remark: z.string().trim().min(1).max(2000)
+      remark: z.string().trim().min(1).max(2000),
+      shouldProceedForBilling: z.boolean().optional(),
+      billingRemarks: z.string().trim().max(2000).optional()
     })
     .strict(),
   params: z.object({

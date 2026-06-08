@@ -1,4 +1,4 @@
-import { ClipboardList, LayoutDashboard, LogOut, ShieldCheck, Users } from 'lucide-react';
+import { ClipboardList, LayoutDashboard, LogOut, ShieldCheck, Users, Receipt } from 'lucide-react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 import { BrandLogo } from '../components/BrandLogo.jsx';
@@ -11,7 +11,8 @@ const adminNavigationItems = [
   { label: 'Team AKKC', to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
   { label: 'Admins', to: ROUTES.ADMIN_ADMINS, icon: ShieldCheck },
   { label: 'Team', to: ROUTES.ADMIN_EMPLOYEES, icon: Users },
-  { label: 'Assignments', to: ROUTES.ADMIN_TASKS, icon: ClipboardList }
+  { label: 'Assignments', to: ROUTES.ADMIN_TASKS, icon: ClipboardList },
+  { label: 'Billing', to: ROUTES.ADMIN_BILLING, icon: Receipt }
 ];
 
 const employeeNavigationItems = [

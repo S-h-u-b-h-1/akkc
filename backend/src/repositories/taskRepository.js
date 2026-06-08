@@ -6,8 +6,13 @@ const taskSelect = Object.freeze({
   title: true,
   domain: true,
   clientName: true,
+  clientEmail: true,
   status: true,
   isHighPriority: true,
+  isBillable: true,
+  billAmount: true,
+  billingApprovalStatus: true,
+  billingRemarks: true,
   assignedDate: true,
   dueDate: true,
   assignedEmployeeId: true,
@@ -133,8 +138,12 @@ export const createTask = ({
   title,
   domain,
   clientName,
+  clientEmail,
   status,
   isHighPriority,
+  isBillable,
+  billAmount,
+  billingApprovalStatus,
   assignedDate,
   dueDate,
   assignedEmployeeId,
@@ -145,8 +154,12 @@ export const createTask = ({
       title,
       domain,
       clientName,
+      clientEmail,
       status,
       isHighPriority,
+      isBillable,
+      billAmount,
+      billingApprovalStatus,
       assignedDate,
       dueDate,
       assignedEmployeeId,
@@ -200,7 +213,7 @@ export const deleteTask = (id) =>
     select: taskSelect
   });
 
-export const updateTaskStatusWithEmployeeUpdate = ({ taskId, employeeId, status, remark, reason }) =>
+export const updateTaskStatusWithEmployeeUpdate = ({ taskId, employeeId, status, remark, reason, billingApprovalStatus, billingRemarks }) =>
   getPrisma().$transaction(async (transaction) => {
     await transaction.taskUpdate.create({
       data: {
@@ -212,9 +225,17 @@ export const updateTaskStatusWithEmployeeUpdate = ({ taskId, employeeId, status,
       }
     });
 
+    const updateData = { status };
+    if (billingApprovalStatus !== undefined) {
+      updateData.billingApprovalStatus = billingApprovalStatus;
+    }
+    if (billingRemarks !== undefined) {
+      updateData.billingRemarks = billingRemarks;
+    }
+
     return transaction.task.update({
       where: { id: taskId },
-      data: { status },
+      data: updateData,
       select: taskSelect
     });
   });

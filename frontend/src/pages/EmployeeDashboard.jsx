@@ -133,13 +133,16 @@ export function EmployeeDashboard() {
     setActiveAction(null);
   };
 
-  const submitTaskAction = async (value) => {
+  const submitTaskAction = async (valueOrPayload) => {
     if (activeAction === taskActionTypes.DONE) {
-      await markEmployeeTaskDone(activeTask.id, { remark: value });
+      const payload = typeof valueOrPayload === 'object' 
+        ? valueOrPayload 
+        : { remark: valueOrPayload };
+      await markEmployeeTaskDone(activeTask.id, payload);
     }
 
     if (activeAction === taskActionTypes.NOT_DONE) {
-      await markEmployeeTaskNotDone(activeTask.id, { reason: value });
+      await markEmployeeTaskNotDone(activeTask.id, { reason: valueOrPayload });
     }
 
     await refreshTasks();

@@ -22,7 +22,9 @@ export const markDone = async (req, res) => {
   const task = await markEmployeeTaskDone({
     employeeId: req.user.id,
     taskId: req.validated.params.id,
-    remark: req.validated.body.remark
+    remark: req.validated.body.remark,
+    shouldProceedForBilling: req.validated.body.shouldProceedForBilling,
+    billingRemarks: req.validated.body.billingRemarks
   });
 
   return sendSuccess(res, {

@@ -46,19 +46,33 @@ export const listEmployeeTasks = async ({ employeeId, filters = {} }) => {
   return tasks.map((task) => serializeTask(task, today));
 };
 
-export const markEmployeeTaskDone = async ({ employeeId, taskId, remark }) => {
+export const markEmployeeTaskDone = async ({ employeeId, taskId, remark, shouldProceedForBilling, billingRemarks }) => {
   await assertActiveEmployee(employeeId);
-  await assertEmployeeTask({ taskId, employeeId });
+  const task = await assertEmployeeTask({ taskId, employeeId });
 
-  const task = await updateTaskStatusWithEmployeeUpdate({
+  let newBillingApprovalStatus;
+  
+  if (task.isBillable && task.billingApprovalStatus === 'PENDING_EMPLOYEE_CONFIRMATION') {
+    if (shouldProceedForBilling === true) {
+      newBillingApprovalStatus = 'APPROVED_FOR_BILLING';
+    } else if (shouldProceedForBilling === false) {
+      newBillingApprovalStatus = 'REJECTED_FOR_BILLING';
+    } else {
+      throw new AppError('Billing confirmation is required for billable tasks', HTTP_STATUS.BAD_REQUEST);
+    }
+  }
+
+  const updatedTask = await updateTaskStatusWithEmployeeUpdate({
     taskId,
     employeeId,
     status: TASK_STATUSES.COMPLETED,
     remark,
-    reason: null
+    reason: null,
+    billingApprovalStatus: newBillingApprovalStatus,
+    billingRemarks
   });
 
-  return serializeTask(task);
+  return serializeTask(updatedTask);
 };
 
 export const markEmployeeTaskNotDone = async ({ employeeId, taskId, reason }) => {

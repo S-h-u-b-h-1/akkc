@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from '../layouts/AppLayout.jsx';
 import { AdminDashboard } from '../pages/AdminDashboard.jsx';
+import { AdminBilling } from '../pages/AdminBilling.jsx';
 import { AdminLoginPage } from '../pages/AdminLoginPage.jsx';
 import { EmployeeDashboard } from '../pages/EmployeeDashboard.jsx';
 import { EmployeeLoginPage } from '../pages/EmployeeLoginPage.jsx';
@@ -51,6 +52,10 @@ export function AppRoutes() {
           <Route
             path={ROUTES.ADMIN_TASKS}
             element={<AdminDashboard />}
+          />
+          <Route
+            path={ROUTES.ADMIN_BILLING}
+            element={<AdminBilling />}
           />
           <Route
             path="/admin/*"

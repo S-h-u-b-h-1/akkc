@@ -10,9 +10,12 @@ const createFormState = (task) => ({
   title: task.title ?? '',
   domain: task.domain ?? '',
   clientName: task.clientName ?? '',
+  clientEmail: task.clientEmail ?? '',
   dueDate: toDateInputValue(task.dueDate),
   status: task.storedStatus ?? task.status,
-  isHighPriority: Boolean(task.isHighPriority)
+  isHighPriority: Boolean(task.isHighPriority),
+  isBillable: Boolean(task.isBillable),
+  billAmount: task.billAmount ?? ''
 });
 
 export function EditTaskModal({ employees, onClose, onSubmit, task }) {
@@ -38,7 +41,14 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
     setIsSubmitting(true);
 
     try {
-      await onSubmit(task.id, form);
+      const payload = { ...form };
+      if (!payload.isBillable) {
+        payload.billAmount = undefined;
+      } else if (payload.billAmount) {
+        payload.billAmount = Number(payload.billAmount);
+      }
+      
+      await onSubmit(task.id, payload);
       onClose();
     } catch (submitError) {
       setError(submitError.message);
@@ -108,6 +118,36 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
             <span>Due date</span>
             <input name="dueDate" type="date" value={form.dueDate} onChange={updateField} required />
           </label>
+
+          <label>
+            <span>Client email (optional for billing)</span>
+            <input name="clientEmail" type="email" value={form.clientEmail} onChange={updateField} />
+          </label>
+
+          <label className="checkbox-field">
+            <input
+              checked={form.isBillable}
+              name="isBillable"
+              type="checkbox"
+              onChange={updateField}
+            />
+            <span>Is this task billable?</span>
+          </label>
+
+          {form.isBillable && (
+            <label>
+              <span>Bill amount (INR)</span>
+              <input 
+                name="billAmount" 
+                type="number" 
+                min="0" 
+                step="0.01" 
+                value={form.billAmount} 
+                onChange={updateField} 
+                required 
+              />
+            </label>
+          )}
 
           <label className="checkbox-field">
             <input

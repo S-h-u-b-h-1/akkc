@@ -26,6 +26,8 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [value, setValue] = useState('');
+  const [shouldProceedForBilling, setShouldProceedForBilling] = useState(null);
+  const [billingRemarks, setBillingRemarks] = useState('');
   const content = actionContent[action];
 
   if (!task || !content) {
@@ -41,11 +43,30 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
       return;
     }
 
+    const showBillingConfirmation =
+      action === 'done' &&
+      task.isBillable &&
+      task.billingApprovalStatus === 'PENDING_EMPLOYEE_CONFIRMATION';
+
+    if (showBillingConfirmation && shouldProceedForBilling === null) {
+      setError('Please select if this task should proceed for billing.');
+      return;
+    }
+
+    if (showBillingConfirmation && shouldProceedForBilling === false && !billingRemarks.trim()) {
+      setError('Please provide a reason why this task should not proceed for billing.');
+      return;
+    }
+
     setError('');
     setIsSubmitting(true);
 
     try {
-      await onSubmit(trimmedValue);
+      const payload = showBillingConfirmation 
+        ? { remark: trimmedValue, shouldProceedForBilling, billingRemarks: billingRemarks.trim() } 
+        : trimmedValue;
+        
+      await onSubmit(payload);
       onClose();
     } catch (submitError) {
       setError(submitError.message);
@@ -85,6 +106,44 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
               onChange={(event) => setValue(event.target.value)}
             />
           </label>
+
+          {action === 'done' && task.isBillable && task.billingApprovalStatus === 'PENDING_EMPLOYEE_CONFIRMATION' && (
+            <div className="billing-confirmation">
+              <fieldset>
+                <legend>Should this task proceed for billing?</legend>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="shouldProceedForBilling"
+                    value="yes"
+                    checked={shouldProceedForBilling === true}
+                    onChange={() => setShouldProceedForBilling(true)}
+                  />
+                  Yes
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="shouldProceedForBilling"
+                    value="no"
+                    checked={shouldProceedForBilling === false}
+                    onChange={() => setShouldProceedForBilling(false)}
+                  />
+                  No
+                </label>
+              </fieldset>
+
+              <label>
+                <span>Billing remarks {shouldProceedForBilling === false ? '(Required)' : '(Optional)'}</span>
+                <input
+                  name="billingRemarks"
+                  value={billingRemarks}
+                  onChange={(e) => setBillingRemarks(e.target.value)}
+                  placeholder="Any notes regarding billing"
+                />
+              </label>
+            </div>
+          )}
 
           {error ? <p className="form-error">{error}</p> : null}
 
