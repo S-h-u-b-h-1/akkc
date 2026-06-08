@@ -35,6 +35,8 @@ const getRouteRequirements = (pathname) => {
     pathname === ROUTES.ADMIN_DASHBOARD || pathname === ROUTES.ADMIN_ROOT;
   const isAdminsRoute = pathname === ROUTES.ADMIN_ADMINS;
   const isEmployeesRoute = pathname === ROUTES.ADMIN_EMPLOYEES;
+  const isTasksRoute = pathname === ROUTES.ADMIN_TASKS;
+
   return {
     admins: isAdminsRoute,
     employees: isEmployeesRoute || isTasksRoute,
