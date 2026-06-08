@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getEligibleTasksForBilling, createBill, getBills, deleteBill, sendBillEmail } from '../services/billingService.js';
-import { getEmployees } from '../services/employeeService.js';
+import { getAdminEmployees } from '../services/adminService.js';
 
 export function AdminBilling() {
   const [activeTab, setActiveTab] = useState('eligible');
@@ -34,7 +34,7 @@ export function AdminBilling() {
 
   const loadEmployees = async () => {
     try {
-      const res = await getEmployees();
+      const res = await getAdminEmployees();
       setEmployees(res.data?.employees || []);
     } catch (err) {
       console.error(err);

@@ -1,4 +1,4 @@
-import { api } from './api.js';
+import { httpClient } from '../api/httpClient.js';
 
 export const getEligibleTasksForBilling = async (filters = {}) => {
   const query = new URLSearchParams();
@@ -7,13 +7,14 @@ export const getEligibleTasksForBilling = async (filters = {}) => {
   if (filters.dateFrom) query.append('dateFrom', filters.dateFrom);
   if (filters.dateTo) query.append('dateTo', filters.dateTo);
 
-  const response = await api.get(`/admin/billing/eligible-tasks?${query.toString()}`);
-  return response.data;
+  return httpClient(`/admin/billing/eligible-tasks?${query.toString()}`);
 };
 
 export const createBill = async (taskIds) => {
-  const response = await api.post('/admin/billing/bills', { taskIds });
-  return response.data;
+  return httpClient('/admin/billing/bills', {
+    method: 'POST',
+    body: JSON.stringify({ taskIds })
+  });
 };
 
 export const getBills = async (filters = {}) => {
@@ -23,21 +24,21 @@ export const getBills = async (filters = {}) => {
   if (filters.dateFrom) query.append('dateFrom', filters.dateFrom);
   if (filters.dateTo) query.append('dateTo', filters.dateTo);
 
-  const response = await api.get(`/admin/billing/bills?${query.toString()}`);
-  return response.data;
+  return httpClient(`/admin/billing/bills?${query.toString()}`);
 };
 
 export const getBillById = async (id) => {
-  const response = await api.get(`/admin/billing/bills/${id}`);
-  return response.data;
+  return httpClient(`/admin/billing/bills/${id}`);
 };
 
 export const deleteBill = async (id) => {
-  const response = await api.delete(`/admin/billing/bills/${id}`);
-  return response.data;
+  return httpClient(`/admin/billing/bills/${id}`, {
+    method: 'DELETE'
+  });
 };
 
 export const sendBillEmail = async (id) => {
-  const response = await api.post(`/admin/billing/bills/${id}/send-email`);
-  return response.data;
+  return httpClient(`/admin/billing/bills/${id}/send-email`, {
+    method: 'POST'
+  });
 };
