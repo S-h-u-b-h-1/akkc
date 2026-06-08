@@ -144,10 +144,12 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
     return recordValue === condition;
   };
 
-  const matchesRecordWhere = (record, where) =>
-    Object.entries(where).every(([key, value]) => {
+  const matchesRecordWhere = (record, where) => {
+    if (!where) return true;
+    return Object.entries(where).every(([key, value]) => {
       return matchesRecordValue(record[key], value);
     });
+  };
 
   const matchesDueDate = (task, condition) => {
     if (condition instanceof Date) {
@@ -166,6 +168,7 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
   };
 
   const matchesTaskWhere = (task, where) => {
+    if (!where) return true;
     const baseMatches = Object.entries(where).every(([key, value]) => {
       if (key === 'OR') {
         return true;
@@ -231,7 +234,6 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
         const admin = {
           id: randomUUID(),
           createdByAdminId: null,
-          deletedAt: null,
           ...data,
           createdAt: now(),
           updatedAt: now()
@@ -311,7 +313,6 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
         const employee = {
           id: randomUUID(),
           ...data,
-          deletedAt: null,
           createdAt: now(),
           updatedAt: now()
         };
@@ -417,7 +418,6 @@ test('complete admin and employee task management flow', async () => {
 	          username: 'admin.flow',
 	          passwordHash: adminPasswordHash,
 	          createdByAdminId: null,
-	          deletedAt: null,
 	          createdAt: new Date(),
 	          updatedAt: new Date()
 	        }
@@ -706,22 +706,7 @@ test('complete admin and employee task management flow', async () => {
   const employeesAfterDelete = await request(app).get('/api/admin/employees').set(authHeader(adminToken)).expect(200);
   assert.equal(employeesAfterDelete.body.data.employees.length, 1);
 
-  const archivedEmployees = await request(app)
-    .get('/api/admin/maintenance/archived-employees')
-    .set(authHeader(adminToken))
-    .expect(200);
-	  assert.equal(archivedEmployees.body.data.employees.length, 1);
-	  assert.equal(archivedEmployees.body.data.employees[0].username, 'alex.updated');
 
-  await request(app)
-    .delete(`/api/admin/maintenance/archived-employees/${secondEmployee.id}`)
-    .set(authHeader(adminToken))
-    .expect(200);
-  const archivedEmployeesAfterCleanup = await request(app)
-    .get('/api/admin/maintenance/archived-employees')
-    .set(authHeader(adminToken))
-    .expect(200);
-  assert.equal(archivedEmployeesAfterCleanup.body.data.employees.length, 0);
 
   const reusedEmployee = await request(app)
     .post('/api/admin/employees')
@@ -749,20 +734,5 @@ test('complete admin and employee task management flow', async () => {
 	    })
     .expect(401);
 
-  const archivedAdmins = await request(app)
-    .get('/api/admin/maintenance/archived-admins')
-    .set(authHeader(adminToken))
-    .expect(200);
-	  assert.equal(archivedAdmins.body.data.admins.length, 1);
-	  assert.equal(archivedAdmins.body.data.admins[0].username, 'updated.admin');
 
-  await request(app)
-    .delete(`/api/admin/maintenance/archived-admins/${createdAdmin.id}`)
-    .set(authHeader(adminToken))
-    .expect(200);
-  const archivedAdminsAfterCleanup = await request(app)
-    .get('/api/admin/maintenance/archived-admins')
-    .set(authHeader(adminToken))
-    .expect(200);
-  assert.equal(archivedAdminsAfterCleanup.body.data.admins.length, 0);
 });

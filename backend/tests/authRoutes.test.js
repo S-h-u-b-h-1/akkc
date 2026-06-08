@@ -38,14 +38,7 @@ test('GET /api/admin/admins requires admin authentication', async () => {
   assert.equal(response.body.message, 'Authentication is required.');
 });
 
-test('GET /api/admin/maintenance/archived-employees requires admin authentication', async () => {
-  const response = await request(app)
-    .get('/api/admin/maintenance/archived-employees')
-    .expect(401);
 
-  assert.equal(response.body.success, false);
-  assert.equal(response.body.message, 'Authentication is required.');
-});
 
 test('GET /api/admin/tasks requires admin authentication', async () => {
   const response = await request(app).get('/api/admin/tasks').expect(401);
