@@ -182,7 +182,7 @@ export function EmployeeDashboard() {
 
       {isDashboardRoute ? (
         <>
-          <TaskStatsCards isLoading={isLoading} stats={stats} />
+          <TaskStatsCards isLoading={isLoading} stats={stats} role="employee" />
           <PracticeInsights isLoading={isLoading} scope="employee" stats={stats} tasks={tasks} />
         </>
       ) : null}
