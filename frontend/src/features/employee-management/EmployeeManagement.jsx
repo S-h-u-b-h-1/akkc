@@ -51,11 +51,12 @@ export function EmployeeManagement({
 
   return (
     <section className="content-panel employee-panel">
-      <div className="panel-header">
+      <div className="panel-header section-heading">
         <div>
           <p className="eyebrow">Firm team</p>
           <h2>Staff credential management</h2>
         </div>
+        <span className="use-case-chip">Total Team Size: {employees.length}</span>
       </div>
 
       <form className="employee-form" onSubmit={handleSubmit}>

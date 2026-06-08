@@ -140,6 +140,12 @@ router.delete(
   validateRequest(taskIdParamSchema),
   asyncHandler(deleteTask)
 );
-router.get('/stats', authenticate, adminOnly, asyncHandler(getStats));
+router.get(
+  '/stats',
+  authenticate,
+  adminOnly,
+  validateRequest(listTasksSchema),
+  asyncHandler(getStats)
+);
 
 export default router;

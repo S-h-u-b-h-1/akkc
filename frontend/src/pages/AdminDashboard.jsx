@@ -52,7 +52,7 @@ const fetchDashboardSnapshot = async ({ filters, requirements }) => {
 
   if (requirements.stats) {
     requests.push(
-      getAdminStats()
+      getAdminStats(filters)
         .then((response) => {
           snapshot.stats = response.data?.stats ?? null;
         })

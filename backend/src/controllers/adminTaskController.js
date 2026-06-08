@@ -98,7 +98,8 @@ export const getStats = async (req, res) => {
   }
 
   const stats = await getAdminStats({
-    adminId: req.user.id
+    adminId: req.user.id,
+    filters: req.validated.query
   });
 
   return sendSuccess(res, {

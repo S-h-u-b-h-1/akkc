@@ -169,9 +169,16 @@ const incrementGroup = (groups, key, label, task, today) => {
   incrementStatusSummary(groups.get(key), task, getEffectiveTaskStatus(task, today));
 };
 
-export const getAdminStats = async ({ adminId }) => {
+export const getAdminStats = async ({ adminId, filters = {} }) => {
   const today = todayDateOnly();
-  const tasks = await listTasksForAdminStats(adminId);
+  const normalizedFilters = {
+    ...filters,
+    date: filters.date ? toDateOnly(filters.date) : undefined,
+    isHighPriority:
+      filters.isHighPriority === undefined ? undefined : filters.isHighPriority === 'true',
+    today
+  };
+  const tasks = await listTasksByAdmin({ adminId, filters: normalizedFilters });
   const summary = createStatusSummary();
   const clientGroups = new Map();
   const employeeGroups = new Map();

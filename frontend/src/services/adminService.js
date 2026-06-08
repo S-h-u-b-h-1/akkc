@@ -13,7 +13,7 @@ const buildQueryString = (filters = {}) => {
   return queryString ? `?${queryString}` : '';
 };
 
-export const getAdminStats = () => httpClient('/admin/stats');
+export const getAdminStats = (filters) => httpClient(`/admin/stats${buildQueryString(filters)}`);
 
 export const getAdminAccounts = () => httpClient('/admin/admins');
 

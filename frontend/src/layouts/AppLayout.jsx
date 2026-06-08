@@ -36,7 +36,7 @@ export function AppLayout() {
         <BrandLogo className="brand-block" />
 
         <div className="sidebar-user">
-          <span>{user?.username ? `@${user.username}` : 'Signed in'}</span>
+          <span>{user?.username ? `${role === USER_ROLES.ADMIN ? 'Admin' : 'Staff'}: @${user.username}` : 'Signed in'}</span>
           <small>{FIRM.TAGLINE}</small>
         </div>
 
