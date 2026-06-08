@@ -37,8 +37,8 @@ export function AppLayout() {
         <BrandLogo className="brand-block" />
 
         <div className="sidebar-user">
-          <span>{user?.name ?? 'Signed in'}</span>
-          <small>{user?.email ?? (user?.username ? `@${user.username}` : FIRM.TAGLINE)}</small>
+          <span>{user?.username ? `@${user.username}` : 'Signed in'}</span>
+          <small>{FIRM.TAGLINE}</small>
         </div>
 
         <nav className="sidebar-nav" aria-label="Primary navigation">

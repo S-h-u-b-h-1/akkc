@@ -89,7 +89,7 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
               <option value="">Select staff member</option>
               {employees.map((employee) => (
                 <option key={employee.id} value={employee.id}>
-                  {employee.name}
+                  @{employee.username}
                 </option>
               ))}
             </select>

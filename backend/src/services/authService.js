@@ -1,5 +1,5 @@
 import { API_MESSAGES, HTTP_STATUS, USER_ROLES } from '../constants/api.js';
-import { findAdminByEmail, findAdminById } from '../repositories/adminRepository.js';
+import { findAdminById, findAdminByUsername } from '../repositories/adminRepository.js';
 import {
   findEmployeeById,
   findEmployeeByUsername
@@ -16,8 +16,8 @@ const buildAuthResponse = ({ user, role }) => ({
   }
 });
 
-export const loginAdmin = async ({ email, password }) => {
-  const admin = await findAdminByEmail(email);
+export const loginAdmin = async ({ username, password }) => {
+  const admin = await findAdminByUsername(username);
 
   if (!admin || admin.deletedAt || !(await verifyPassword(password, admin.passwordHash))) {
     throw new AppError(API_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
@@ -26,8 +26,7 @@ export const loginAdmin = async ({ email, password }) => {
   return buildAuthResponse({
     user: {
       id: admin.id,
-      name: admin.name,
-      email: admin.email,
+      username: admin.username,
       createdAt: admin.createdAt,
       updatedAt: admin.updatedAt
     },
@@ -45,10 +44,7 @@ export const loginEmployee = async ({ username, password }) => {
   return buildAuthResponse({
     user: {
       id: employee.id,
-      name: employee.name,
       username: employee.username,
-      email: employee.email,
-      department: employee.department,
       createdByAdminId: employee.createdByAdminId,
       createdAt: employee.createdAt,
       updatedAt: employee.updatedAt

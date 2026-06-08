@@ -2,14 +2,12 @@ import { Pencil, ShieldPlus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
 const initialForm = {
-  name: '',
-  email: '',
+  username: '',
   password: ''
 };
 
 const createEditForm = (admin) => ({
-  name: admin.name ?? '',
-  email: admin.email ?? '',
+  username: admin.username ?? '',
   password: ''
 });
 
@@ -39,8 +37,7 @@ export function AdminManagement({
 
     try {
       await onCreateAdmin({
-        name: form.name,
-        email: form.email,
+        username: form.username,
         password: form.password
       });
       setForm(initialForm);
@@ -62,17 +59,11 @@ export function AdminManagement({
 
       <form className="employee-form" onSubmit={handleSubmit}>
         <label>
-          <span>Name</span>
-          <input name="name" value={form.name} onChange={updateField} required />
-        </label>
-
-        <label>
-          <span>Email address</span>
+          <span>Username</span>
           <input
-            autoComplete="email"
-            name="email"
-            type="email"
-            value={form.email}
+            autoComplete="username"
+            name="username"
+            value={form.username}
             onChange={updateField}
             required
           />
@@ -105,21 +96,21 @@ export function AdminManagement({
         {admins.map((admin) => (
           <article className="employee-row" key={admin.id}>
             <div>
-              <strong>{admin.name}</strong>
-              <span>{admin.email}</span>
+              <strong>@{admin.username}</strong>
+              <span>Admin login</span>
             </div>
             <small>
               {admin.id === currentAdminId
                 ? 'Current admin'
-                : admin.createdByAdmin?.name
-                  ? `Created by ${admin.createdByAdmin.name}`
+                : admin.createdByAdmin?.username
+                  ? `Created by @${admin.createdByAdmin.username}`
                   : 'Admin account'}
             </small>
             <div className="row-actions">
               <button
                 className="icon-button"
                 type="button"
-                aria-label={`Edit ${admin.name}`}
+                aria-label={`Edit ${admin.username}`}
                 onClick={() => setAdminBeingEdited(admin)}
               >
                 <Pencil size={16} aria-hidden="true" />
@@ -127,7 +118,7 @@ export function AdminManagement({
               <button
                 className="icon-button danger"
                 type="button"
-                aria-label={`Delete ${admin.name}`}
+                aria-label={`Delete ${admin.username}`}
                 disabled={admin.id === currentAdminId}
                 onClick={() => onDeleteAdmin(admin)}
               >
@@ -167,8 +158,7 @@ function EditAdminModal({ admin, onClose, onSubmit }) {
     setIsSubmitting(true);
 
     const payload = {
-      name: form.name,
-      email: form.email
+      username: form.username
     };
 
     if (form.password.trim()) {
@@ -200,17 +190,11 @@ function EditAdminModal({ admin, onClose, onSubmit }) {
 
         <form className="form-grid" onSubmit={handleSubmit}>
           <label>
-            <span>Name</span>
-            <input name="name" value={form.name} onChange={updateField} required />
-          </label>
-
-          <label>
-            <span>Email address</span>
+            <span>Username</span>
             <input
-              autoComplete="email"
-              name="email"
-              type="email"
-              value={form.email}
+              autoComplete="username"
+              name="username"
+              value={form.username}
               onChange={updateField}
               required
             />

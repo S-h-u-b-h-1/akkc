@@ -2,17 +2,13 @@ import { Pencil, Trash2, UserPlus, X } from 'lucide-react';
 import { useState } from 'react';
 
 const initialForm = {
-  name: '',
   username: '',
-  password: '',
-  department: ''
+  password: ''
 };
 
 const createEditForm = (employee) => ({
-  name: employee.name ?? '',
   username: employee.username ?? '',
-  password: '',
-  department: employee.department ?? ''
+  password: ''
 });
 
 export function EmployeeManagement({
@@ -40,10 +36,8 @@ export function EmployeeManagement({
 
     try {
       const payload = {
-        name: form.name,
         username: form.username,
-        password: form.password,
-        department: form.department || null
+        password: form.password
       };
 
       await onCreateEmployee(payload);
@@ -65,11 +59,6 @@ export function EmployeeManagement({
       </div>
 
       <form className="employee-form" onSubmit={handleSubmit}>
-        <label>
-          <span>Name</span>
-          <input name="name" value={form.name} onChange={updateField} required />
-        </label>
-
         <label>
           <span>Username</span>
           <input
@@ -94,11 +83,6 @@ export function EmployeeManagement({
           />
         </label>
 
-        <label>
-          <span>Practice area</span>
-          <input name="department" value={form.department} onChange={updateField} />
-        </label>
-
         {error ? <p className="form-error">{error}</p> : null}
 
         <button className="primary-button fit-button" type="submit" disabled={isSubmitting}>
@@ -115,15 +99,15 @@ export function EmployeeManagement({
         {employees.map((employee) => (
           <article className="employee-row" key={employee.id}>
             <div>
-              <strong>{employee.name}</strong>
-              <span>@{employee.username}</span>
+              <strong>@{employee.username}</strong>
+              <span>Staff login</span>
             </div>
-            <small>{employee.department ?? 'No practice area'}</small>
+            <small>Credential account</small>
             <div className="row-actions">
               <button
                 className="icon-button"
                 type="button"
-                aria-label={`Edit ${employee.name}`}
+                aria-label={`Edit ${employee.username}`}
                 onClick={() => setEmployeeBeingEdited(employee)}
               >
                 <Pencil size={16} aria-hidden="true" />
@@ -131,7 +115,7 @@ export function EmployeeManagement({
               <button
                 className="icon-button danger"
                 type="button"
-                aria-label={`Delete ${employee.name}`}
+                aria-label={`Delete ${employee.username}`}
                 onClick={() => onDeleteEmployee(employee)}
               >
                 <Trash2 size={16} aria-hidden="true" />
@@ -170,9 +154,7 @@ function EditEmployeeModal({ employee, onClose, onSubmit }) {
     setIsSubmitting(true);
 
     const payload = {
-      name: form.name,
-      username: form.username,
-      department: form.department || null
+      username: form.username
     };
 
     if (form.password.trim()) {
@@ -204,11 +186,6 @@ function EditEmployeeModal({ employee, onClose, onSubmit }) {
 
         <form className="form-grid" onSubmit={handleSubmit}>
           <label>
-            <span>Name</span>
-            <input name="name" value={form.name} onChange={updateField} required />
-          </label>
-
-          <label>
             <span>Username</span>
             <input
               autoComplete="username"
@@ -230,11 +207,6 @@ function EditEmployeeModal({ employee, onClose, onSubmit }) {
               minLength="8"
               placeholder="Leave blank to keep current password"
             />
-          </label>
-
-          <label>
-            <span>Practice area</span>
-            <input name="department" value={form.department} onChange={updateField} />
           </label>
 
           {error ? <p className="form-error">{error}</p> : null}

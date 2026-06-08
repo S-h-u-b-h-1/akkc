@@ -2,14 +2,12 @@ import { getPrisma } from '../prisma/client.js';
 
 const publicAdminSelect = Object.freeze({
   id: true,
-  name: true,
-  email: true,
+  username: true,
   createdByAdminId: true,
   createdByAdmin: {
     select: {
       id: true,
-      name: true,
-      email: true
+      username: true
     }
   },
   createdAt: true,
@@ -17,9 +15,9 @@ const publicAdminSelect = Object.freeze({
   deletedAt: true
 });
 
-export const findAdminByEmail = (email) =>
+export const findAdminByUsername = (username) =>
   getPrisma().admin.findUnique({
-    where: { email },
+    where: { username },
     select: { passwordHash: true, ...publicAdminSelect }
   });
 
@@ -73,11 +71,10 @@ export const listArchivedAdmins = () =>
     select: publicAdminSelect
   });
 
-export const createAdmin = ({ name, email, passwordHash, createdByAdminId }) =>
+export const createAdmin = ({ username, passwordHash, createdByAdminId }) =>
   getPrisma().admin.create({
     data: {
-      name,
-      email,
+      username,
       passwordHash,
       createdByAdminId
     },

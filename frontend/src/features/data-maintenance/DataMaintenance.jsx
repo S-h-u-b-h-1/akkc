@@ -14,21 +14,21 @@ export function DataMaintenance({
       <CleanupPanel
         emptyText="No archived staff credentials are waiting for cleanup."
         eyebrow="Archived staff"
-        isLoading={isLoading}
-        records={archivedEmployees}
-        renderMeta={(employee) => employee.department ?? 'No practice area'}
-        title="Staff database cleanup"
-        onDelete={onDeleteEmployee}
+	        isLoading={isLoading}
+	        records={archivedEmployees}
+	        renderMeta={() => 'Staff credential'}
+	        title="Staff database cleanup"
+	        onDelete={onDeleteEmployee}
       />
 
       <CleanupPanel
         emptyText="No archived admin credentials are waiting for cleanup."
         eyebrow="Archived admins"
         isLoading={isLoading}
-        records={archivedAdmins}
-        renderMeta={(admin) =>
-          admin.createdByAdmin?.name ? `Created by ${admin.createdByAdmin.name}` : 'Admin account'
-        }
+	        records={archivedAdmins}
+	        renderMeta={(admin) =>
+	          admin.createdByAdmin?.username ? `Created by @${admin.createdByAdmin.username}` : 'Admin account'
+	        }
         title="Admin database cleanup"
         onDelete={onDeleteAdmin}
       />
@@ -58,11 +58,11 @@ function CleanupPanel({ emptyText, eyebrow, isLoading, records, renderMeta, titl
 
         {!isLoading
           ? records.map((record) => (
-              <article className="cleanup-row" key={record.id}>
-                <div>
-                  <strong>{record.name}</strong>
-                  <span>{record.email ?? (record.username ? `@${record.username}` : 'No login label')}</span>
-                </div>
+	              <article className="cleanup-row" key={record.id}>
+	                <div>
+	                  <strong>{record.username ? `@${record.username}` : 'Archived login'}</strong>
+	                  <span>Credential account</span>
+	                </div>
                 <small>
                   {renderMeta(record)} · Archived {record.deletedAt ? formatDate(record.deletedAt) : '-'}
                 </small>

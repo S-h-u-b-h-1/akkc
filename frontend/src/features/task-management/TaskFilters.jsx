@@ -47,7 +47,7 @@ export function TaskFilters({ employees, filters, onChange, onReset }) {
             <option value="">All staff</option>
             {employees.map((employee) => (
               <option key={employee.id} value={employee.id}>
-                {employee.name}
+                @{employee.username}
               </option>
             ))}
           </select>

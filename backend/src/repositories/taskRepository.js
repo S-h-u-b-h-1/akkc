@@ -17,10 +17,7 @@ const taskSelect = Object.freeze({
   assignedEmployee: {
     select: {
       id: true,
-      name: true,
-      username: true,
-      email: true,
-      department: true
+      username: true
     }
   },
   updates: {
@@ -37,9 +34,7 @@ const taskSelect = Object.freeze({
       employee: {
         select: {
           id: true,
-          name: true,
-          username: true,
-          email: true
+          username: true
         }
       }
     }

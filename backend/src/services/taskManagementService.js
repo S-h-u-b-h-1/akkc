@@ -180,7 +180,7 @@ export const getAdminStats = async ({ adminId }) => {
     const effectiveStatus = getEffectiveTaskStatus(task, today);
     incrementStatusSummary(summary, task, effectiveStatus);
     incrementGroup(clientGroups, task.clientName, task.clientName, task, today);
-    const employeeLabel = task.assignedEmployee?.name ?? 'Unknown';
+    const employeeLabel = task.assignedEmployee?.username ?? 'Unknown';
     incrementGroup(employeeGroups, task.assignedEmployeeId, employeeLabel, task, today);
   });
 

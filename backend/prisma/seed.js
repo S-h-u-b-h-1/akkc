@@ -42,88 +42,68 @@ const main = async () => {
     bcrypt.hash('Employee@12345', SALT_ROUNDS)
   ]);
 
-  const admin = await prisma.admin.upsert({
-    where: { id: ids.admin },
-    update: {
-      name: 'A K Kataruka Admin',
-      email: 'admin@akkataruka.com',
-      passwordHash: adminPasswordHash,
-      createdByAdminId: null,
-      deletedAt: null
-    },
-    create: {
-      id: ids.admin,
-      name: 'A K Kataruka Admin',
-      email: 'admin@akkataruka.com',
-      passwordHash: adminPasswordHash,
-      createdByAdminId: null
-    }
+	  const admin = await prisma.admin.upsert({
+	    where: { id: ids.admin },
+	    update: {
+	      username: 'admin',
+	      passwordHash: adminPasswordHash,
+	      createdByAdminId: null,
+	      deletedAt: null
+	    },
+	    create: {
+	      id: ids.admin,
+	      username: 'admin',
+	      passwordHash: adminPasswordHash,
+	      createdByAdminId: null
+	    }
   });
 
   const employees = await Promise.all([
-    prisma.employee.upsert({
-      where: { id: ids.employeeAudit },
-      update: {
-        name: 'Kavita Sharma',
-        username: 'audit.associate',
-        email: 'kavita.audit@akkataruka.com',
-        passwordHash: employeePasswordHash,
-        department: 'Audit & Assurance',
-        createdByAdminId: admin.id,
-        deletedAt: null
-      },
-      create: {
-        id: ids.employeeAudit,
-        name: 'Kavita Sharma',
-        username: 'audit.associate',
-        email: 'kavita.audit@akkataruka.com',
-        passwordHash: employeePasswordHash,
-        department: 'Audit & Assurance',
-        createdByAdminId: admin.id
-      }
-    }),
-    prisma.employee.upsert({
-      where: { id: ids.employeeTax },
-      update: {
-        name: 'Arjun Mehta',
-        username: 'tax.associate',
-        email: 'arjun.tax@akkataruka.com',
-        passwordHash: employeePasswordHash,
-        department: 'Income Tax',
-        createdByAdminId: admin.id,
-        deletedAt: null
-      },
-      create: {
-        id: ids.employeeTax,
-        name: 'Arjun Mehta',
-        username: 'tax.associate',
-        email: 'arjun.tax@akkataruka.com',
-        passwordHash: employeePasswordHash,
-        department: 'Income Tax',
-        createdByAdminId: admin.id
-      }
-    }),
-    prisma.employee.upsert({
-      where: { id: ids.employeeGst },
-      update: {
-        name: 'Meera Iyer',
-        username: 'gst.associate',
-        email: 'meera.gst@akkataruka.com',
-        passwordHash: employeePasswordHash,
-        department: 'GST & Indirect Tax',
-        createdByAdminId: admin.id,
-        deletedAt: null
-      },
-      create: {
-        id: ids.employeeGst,
-        name: 'Meera Iyer',
-        username: 'gst.associate',
-        email: 'meera.gst@akkataruka.com',
-        passwordHash: employeePasswordHash,
-        department: 'GST & Indirect Tax',
-        createdByAdminId: admin.id
-      }
-    })
+	    prisma.employee.upsert({
+	      where: { id: ids.employeeAudit },
+	      update: {
+	        username: 'audit.associate',
+	        passwordHash: employeePasswordHash,
+	        createdByAdminId: admin.id,
+	        deletedAt: null
+	      },
+	      create: {
+	        id: ids.employeeAudit,
+	        username: 'audit.associate',
+	        passwordHash: employeePasswordHash,
+	        createdByAdminId: admin.id
+	      }
+	    }),
+	    prisma.employee.upsert({
+	      where: { id: ids.employeeTax },
+	      update: {
+	        username: 'tax.associate',
+	        passwordHash: employeePasswordHash,
+	        createdByAdminId: admin.id,
+	        deletedAt: null
+	      },
+	      create: {
+	        id: ids.employeeTax,
+	        username: 'tax.associate',
+	        passwordHash: employeePasswordHash,
+	        createdByAdminId: admin.id
+	      }
+	    }),
+	    prisma.employee.upsert({
+	      where: { id: ids.employeeGst },
+	      update: {
+	        username: 'gst.associate',
+	        passwordHash: employeePasswordHash,
+	        createdByAdminId: admin.id,
+	        deletedAt: null
+	      },
+	      create: {
+	        id: ids.employeeGst,
+	        username: 'gst.associate',
+	        passwordHash: employeePasswordHash,
+	        createdByAdminId: admin.id
+	      }
+	    })
   ]);
 
   const [auditEmployee, taxEmployee, gstEmployee] = employees;
@@ -327,7 +307,8 @@ const main = async () => {
   ]);
 
   console.info('Database seeded successfully.');
-  console.info('Admin login: admin@akkataruka.com / Admin@12345');
+  console.info('Admin username: admin');
+  console.info('Admin password: Admin@12345');
   console.info('Employee usernames: audit.associate, tax.associate, gst.associate');
   console.info('Employee sample password: Employee@12345');
 };

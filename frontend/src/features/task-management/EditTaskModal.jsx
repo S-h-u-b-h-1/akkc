@@ -66,7 +66,7 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
             <select name="employeeId" value={form.employeeId} onChange={updateField} required>
               {employees.map((employee) => (
                 <option key={employee.id} value={employee.id}>
-                  {employee.name}
+                  @{employee.username}
                 </option>
               ))}
             </select>

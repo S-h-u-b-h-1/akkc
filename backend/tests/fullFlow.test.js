@@ -70,26 +70,22 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
 
   const now = () => new Date();
 
-  const publicAdmin = (admin) =>
-    selectedRecord(admin, {
-      id: true,
-      name: true,
-      email: true,
-      createdByAdminId: true,
-      createdByAdmin: true,
+	  const publicAdmin = (admin) =>
+	    selectedRecord(admin, {
+	      id: true,
+	      username: true,
+	      createdByAdminId: true,
+	      createdByAdmin: true,
       createdAt: true,
       updatedAt: true,
       deletedAt: true
     });
 
-  const publicEmployee = (employee) =>
-    selectedRecord(employee, {
-      id: true,
-      name: true,
-      username: true,
-      email: true,
-      department: true,
-      createdByAdminId: true,
+	  const publicEmployee = (employee) =>
+	    selectedRecord(employee, {
+	      id: true,
+	      username: true,
+	      createdByAdminId: true,
       createdAt: true,
       updatedAt: true,
       deletedAt: true
@@ -105,13 +101,11 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
       reason: update.reason,
       createdAt: update.createdAt,
       employeeId: update.employeeId,
-      employee: employee
-        ? {
-            id: employee.id,
-            name: employee.name,
-            username: employee.username,
-            email: employee.email
-          }
+	      employee: employee
+	        ? {
+	            id: employee.id,
+	            username: employee.username
+	          }
         : null
     };
   };
@@ -125,14 +119,11 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
 
     return {
       ...cloneRecord(task),
-      assignedEmployee: employee
-        ? {
-            id: employee.id,
-            name: employee.name,
-            username: employee.username,
-            email: employee.email,
-            department: employee.department
-          }
+	      assignedEmployee: employee
+	        ? {
+	            id: employee.id,
+	            username: employee.username
+	          }
         : null,
       updates: store.taskUpdates
         .filter((update) => update.taskId === task.id)
@@ -219,10 +210,10 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
 
   const client = {
     admin: {
-      findUnique: async ({ where, select }) => {
-        const admin = store.admins.find((candidate) =>
-          where.email ? candidate.email === where.email : candidate.id === where.id
-        );
+	      findUnique: async ({ where, select }) => {
+	        const admin = store.admins.find((candidate) =>
+	          where.username ? candidate.username === where.username : candidate.id === where.id
+	        );
 
         return selectedRecord(admin, select);
       },
@@ -250,10 +241,9 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
           const creator = store.admins.find((candidate) => candidate.id === admin.createdByAdminId);
           admin.createdByAdmin = creator
             ? {
-                id: creator.id,
-                name: creator.name,
-                email: creator.email
-              }
+	                id: creator.id,
+	                username: creator.username
+	              }
             : null;
         }
 
@@ -298,14 +288,12 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
       }
     },
     employee: {
-      findUnique: async ({ where, select }) => {
-        const employee = store.employees.find((candidate) =>
-          where.email
-            ? candidate.email === where.email
-            : where.username
-              ? candidate.username === where.username
-              : candidate.id === where.id
-        );
+	      findUnique: async ({ where, select }) => {
+	        const employee = store.employees.find((candidate) =>
+	          where.username
+	              ? candidate.username === where.username
+	              : candidate.id === where.id
+	        );
 
         return selectedRecord(employee, select);
       },
@@ -422,43 +410,41 @@ const authHeader = (token) => ({ Authorization: `Bearer ${token}` });
 test('complete admin and employee task management flow', async () => {
   const adminPasswordHash = await hashPassword('StrongPass123');
   setPrismaClientForTesting(
-    createMockPrismaClient({
-      admins: [
-        {
-          id: randomUUID(),
-          name: 'Operations Admin',
-	          email: 'admin.flow@example.com',
+	    createMockPrismaClient({
+	      admins: [
+	        {
+	          id: randomUUID(),
+	          username: 'admin.flow',
 	          passwordHash: adminPasswordHash,
 	          createdByAdminId: null,
 	          deletedAt: null,
 	          createdAt: new Date(),
 	          updatedAt: new Date()
 	        }
-      ]
-    })
+	      ]
+	    })
   );
 
-  const adminLogin = await request(app)
-    .post('/api/admin/login')
-    .send({
-      email: 'admin.flow@example.com',
-      password: 'StrongPass123'
-    })
+	  const adminLogin = await request(app)
+	    .post('/api/admin/login')
+	    .send({
+	      username: 'admin.flow',
+	      password: 'StrongPass123'
+	    })
     .expect(200);
   const adminToken = adminLogin.body.data.token;
 
-  const adminMe = await request(app).get('/api/auth/me').set(authHeader(adminToken)).expect(200);
-  assert.equal(adminMe.body.data.user.email, 'admin.flow@example.com');
-  assert.equal(adminMe.body.data.user.role, 'ADMIN');
+	  const adminMe = await request(app).get('/api/auth/me').set(authHeader(adminToken)).expect(200);
+	  assert.equal(adminMe.body.data.user.username, 'admin.flow');
+	  assert.equal(adminMe.body.data.user.role, 'ADMIN');
 
   const createdAdminResponse = await request(app)
     .post('/api/admin/admins')
-    .set(authHeader(adminToken))
-    .send({
-      name: 'Second Admin',
-      email: 'second.admin@example.com',
-      password: 'AdminPass123'
-    })
+	    .set(authHeader(adminToken))
+	    .send({
+	      username: 'second.admin',
+	      password: 'AdminPass123'
+	    })
     .expect(201);
   const createdAdmin = createdAdminResponse.body.data.admin;
   assert.equal(createdAdmin.passwordHash, undefined);
@@ -468,20 +454,20 @@ test('complete admin and employee task management flow', async () => {
   assert.equal(adminList.body.data.admins.length, 2);
 
   const secondAdminLogin = await request(app)
-    .post('/api/admin/login')
-    .send({
-      email: 'second.admin@example.com',
-      password: 'AdminPass123'
-    })
+	    .post('/api/admin/login')
+	    .send({
+	      username: 'second.admin',
+	      password: 'AdminPass123'
+	    })
     .expect(200);
   assert.equal(secondAdminLogin.body.data.user.role, 'ADMIN');
 
-  const updatedAdminResponse = await request(app)
-    .put(`/api/admin/admins/${createdAdmin.id}`)
-    .set(authHeader(adminToken))
-    .send({ name: 'Updated Admin' })
-    .expect(200);
-  assert.equal(updatedAdminResponse.body.data.admin.name, 'Updated Admin');
+	  const updatedAdminResponse = await request(app)
+	    .put(`/api/admin/admins/${createdAdmin.id}`)
+	    .set(authHeader(adminToken))
+	    .send({ username: 'updated.admin' })
+	    .expect(200);
+	  assert.equal(updatedAdminResponse.body.data.admin.username, 'updated.admin');
 
   await request(app)
     .delete(`/api/admin/admins/${adminMe.body.data.user.id}`)
@@ -490,52 +476,44 @@ test('complete admin and employee task management flow', async () => {
 
   const employeeCreate = await request(app)
     .post('/api/admin/employees')
-    .set(authHeader(adminToken))
-    .send({
-      name: 'Jane Employee',
-      email: 'jane.flow@example.com',
-      username: 'jane.audit',
-      password: 'EmployeePass123',
-      department: 'Design'
-    })
+	    .set(authHeader(adminToken))
+	    .send({
+	      username: 'jane.audit',
+	      password: 'EmployeePass123'
+	    })
     .expect(201);
   const employee = employeeCreate.body.data.employee;
-  assert.equal(employee.passwordHash, undefined);
-  assert.equal(employee.username, 'jane.audit');
-  assert.equal(employee.department, 'Design');
+	  assert.equal(employee.passwordHash, undefined);
+	  assert.equal(employee.username, 'jane.audit');
 
   const secondEmployeeCreate = await request(app)
     .post('/api/admin/employees')
-    .set(authHeader(adminToken))
-    .send({
-      name: 'Alex Employee',
-      email: 'alex.flow@example.com',
-      username: 'alex.tax',
-      password: 'EmployeePass123',
-      department: 'Development'
-    })
+	    .set(authHeader(adminToken))
+	    .send({
+	      username: 'alex.tax',
+	      password: 'EmployeePass123'
+	    })
     .expect(201);
   const secondEmployee = secondEmployeeCreate.body.data.employee;
 
   await request(app)
     .post('/api/admin/employees')
-    .set(authHeader(adminToken))
-    .send({
-      name: 'Duplicate Employee',
-      username: 'jane.audit',
-      password: 'EmployeePass123'
-    })
+	    .set(authHeader(adminToken))
+	    .send({
+	      username: 'jane.audit',
+	      password: 'EmployeePass123'
+	    })
     .expect(409);
 
   const employeesList = await request(app).get('/api/admin/employees').set(authHeader(adminToken)).expect(200);
   assert.equal(employeesList.body.data.employees.length, 2);
 
-  const employeeUpdate = await request(app)
-    .put(`/api/admin/employees/${secondEmployee.id}`)
-    .set(authHeader(adminToken))
-    .send({ department: 'QA' })
-    .expect(200);
-  assert.equal(employeeUpdate.body.data.employee.department, 'QA');
+	  const employeeUpdate = await request(app)
+	    .put(`/api/admin/employees/${secondEmployee.id}`)
+	    .set(authHeader(adminToken))
+	    .send({ username: 'alex.updated' })
+	    .expect(200);
+	  assert.equal(employeeUpdate.body.data.employee.username, 'alex.updated');
 
   const futureDate = addDays(3);
   const delayedDate = addDays(-2);
@@ -732,8 +710,8 @@ test('complete admin and employee task management flow', async () => {
     .get('/api/admin/maintenance/archived-employees')
     .set(authHeader(adminToken))
     .expect(200);
-  assert.equal(archivedEmployees.body.data.employees.length, 1);
-  assert.equal(archivedEmployees.body.data.employees[0].username, 'alex.tax');
+	  assert.equal(archivedEmployees.body.data.employees.length, 1);
+	  assert.equal(archivedEmployees.body.data.employees[0].username, 'alex.updated');
 
   await request(app)
     .delete(`/api/admin/maintenance/archived-employees/${secondEmployee.id}`)
@@ -747,15 +725,13 @@ test('complete admin and employee task management flow', async () => {
 
   const reusedEmployee = await request(app)
     .post('/api/admin/employees')
-    .set(authHeader(adminToken))
-    .send({
-      name: 'Replacement Analyst',
-      username: 'alex.tax',
-      password: 'Employee@12345',
-      department: 'Audit'
-    })
-    .expect(201);
-  assert.equal(reusedEmployee.body.data.employee.username, 'alex.tax');
+	    .set(authHeader(adminToken))
+	    .send({
+	      username: 'alex.updated',
+	      password: 'Employee@12345'
+	    })
+	    .expect(201);
+	  assert.equal(reusedEmployee.body.data.employee.username, 'alex.updated');
 
   await request(app).delete(`/api/admin/tasks/${secondEmployeeTask.id}`).set(authHeader(adminToken)).expect(200);
   const tasksAfterDelete = await request(app).get('/api/admin/tasks').set(authHeader(adminToken)).expect(200);
@@ -766,19 +742,19 @@ test('complete admin and employee task management flow', async () => {
     .set(authHeader(adminToken))
     .expect(200);
   await request(app)
-    .post('/api/admin/login')
-    .send({
-      email: 'second.admin@example.com',
-      password: 'AdminPass123'
-    })
+	    .post('/api/admin/login')
+	    .send({
+	      username: 'updated.admin',
+	      password: 'AdminPass123'
+	    })
     .expect(401);
 
   const archivedAdmins = await request(app)
     .get('/api/admin/maintenance/archived-admins')
     .set(authHeader(adminToken))
     .expect(200);
-  assert.equal(archivedAdmins.body.data.admins.length, 1);
-  assert.equal(archivedAdmins.body.data.admins[0].email, 'second.admin@example.com');
+	  assert.equal(archivedAdmins.body.data.admins.length, 1);
+	  assert.equal(archivedAdmins.body.data.admins[0].username, 'updated.admin');
 
   await request(app)
     .delete(`/api/admin/maintenance/archived-admins/${createdAdmin.id}`)

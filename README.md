@@ -103,7 +103,7 @@ VITE_API_BASE_URL=https://akkc.onrender.com/api
 
 ## Authentication
 
-- Admins sign in with email and password.
+- Admins sign in with username and password.
 - Admin accounts are provisioned by seed data, secure database administration, or an existing admin from the protected admin portal.
 - Staff members do not sign up themselves.
 - Admins create staff credentials with username and password.
@@ -113,7 +113,8 @@ VITE_API_BASE_URL=https://akkc.onrender.com/api
 Seed credentials:
 
 ```text
-Admin: admin@akkataruka.com / Admin@12345
+Admin username: admin
+Admin password: Admin@12345
 Staff usernames: audit.associate, tax.associate, gst.associate
 Staff password: Employee@12345
 ```

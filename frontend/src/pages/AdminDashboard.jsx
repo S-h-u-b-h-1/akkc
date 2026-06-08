@@ -317,7 +317,7 @@ export function AdminDashboard() {
   };
 
   const handleDeleteAdmin = async (admin) => {
-    const shouldDelete = window.confirm(`Archive admin login for ${admin.name}?`);
+    const shouldDelete = window.confirm(`Archive admin login for @${admin.username}?`);
 
     if (!shouldDelete) {
       return;
@@ -337,7 +337,7 @@ export function AdminDashboard() {
   };
 
   const handleDeleteEmployee = async (employee) => {
-    const shouldDelete = window.confirm(`Archive login credentials for ${employee.name}?`);
+    const shouldDelete = window.confirm(`Archive login credentials for @${employee.username}?`);
 
     if (!shouldDelete) {
       return;
@@ -353,7 +353,7 @@ export function AdminDashboard() {
 
   const handlePermanentlyDeleteAdmin = async (admin) => {
     const shouldDelete = window.confirm(
-      `Permanently delete archived admin "${admin.name}" from the online database?`
+      `Permanently delete archived admin "@${admin.username}" from the online database?`
     );
 
     if (!shouldDelete) {
@@ -370,7 +370,7 @@ export function AdminDashboard() {
 
   const handlePermanentlyDeleteEmployee = async (employee) => {
     const shouldDelete = window.confirm(
-      `Permanently delete archived staff login "${employee.name}" from the online database?`
+      `Permanently delete archived staff login "@${employee.username}" from the online database?`
     );
 
     if (!shouldDelete) {

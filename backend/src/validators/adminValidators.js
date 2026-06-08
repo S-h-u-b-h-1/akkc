@@ -1,14 +1,19 @@
 import { z } from 'zod';
 
 const adminId = z.uuid();
-const email = z.email().trim().toLowerCase().max(255);
 const password = z.string().min(8).max(72);
+const username = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3)
+  .max(60)
+  .regex(/^[a-z0-9._-]+$/, 'Username can only contain letters, numbers, dots, underscores, and hyphens.');
 
 export const createAdminSchema = z.object({
   body: z
     .object({
-      name: z.string().trim().min(2).max(120),
-      email,
+      username,
       password
     })
     .strict(),
@@ -25,8 +30,7 @@ export const listAdminsSchema = z.object({
 export const updateAdminSchema = z.object({
   body: z
     .object({
-      name: z.string().trim().min(2).max(120).optional(),
-      email: email.optional(),
+      username: username.optional(),
       password: password.optional()
     })
     .strict()

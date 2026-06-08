@@ -211,8 +211,8 @@ function PriorityTaskList({ emptyText, isAdminView, tasks }) {
               <strong>{task.title}</strong>
               <span>
                 {task.clientName} | {task.domain}
-                {isAdminView && task.assignedEmployee?.name
-                  ? ` | ${task.assignedEmployee.name}`
+	                {isAdminView && task.assignedEmployee?.username
+	                  ? ` | @${task.assignedEmployee.username}`
                   : ''}
               </span>
             </div>
@@ -271,10 +271,10 @@ export function PracticeInsights({ isLoading = false, scope = 'admin', stats, ta
   const derivedEmployeeSummary = employeeSummary.length
     ? employeeSummary
     : deriveGroupsFromTasks(
-        tasks,
-        (task) => task.assignedEmployeeId,
-        (task) => task.assignedEmployee?.name
-      ).slice(0, MAX_VISIBLE_ITEMS);
+	        tasks,
+	        (task) => task.assignedEmployeeId,
+	        (task) => (task.assignedEmployee?.username ? `@${task.assignedEmployee.username}` : undefined)
+	      ).slice(0, MAX_VISIBLE_ITEMS);
 
   return (
     <section className="practice-insights" aria-busy={isLoading}>

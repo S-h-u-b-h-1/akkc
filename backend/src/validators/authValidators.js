@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-const email = z.email().trim().toLowerCase().max(255);
 const password = z.string().min(8).max(72);
 const username = z
   .string()
@@ -12,7 +11,7 @@ const username = z
 
 export const loginSchema = z.object({
   body: z.object({
-    email,
+    username,
     password
   }),
   params: z.object({}).optional(),

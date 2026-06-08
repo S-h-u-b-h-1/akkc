@@ -15,8 +15,7 @@ enum TaskStatus {
 
 model Admin {
   id               String     @id @default(uuid()) @db.Uuid
-  name             String     @db.VarChar(120)
-  email            String     @unique @db.VarChar(255)
+  username         String     @unique @db.VarChar(60)
   passwordHash     String     @db.VarChar(255)
   createdByAdminId String?    @db.Uuid
   createdByAdmin   Admin?     @relation("AdminCreatedAdmins", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -34,11 +33,8 @@ model Admin {
 
 model Employee {
   id               String       @id @default(uuid()) @db.Uuid
-  name             String       @db.VarChar(120)
   username         String       @unique @db.VarChar(60)
-  email            String?      @unique @db.VarChar(255)
   passwordHash     String       @db.VarChar(255)
-  department       String?      @db.VarChar(120)
   createdByAdminId String?      @db.Uuid
   createdByAdmin   Admin?       @relation("AdminCreatedEmployees", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   assignedTasks    Task[]       @relation("EmployeeAssignedTasks")
@@ -48,7 +44,6 @@ model Employee {
   deletedAt        DateTime?
 
   @@index([createdByAdminId])
-  @@index([department])
   @@index([createdAt])
   @@index([deletedAt])
 }

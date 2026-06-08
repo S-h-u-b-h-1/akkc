@@ -68,7 +68,9 @@ export function TaskTable({ isLoading, onDelete, onEdit, tasks }) {
                     </td>
                     <td data-label="Service line">{task.domain}</td>
                     <td data-label="Client / entity">{task.clientName}</td>
-                    <td data-label="Staff member">{task.assignedEmployee?.name ?? '-'}</td>
+                    <td data-label="Staff member">
+                      {task.assignedEmployee?.username ? `@${task.assignedEmployee.username}` : '-'}
+                    </td>
                     <td data-label="Status">
                       <span className={`status-pill ${task.status?.toLowerCase()}`}>
                         {formatStatus(task.status ?? TASK_STATUSES.PENDING)}

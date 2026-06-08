@@ -2,12 +2,12 @@ import { API_MESSAGES, HTTP_STATUS } from '../constants/api.js';
 import {
   createAdmin,
   findActiveAdminById,
-  findAdminByEmail,
+  findAdminByUsername,
   listActiveAdmins,
   softDeleteAdmin,
   updateAdmin
 } from '../repositories/adminRepository.js';
-import { findEmployeeByEmail } from '../repositories/employeeRepository.js';
+import { findEmployeeByUsername } from '../repositories/employeeRepository.js';
 import { AppError } from '../utils/appError.js';
 import { hashPassword } from '../utils/password.js';
 
@@ -27,27 +27,26 @@ const assertAdminExists = async (adminId) => {
   return admin;
 };
 
-const assertEmailIsAvailable = async ({ email, currentAdminId }) => {
+const assertUsernameIsAvailable = async ({ username, currentAdminId }) => {
   const [existingAdmin, existingEmployee] = await Promise.all([
-    findAdminByEmail(email),
-    findEmployeeByEmail(email)
+    findAdminByUsername(username),
+    findEmployeeByUsername(username)
   ]);
 
   const belongsToCurrentAdmin = existingAdmin?.id === currentAdminId;
 
   if ((existingAdmin && !belongsToCurrentAdmin) || existingEmployee) {
-    throw new AppError(API_MESSAGES.EMAIL_ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
+    throw new AppError(API_MESSAGES.USERNAME_ALREADY_EXISTS, HTTP_STATUS.CONFLICT);
   }
 };
 
 export const createAdminAccount = async ({ currentAdminId, payload }) => {
   await assertAdminExists(currentAdminId);
-  await assertEmailIsAvailable({ email: payload.email });
+  await assertUsernameIsAvailable({ username: payload.username });
 
   const passwordHash = await hashPassword(payload.password);
   const admin = await createAdmin({
-    name: payload.name,
-    email: payload.email,
+    username: payload.username,
     passwordHash,
     createdByAdminId: currentAdminId
   });
@@ -63,21 +62,17 @@ export const listAdminAccounts = async () => {
 export const updateAdminAccount = async ({ adminId, payload }) => {
   await assertAdminExists(adminId);
 
-  if (payload.email !== undefined) {
-    await assertEmailIsAvailable({
-      email: payload.email,
+  if (payload.username !== undefined) {
+    await assertUsernameIsAvailable({
+      username: payload.username,
       currentAdminId: adminId
     });
   }
 
   const data = {};
 
-  if (payload.name !== undefined) {
-    data.name = payload.name;
-  }
-
-  if (payload.email !== undefined) {
-    data.email = payload.email;
+  if (payload.username !== undefined) {
+    data.username = payload.username;
   }
 
   if (payload.password !== undefined) {

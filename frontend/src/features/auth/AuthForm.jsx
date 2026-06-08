@@ -9,10 +9,10 @@ import { getDashboardRouteForRole } from '../../utils/authRedirects.js';
 export function AuthForm({
   alternateLink,
   credentialField = {
-    autoComplete: 'email',
-    label: 'Email address',
-    name: 'email',
-    type: 'email'
+    autoComplete: 'username',
+    label: 'Username',
+    name: 'username',
+    type: 'text'
   },
   eyebrow,
   onSubmit,
