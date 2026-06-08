@@ -6,7 +6,8 @@ import {
   listBills,
   getBill,
   deleteBill,
-  sendEmailForBill
+  sendEmailForBill,
+  viewBillPdf
 } from '../controllers/billingController.js';
 import { adminOnly, authenticate } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
@@ -50,6 +51,12 @@ router.delete(
   '/bills/:id',
   validateRequest(billIdParamSchema),
   asyncHandler(deleteBill)
+);
+
+router.get(
+  '/bills/:id/pdf',
+  validateRequest(billIdParamSchema),
+  asyncHandler(viewBillPdf)
 );
 
 router.post(

@@ -48,7 +48,7 @@ export const deleteBill = async (req, res) => {
   });
 };
 
-import { emailBillToClient } from '../services/billingService.js';
+import { emailBillToClient, getBillPdfPath } from '../services/billingService.js';
 
 export const sendEmailForBill = async (req, res) => {
   const bill = await emailBillToClient(req.user.id, req.validated.params.id);
@@ -56,4 +56,9 @@ export const sendEmailForBill = async (req, res) => {
     message: 'Bill emailed successfully',
     data: { bill }
   });
+};
+
+export const viewBillPdf = async (req, res) => {
+  const pdfPath = await getBillPdfPath(req.user.id, req.validated.params.id);
+  res.sendFile(pdfPath);
 };

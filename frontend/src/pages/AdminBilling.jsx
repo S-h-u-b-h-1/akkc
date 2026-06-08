@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getEligibleTasksForBilling, createBill, getBills, deleteBill, sendBillEmail } from '../services/billingService.js';
 import { getAdminEmployees } from '../services/adminService.js';
+import { API_BASE_URL } from '../api/httpClient.js';
+import { STORAGE_KEYS } from '../constants/routes.js';
 
 export function AdminBilling() {
   const [activeTab, setActiveTab] = useState('eligible');
@@ -103,6 +105,29 @@ export function AdminBilling() {
     try {
       await deleteBill(billId);
       loadBills();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewPdf = async (billId) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const response = await fetch(`${API_BASE_URL}/admin/billing/bills/${billId}/pdf`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed to load PDF');
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -244,6 +269,9 @@ export function AdminBilling() {
                     <td><span className={`status-badge ${bill.status.toLowerCase()}`}>{bill.status}</span></td>
                     <td>{new Date(bill.createdAt).toLocaleDateString()}</td>
                     <td>
+                      <button className="icon-button" onClick={() => handleViewPdf(bill.id)} disabled={isLoading}>
+                        View PDF
+                      </button>
                       <button className="icon-button" onClick={() => handleSendEmail(bill.id)} disabled={isLoading}>
                         Email
                       </button>

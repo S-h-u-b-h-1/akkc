@@ -119,3 +119,27 @@ export const emailBillToClient = async (adminId, billId) => {
   const updatedBill = await updateBillEmailStatus(bill.id);
   return updatedBill;
 };
+
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const BACKEND_ROOT = path.join(__dirname, '../../');
+
+export const getBillPdfPath = async (adminId, billId) => {
+  let bill = await getBillById(adminId, billId);
+  if (!bill) {
+    throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
+  }
+
+  // Generate PDF if not already generated
+  if (!bill.pdfUrl) {
+    const pdfUrl = await generateBillPdf(bill);
+    bill = await updateBillPdfStatus(bill.id, pdfUrl);
+    bill = await getBillById(adminId, billId);
+  }
+
+  const pdfPath = path.join(BACKEND_ROOT, bill.pdfUrl);
+  return pdfPath;
+};
