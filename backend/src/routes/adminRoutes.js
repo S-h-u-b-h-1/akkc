@@ -8,6 +8,12 @@ import {
 } from '../controllers/adminEmployeeController.js';
 import { login } from '../controllers/adminAuthController.js';
 import {
+  createAdmin,
+  deleteAdmin,
+  listAdmins,
+  updateAdmin
+} from '../controllers/adminManagementController.js';
+import {
   createTask,
   deleteTask,
   getStats,
@@ -19,6 +25,12 @@ import { adminOnly, authenticate } from '../middleware/authMiddleware.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { loginSchema } from '../validators/authValidators.js';
+import {
+  adminIdParamSchema,
+  createAdminSchema,
+  listAdminsSchema,
+  updateAdminSchema
+} from '../validators/adminValidators.js';
 import {
   createEmployeeSchema,
   employeeIdParamSchema,
@@ -35,6 +47,34 @@ import {
 const router = Router();
 
 router.post('/login', validateRequest(loginSchema), asyncHandler(login));
+router.post(
+  '/admins',
+  authenticate,
+  adminOnly,
+  validateRequest(createAdminSchema),
+  asyncHandler(createAdmin)
+);
+router.get(
+  '/admins',
+  authenticate,
+  adminOnly,
+  validateRequest(listAdminsSchema),
+  asyncHandler(listAdmins)
+);
+router.put(
+  '/admins/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(updateAdminSchema),
+  asyncHandler(updateAdmin)
+);
+router.delete(
+  '/admins/:id',
+  authenticate,
+  adminOnly,
+  validateRequest(adminIdParamSchema),
+  asyncHandler(deleteAdmin)
+);
 router.post(
   '/employees',
   authenticate,

@@ -70,6 +70,18 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
 
   const now = () => new Date();
 
+  const publicAdmin = (admin) =>
+    selectedRecord(admin, {
+      id: true,
+      name: true,
+      email: true,
+      createdByAdminId: true,
+      createdByAdmin: true,
+      createdAt: true,
+      updatedAt: true,
+      deletedAt: true
+    });
+
   const publicEmployee = (employee) =>
     selectedRecord(employee, {
       id: true,
@@ -206,17 +218,50 @@ const createMockPrismaClient = ({ admins = [] } = {}) => {
 
         return selectedRecord(admin, select);
       },
+      findFirst: async ({ where }) => {
+        const admin = store.admins.find((candidate) =>
+          Object.entries(where).every(([key, value]) => candidate[key] === value)
+        );
+
+        return publicAdmin(admin);
+      },
+      findMany: async ({ where }) =>
+        store.admins
+          .filter((admin) =>
+            Object.entries(where).every(([key, value]) => admin[key] === value)
+          )
+          .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+          .map(publicAdmin),
       create: async ({ data, select }) => {
         const admin = {
           id: randomUUID(),
+          createdByAdminId: null,
+          deletedAt: null,
           ...data,
           createdAt: now(),
           updatedAt: now()
         };
 
+        if (admin.createdByAdminId) {
+          const creator = store.admins.find((candidate) => candidate.id === admin.createdByAdminId);
+          admin.createdByAdmin = creator
+            ? {
+                id: creator.id,
+                name: creator.name,
+                email: creator.email
+              }
+            : null;
+        }
+
         store.admins.push(admin);
 
         return selectedRecord(admin, select);
+      },
+      update: async ({ where, data }) => {
+        const admin = store.admins.find((candidate) => candidate.id === where.id);
+        Object.assign(admin, data, { updatedAt: now() });
+
+        return publicAdmin(admin);
       }
     },
     employee: {
@@ -320,11 +365,13 @@ test('complete admin and employee task management flow', async () => {
         {
           id: randomUUID(),
           name: 'Operations Admin',
-          email: 'admin.flow@example.com',
-          passwordHash: adminPasswordHash,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
+	          email: 'admin.flow@example.com',
+	          passwordHash: adminPasswordHash,
+	          createdByAdminId: null,
+	          deletedAt: null,
+	          createdAt: new Date(),
+	          updatedAt: new Date()
+	        }
       ]
     })
   );
@@ -341,6 +388,43 @@ test('complete admin and employee task management flow', async () => {
   const adminMe = await request(app).get('/api/auth/me').set(authHeader(adminToken)).expect(200);
   assert.equal(adminMe.body.data.user.email, 'admin.flow@example.com');
   assert.equal(adminMe.body.data.user.role, 'ADMIN');
+
+  const createdAdminResponse = await request(app)
+    .post('/api/admin/admins')
+    .set(authHeader(adminToken))
+    .send({
+      name: 'Second Admin',
+      email: 'second.admin@example.com',
+      password: 'AdminPass123'
+    })
+    .expect(201);
+  const createdAdmin = createdAdminResponse.body.data.admin;
+  assert.equal(createdAdmin.passwordHash, undefined);
+  assert.equal(createdAdmin.createdByAdminId, adminMe.body.data.user.id);
+
+  const adminList = await request(app).get('/api/admin/admins').set(authHeader(adminToken)).expect(200);
+  assert.equal(adminList.body.data.admins.length, 2);
+
+  const secondAdminLogin = await request(app)
+    .post('/api/admin/login')
+    .send({
+      email: 'second.admin@example.com',
+      password: 'AdminPass123'
+    })
+    .expect(200);
+  assert.equal(secondAdminLogin.body.data.user.role, 'ADMIN');
+
+  const updatedAdminResponse = await request(app)
+    .put(`/api/admin/admins/${createdAdmin.id}`)
+    .set(authHeader(adminToken))
+    .send({ name: 'Updated Admin' })
+    .expect(200);
+  assert.equal(updatedAdminResponse.body.data.admin.name, 'Updated Admin');
+
+  await request(app)
+    .delete(`/api/admin/admins/${adminMe.body.data.user.id}`)
+    .set(authHeader(adminToken))
+    .expect(400);
 
   const employeeCreate = await request(app)
     .post('/api/admin/employees')
@@ -585,4 +669,16 @@ test('complete admin and employee task management flow', async () => {
   await request(app).delete(`/api/admin/tasks/${secondEmployeeTask.id}`).set(authHeader(adminToken)).expect(200);
   const tasksAfterDelete = await request(app).get('/api/admin/tasks').set(authHeader(adminToken)).expect(200);
   assert.equal(tasksAfterDelete.body.data.tasks.length, 2);
+
+  await request(app)
+    .delete(`/api/admin/admins/${createdAdmin.id}`)
+    .set(authHeader(adminToken))
+    .expect(200);
+  await request(app)
+    .post('/api/admin/login')
+    .send({
+      email: 'second.admin@example.com',
+      password: 'AdminPass123'
+    })
+    .expect(401);
 });

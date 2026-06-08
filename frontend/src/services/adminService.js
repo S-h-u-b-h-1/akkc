@@ -15,6 +15,25 @@ const buildQueryString = (filters = {}) => {
 
 export const getAdminStats = () => httpClient('/admin/stats');
 
+export const getAdminAccounts = () => httpClient('/admin/admins');
+
+export const createAdminAccount = (payload) =>
+  httpClient('/admin/admins', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+
+export const updateAdminAccount = (adminId, payload) =>
+  httpClient(`/admin/admins/${adminId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload)
+  });
+
+export const deleteAdminAccount = (adminId) =>
+  httpClient(`/admin/admins/${adminId}`, {
+    method: 'DELETE'
+  });
+
 export const getAdminTasks = (filters) => httpClient(`/admin/tasks${buildQueryString(filters)}`);
 
 export const createAdminTask = (payload) =>

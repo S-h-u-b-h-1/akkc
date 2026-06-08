@@ -11,6 +11,10 @@ export const HTTP_STATUS = Object.freeze({
 
 export const API_MESSAGES = Object.freeze({
   HEALTH_OK: 'Service is healthy.',
+  ADMIN_CREATED: 'Admin account created successfully.',
+  ADMINS_FETCHED: 'Admin accounts fetched successfully.',
+  ADMIN_UPDATED: 'Admin account updated successfully.',
+  ADMIN_DELETED: 'Admin account deleted successfully.',
   EMPLOYEE_CREATED: 'Employee created successfully.',
   EMPLOYEES_FETCHED: 'Employees fetched successfully.',
   EMPLOYEE_UPDATED: 'Employee updated successfully.',
@@ -33,10 +37,12 @@ export const API_MESSAGES = Object.freeze({
   INVALID_CREDENTIALS: 'Invalid credentials.',
   EMAIL_ALREADY_EXISTS: 'An account with this email already exists.',
   USERNAME_ALREADY_EXISTS: 'An employee with this username already exists.',
+  ADMIN_NOT_FOUND: 'Admin account not found.',
   EMPLOYEE_NOT_FOUND: 'Employee not found.',
   TASK_NOT_FOUND: 'Task not found.',
   VALIDATION_FAILED: 'Validation failed.',
-  USER_NOT_FOUND: 'Authenticated user was not found.'
+  USER_NOT_FOUND: 'Authenticated user was not found.',
+  CANNOT_DELETE_SELF: 'You cannot delete your own admin account.'
 });
 
 export const USER_ROLES = Object.freeze({

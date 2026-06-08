@@ -40,6 +40,10 @@ export function AppRoutes() {
             element={<AdminDashboard />}
           />
           <Route
+            path={ROUTES.ADMIN_ADMINS}
+            element={<AdminDashboard />}
+          />
+          <Route
             path={ROUTES.ADMIN_EMPLOYEES}
             element={<AdminDashboard />}
           />

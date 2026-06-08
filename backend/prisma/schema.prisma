@@ -14,16 +14,22 @@ enum TaskStatus {
 }
 
 model Admin {
-  id           String     @id @default(uuid()) @db.Uuid
-  name         String     @db.VarChar(120)
-  email        String     @unique @db.VarChar(255)
-  passwordHash String     @db.VarChar(255)
-  employees    Employee[] @relation("AdminCreatedEmployees")
-  tasks        Task[]     @relation("AdminCreatedTasks")
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now()) @updatedAt
+  id               String     @id @default(uuid()) @db.Uuid
+  name             String     @db.VarChar(120)
+  email            String     @unique @db.VarChar(255)
+  passwordHash     String     @db.VarChar(255)
+  createdByAdminId String?    @db.Uuid
+  createdByAdmin   Admin?     @relation("AdminCreatedAdmins", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdAdmins    Admin[]    @relation("AdminCreatedAdmins")
+  employees        Employee[] @relation("AdminCreatedEmployees")
+  tasks            Task[]     @relation("AdminCreatedTasks")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @default(now()) @updatedAt
+  deletedAt        DateTime?
 
+  @@index([createdByAdminId])
   @@index([createdAt])
+  @@index([deletedAt])
 }
 
 model Employee {

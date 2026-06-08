@@ -3,6 +3,7 @@ export const ROUTES = Object.freeze({
   ADMIN_ROOT: '/admin',
   ADMIN_LOGIN: '/admin/login',
   ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_ADMINS: '/admin/admins',
   ADMIN_EMPLOYEES: '/admin/employees',
   ADMIN_TASKS: '/admin/tasks',
   EMPLOYEE_ROOT: '/employee',

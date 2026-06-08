@@ -995,6 +995,11 @@ tbody tr:hover {
   color: #b42318;
 }
 
+.icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .icon-button-text {
   white-space: nowrap;
 }

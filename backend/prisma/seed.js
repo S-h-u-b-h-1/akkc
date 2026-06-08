@@ -47,13 +47,16 @@ const main = async () => {
     update: {
       name: 'A K Kataruka Admin',
       email: 'admin@akkataruka.com',
-      passwordHash: adminPasswordHash
+      passwordHash: adminPasswordHash,
+      createdByAdminId: null,
+      deletedAt: null
     },
     create: {
       id: ids.admin,
       name: 'A K Kataruka Admin',
       email: 'admin@akkataruka.com',
-      passwordHash: adminPasswordHash
+      passwordHash: adminPasswordHash,
+      createdByAdminId: null
     }
   });
 

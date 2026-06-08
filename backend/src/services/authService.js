@@ -19,7 +19,7 @@ const buildAuthResponse = ({ user, role }) => ({
 export const loginAdmin = async ({ email, password }) => {
   const admin = await findAdminByEmail(email);
 
-  if (!admin || !(await verifyPassword(password, admin.passwordHash))) {
+  if (!admin || admin.deletedAt || !(await verifyPassword(password, admin.passwordHash))) {
     throw new AppError(API_MESSAGES.INVALID_CREDENTIALS, HTTP_STATUS.UNAUTHORIZED);
   }
 
@@ -61,12 +61,15 @@ export const getCurrentUser = async ({ id, role }) => {
   if (role === USER_ROLES.ADMIN) {
     const admin = await findAdminById(id);
 
-    if (!admin) {
+    if (!admin || admin.deletedAt) {
       throw new AppError(API_MESSAGES.USER_NOT_FOUND, HTTP_STATUS.UNAUTHORIZED);
     }
 
+    const activeAdmin = { ...admin };
+    delete activeAdmin.deletedAt;
+
     return {
-      ...admin,
+      ...activeAdmin,
       role
     };
   }

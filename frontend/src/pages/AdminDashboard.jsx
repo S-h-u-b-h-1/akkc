@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 import { ROUTES } from '../constants/routes.js';
 
+import { AdminManagement } from '../features/admin-management/AdminManagement.jsx';
 import { PracticeInsights } from '../features/dashboard-analytics/PracticeInsights.jsx';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
 import { EmployeeManagement } from '../features/employee-management/EmployeeManagement.jsx';
@@ -12,24 +13,31 @@ import { EditTaskModal } from '../features/task-management/EditTaskModal.jsx';
 import { TaskFilters } from '../features/task-management/TaskFilters.jsx';
 import { TaskTable } from '../features/task-management/TaskTable.jsx';
 import {
+  createAdminAccount,
   createAdminEmployee,
   createAdminTask,
+  deleteAdminAccount,
   deleteAdminEmployee,
   deleteAdminTask,
+  getAdminAccounts,
   getAdminEmployees,
   getAdminStats,
   getAdminTasks,
+  updateAdminAccount,
   updateAdminEmployee,
   updateAdminTask
 } from '../services/adminService.js';
+import { useAuth } from '../hooks/useAuth.js';
 
 const getRouteRequirements = (pathname) => {
   const isDashboardRoute =
     pathname === ROUTES.ADMIN_DASHBOARD || pathname === ROUTES.ADMIN_ROOT;
+  const isAdminsRoute = pathname === ROUTES.ADMIN_ADMINS;
   const isEmployeesRoute = pathname === ROUTES.ADMIN_EMPLOYEES;
   const isTasksRoute = pathname === ROUTES.ADMIN_TASKS;
 
   return {
+    admins: isAdminsRoute,
     employees: isEmployeesRoute || isTasksRoute,
     stats: isDashboardRoute,
     tasks: isDashboardRoute || isTasksRoute
@@ -77,6 +85,18 @@ const fetchDashboardSnapshot = async ({ filters, requirements }) => {
     );
   }
 
+  if (requirements.admins) {
+    requests.push(
+      getAdminAccounts()
+        .then((response) => {
+          snapshot.admins = response.data?.admins ?? [];
+        })
+        .catch((error) => {
+          errors.push(error.message);
+        })
+    );
+  }
+
   await Promise.all(requests);
 
   if (errors.length > 0) {
@@ -100,6 +120,10 @@ const applySnapshot = (snapshot, setters) => {
   if (Object.hasOwn(snapshot, 'employees')) {
     setters.setEmployees(snapshot.employees);
   }
+
+  if (Object.hasOwn(snapshot, 'admins')) {
+    setters.setAdmins(snapshot.admins);
+  }
 };
 
 const initialFilters = {
@@ -112,6 +136,8 @@ const initialFilters = {
 
 export function AdminDashboard() {
   const location = useLocation();
+  const { user } = useAuth();
+  const [admins, setAdmins] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState(initialFilters);
@@ -131,13 +157,13 @@ export function AdminDashboard() {
           return;
         }
 
-        applySnapshot(snapshot, { setEmployees, setStats, setTasks });
+        applySnapshot(snapshot, { setAdmins, setEmployees, setStats, setTasks });
         setError('');
       })
       .catch((loadError) => {
         if (isCurrent) {
           if (loadError.snapshot) {
-            applySnapshot(loadError.snapshot, { setEmployees, setStats, setTasks });
+            applySnapshot(loadError.snapshot, { setAdmins, setEmployees, setStats, setTasks });
           }
           setError(loadError.message);
         }
@@ -162,11 +188,11 @@ export function AdminDashboard() {
         filters,
         requirements: getRouteRequirements(location.pathname)
       });
-      applySnapshot(snapshot, { setEmployees, setStats, setTasks });
+      applySnapshot(snapshot, { setAdmins, setEmployees, setStats, setTasks });
       setError('');
     } catch (loadError) {
       if (loadError.snapshot) {
-        applySnapshot(loadError.snapshot, { setEmployees, setStats, setTasks });
+        applySnapshot(loadError.snapshot, { setAdmins, setEmployees, setStats, setTasks });
       }
       setError(loadError.message);
     } finally {
@@ -210,6 +236,31 @@ export function AdminDashboard() {
     await refreshDashboard();
   };
 
+  const handleCreateAdmin = async (payload) => {
+    await createAdminAccount(payload);
+    await refreshDashboard();
+  };
+
+  const handleUpdateAdmin = async (adminId, payload) => {
+    await updateAdminAccount(adminId, payload);
+    await refreshDashboard();
+  };
+
+  const handleDeleteAdmin = async (admin) => {
+    const shouldDelete = window.confirm(`Delete admin login for ${admin.name}?`);
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await deleteAdminAccount(admin.id);
+      await refreshDashboard();
+    } catch (deleteError) {
+      setError(deleteError.message);
+    }
+  };
+
   const handleUpdateEmployee = async (employeeId, payload) => {
     await updateAdminEmployee(employeeId, payload);
     await refreshDashboard();
@@ -232,10 +283,14 @@ export function AdminDashboard() {
 
   const isDashboardRoute =
     location.pathname === ROUTES.ADMIN_DASHBOARD || location.pathname === ROUTES.ADMIN_ROOT;
+  const isAdminsRoute = location.pathname === ROUTES.ADMIN_ADMINS;
   const isEmployeesRoute = location.pathname === ROUTES.ADMIN_EMPLOYEES;
   const isTasksRoute = location.pathname === ROUTES.ADMIN_TASKS;
 
   const getHeaderDetails = () => {
+    if (isAdminsRoute) {
+      return { eyebrow: 'Firm administration', title: 'Admin access' };
+    }
     if (isEmployeesRoute) {
       return { eyebrow: 'Firm team', title: 'Staff credential management' };
     }
@@ -269,6 +324,16 @@ export function AdminDashboard() {
           <TaskStatsCards isLoading={isLoading} stats={stats} />
           <PracticeInsights isLoading={isLoading} scope="admin" stats={stats} tasks={tasks} />
         </>
+      ) : null}
+
+      {isAdminsRoute ? (
+        <AdminManagement
+          admins={admins}
+          currentAdminId={user?.id}
+          onCreateAdmin={handleCreateAdmin}
+          onDeleteAdmin={handleDeleteAdmin}
+          onUpdateAdmin={handleUpdateAdmin}
+        />
       ) : null}
 
       {isTasksRoute ? (
