@@ -8,6 +8,9 @@ const isDoneActionDisabled = (task) => task.storedStatus === TASK_STATUSES.COMPL
 const isNotDoneActionDisabled = (task) => task.storedStatus === TASK_STATUSES.NOT_DONE;
 
 export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks }) {
+  // Remove tasks from the queue if their deadline has passed (i.e., delayed)
+  const visibleTasks = tasks.filter(task => task.status !== TASK_STATUSES.DELAYED);
+
   return (
     <section className="content-panel" aria-busy={isLoading}>
       <div className="panel-header table-panel-header">
@@ -39,7 +42,7 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
               </tr>
             ) : null}
 
-            {!isLoading && tasks.length === 0 ? (
+            {!isLoading && visibleTasks.length === 0 ? (
               <tr>
                 <td colSpan="7" className="empty-cell">
                   No client work is assigned to you right now.
@@ -48,53 +51,60 @@ export function EmployeeTaskTable({ isLoading, onMarkDone, onMarkNotDone, tasks 
             ) : null}
 
             {!isLoading
-              ? tasks.map((task) => (
-                  <tr key={task.id}>
-                    <td className="primary-cell" data-label="Assignment">
-                      {task.title}
-                    </td>
-                    <td data-label="Priority">
-                      <span className={`priority-pill ${task.isHighPriority ? 'high' : 'standard'}`}>
-                        {task.isHighPriority ? 'High' : 'Standard'}
-                      </span>
-                    </td>
-                    <td data-label="Service line">{task.domain}</td>
-                    <td data-label="Client / entity">{task.clientName}</td>
-                    <td data-label="Status">
-                      <span className={`status-pill ${task.status?.toLowerCase()}`}>
-                        {formatStatus(task.status ?? TASK_STATUSES.PENDING)}
-                      </span>
-                    </td>
-                    <td
-                      className={task.status === TASK_STATUSES.DELAYED ? 'delayed-date' : undefined}
-                      data-label="Due date"
-                    >
-                      {formatDate(task.dueDate)}
-                    </td>
-                    <td data-label="Actions">
-                      <div className="row-actions employee-row-actions">
-                        <button
-                          className="secondary-button action-button"
-                          type="button"
-                          disabled={isDoneActionDisabled(task)}
-                          onClick={() => onMarkDone(task)}
-                        >
-                          <CheckCircle2 size={16} aria-hidden="true" />
-                          <span>Done</span>
-                        </button>
-                        <button
-                          className="secondary-button action-button danger-action"
-                          type="button"
-                          disabled={isNotDoneActionDisabled(task)}
-                          onClick={() => onMarkNotDone(task)}
-                        >
-                          <XCircle size={16} aria-hidden="true" />
-                          <span>Not done</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+              ? visibleTasks.map((task) => {
+                  const isCompleted = task.storedStatus === TASK_STATUSES.COMPLETED;
+                  return (
+                    <tr key={task.id}>
+                      <td className="primary-cell" data-label="Assignment">
+                        {task.title}
+                      </td>
+                      <td data-label="Priority">
+                        <span className={`priority-pill ${task.isHighPriority ? 'high' : 'standard'}`}>
+                          {task.isHighPriority ? 'High' : 'Standard'}
+                        </span>
+                      </td>
+                      <td data-label="Service line">{task.domain}</td>
+                      <td data-label="Client / entity">{task.clientName}</td>
+                      <td data-label="Status">
+                        <span className={`status-pill ${task.status?.toLowerCase()}`}>
+                          {formatStatus(task.status ?? TASK_STATUSES.PENDING)}
+                        </span>
+                      </td>
+                      <td
+                        className={task.status === TASK_STATUSES.DELAYED ? 'delayed-date' : undefined}
+                        data-label="Due date"
+                      >
+                        {formatDate(task.dueDate)}
+                      </td>
+                      <td data-label="Actions">
+                        {!isCompleted ? (
+                          <div className="row-actions employee-row-actions">
+                            <button
+                              className="secondary-button action-button"
+                              type="button"
+                              disabled={isDoneActionDisabled(task)}
+                              onClick={() => onMarkDone(task)}
+                            >
+                              <CheckCircle2 size={16} aria-hidden="true" />
+                              <span>Done</span>
+                            </button>
+                            <button
+                              className="secondary-button action-button danger-action"
+                              type="button"
+                              disabled={isNotDoneActionDisabled(task)}
+                              onClick={() => onMarkNotDone(task)}
+                            >
+                              <XCircle size={16} aria-hidden="true" />
+                              <span>Not done</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="empty-text">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               : null}
           </tbody>
         </table>
