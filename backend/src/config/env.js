@@ -20,11 +20,8 @@ export const env = Object.freeze({
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1d',
-  smtpHost: process.env.SMTP_HOST,
-  smtpPort: parsePort(process.env.SMTP_PORT ?? '587'),
-  smtpUser: process.env.SMTP_USER,
-  smtpPass: process.env.SMTP_PASS,
-  smtpFrom: process.env.SMTP_FROM
+  resendApiKey: process.env.RESEND_API_KEY,
+  smtpFrom: process.env.SMTP_FROM || 'info@akkc.co'
 });
 
 export const validateEnv = () => {
