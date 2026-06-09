@@ -100,7 +100,7 @@ export const markEmployeeTaskDone = async ({ employeeId, taskId, remark, shouldP
           clientName: updatedTask.clientName,
           clientEmail: finalClientEmail,
           totalAmount: updatedTask.billAmount || 0,
-          pdfUrl: 'bills/' + billPdf.filename,
+          pdfUrl: '/uploads/bills/' + billPdf.filename,
           items: {
             create: [{
               taskId: updatedTask.id,

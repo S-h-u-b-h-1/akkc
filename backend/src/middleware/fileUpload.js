@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BACKEND_ROOT = path.join(__dirname, '../../');
-const UPLOAD_DIR = path.join(BACKEND_ROOT, 'public/bills');
+const UPLOAD_DIR = path.join(BACKEND_ROOT, 'uploads/bills');
 
 // Ensure directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {

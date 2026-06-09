@@ -257,6 +257,11 @@ export const getBillPdfPath = async (adminId, billId) => {
   let pdfPath = bill.pdfUrl ? path.join(BACKEND_ROOT, bill.pdfUrl) : null;
 
   if (!pdfPath || !fs.existsSync(pdfPath)) {
+    // If this bill was uploaded by an employee, we cannot regenerate it
+    if (bill.pdfUrl && bill.pdfUrl.includes('UPLOAD-')) {
+      throw new AppError('The uploaded PDF for this bill is missing from the server (likely due to an ephemeral storage wipe). Please re-upload it.', HTTP_STATUS.NOT_FOUND);
+    }
+
     const pdfUrl = await generateBillPdf(bill);
     bill = await updateBillPdfStatus(bill.id, pdfUrl);
     bill = await getBillById(adminId, billId);
