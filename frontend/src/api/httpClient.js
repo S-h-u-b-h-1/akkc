@@ -26,6 +26,10 @@ export const httpClient = async (path, options = {}) => {
   if (!response.ok) {
     const err = new Error(data?.message ?? 'Request failed.');
     err.errors = data?.errors;
+    err.serverError = data;
+    
+    console.error('🚨 SERVER ERROR RESPONSE:', JSON.stringify(data, null, 2));
+    
     throw err;
   }
 
