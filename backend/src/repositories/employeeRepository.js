@@ -19,20 +19,16 @@ export const findEmployeeById = (id) =>
     select: publicEmployeeSelect
   });
 
-export const findEmployeeByAdmin = ({ id, adminId }) =>
+export const findEmployeeByAdmin = ({ id }) =>
   getPrisma().employee.findFirst({
     where: {
-      id,
-      createdByAdminId: adminId
+      id
     },
     select: publicEmployeeSelect
   });
 
-export const listEmployeesByAdmin = (adminId) =>
+export const listEmployeesByAdmin = () =>
   getPrisma().employee.findMany({
-    where: {
-      createdByAdminId: adminId
-    },
     orderBy: {
       createdAt: 'desc'
     },

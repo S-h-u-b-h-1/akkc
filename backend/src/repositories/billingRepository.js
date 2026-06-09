@@ -5,7 +5,6 @@ import { HTTP_STATUS } from '../constants/api.js';
 
 export const listEligibleTasksForBilling = async (adminId, filters) => {
   const where = {
-    createdByAdminId: adminId,
     status: 'COMPLETED',
     isBillable: true,
     billingApprovalStatus: 'APPROVED_FOR_BILLING',
@@ -37,7 +36,6 @@ export const getTasksByIds = async (adminId, taskIds) => {
   return getPrisma().task.findMany({
     where: {
       id: { in: taskIds },
-      createdByAdminId: adminId,
       status: 'COMPLETED',
       isBillable: true,
       billingApprovalStatus: 'APPROVED_FOR_BILLING',
@@ -119,7 +117,7 @@ export const createClubbedBillWithTransaction = async (billData, itemsData, orig
 };
 
 export const listBills = async (adminId, filters) => {
-  const where = { createdByAdminId: adminId };
+  const where = {};
 
   if (filters.clientName) {
     where.clientName = { contains: filters.clientName, mode: 'insensitive' };
@@ -148,7 +146,7 @@ export const listBills = async (adminId, filters) => {
 
 export const getBillById = async (adminId, billId) => {
   return getPrisma().bill.findFirst({
-    where: { id: billId, createdByAdminId: adminId },
+    where: { id: billId },
     include: {
       items: true,
       billingEntity: true,
@@ -178,7 +176,7 @@ export const updateBillItemsWithTransaction = async (billId, itemsData) => {
 
 export const deleteBill = async (adminId, billId) => {
   return getPrisma().bill.delete({
-    where: { id: billId, createdByAdminId: adminId }
+    where: { id: billId }
   });
 };
 

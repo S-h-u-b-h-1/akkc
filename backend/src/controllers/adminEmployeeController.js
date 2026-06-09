@@ -21,9 +21,7 @@ export const createEmployee = async (req, res) => {
 };
 
 export const listEmployees = async (req, res) => {
-  const employees = await listAdminEmployees({
-    adminId: req.user.id
-  });
+  const employees = await listAdminEmployees();
 
   return sendSuccess(res, {
     message: API_MESSAGES.EMPLOYEES_FETCHED,
@@ -33,7 +31,6 @@ export const listEmployees = async (req, res) => {
 
 export const updateEmployee = async (req, res) => {
   const employee = await updateAdminEmployee({
-    adminId: req.user.id,
     employeeId: req.validated.params.id,
     payload: req.validated.body
   });
@@ -46,7 +43,6 @@ export const updateEmployee = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   const employee = await deleteAdminEmployee({
-    adminId: req.user.id,
     employeeId: req.validated.params.id
   });
 

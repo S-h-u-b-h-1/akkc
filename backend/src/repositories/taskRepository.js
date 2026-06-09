@@ -54,9 +54,7 @@ const taskSelect = Object.freeze({
 });
 
 const buildAdminTaskWhere = (adminId, filters = {}) => {
-  const where = {
-    createdByAdminId: adminId
-  };
+  const where = {};
 
   if (filters.clientName) {
     where.clientName = {
@@ -182,11 +180,10 @@ export const listTasksByAdmin = ({ adminId, filters }) =>
     select: taskSelect
   });
 
-export const findTaskByAdmin = ({ id, adminId }) =>
+export const findTaskByAdmin = ({ id }) =>
   getPrisma().task.findFirst({
     where: {
-      id,
-      createdByAdminId: adminId
+      id
     },
     select: taskSelect
   });
@@ -249,8 +246,5 @@ export const updateTaskStatusWithEmployeeUpdate = ({ taskId, employeeId, status,
 
 export const listTasksForAdminStats = (adminId) =>
   getPrisma().task.findMany({
-    where: {
-      createdByAdminId: adminId
-    },
     select: taskSelect
   });

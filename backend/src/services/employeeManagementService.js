@@ -11,8 +11,8 @@ import {
 import { AppError } from '../utils/appError.js';
 import { hashPassword } from '../utils/password.js';
 
-const assertEmployeeExistsForAdmin = async ({ id, adminId }) => {
-  const employee = await findEmployeeByAdmin({ id, adminId });
+const assertEmployeeExistsForAdmin = async ({ id }) => {
+  const employee = await findEmployeeByAdmin({ id });
 
   if (!employee) {
     throw new AppError(API_MESSAGES.EMPLOYEE_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -46,14 +46,14 @@ export const createAdminEmployee = async ({ adminId, payload }) => {
   return employee;
 };
 
-export const listAdminEmployees = async ({ adminId }) => {
-  const employees = await listEmployeesByAdmin(adminId);
+export const listAdminEmployees = async () => {
+  const employees = await listEmployeesByAdmin();
 
   return employees;
 };
 
-export const updateAdminEmployee = async ({ adminId, employeeId, payload }) => {
-  await assertEmployeeExistsForAdmin({ id: employeeId, adminId });
+export const updateAdminEmployee = async ({ employeeId, payload }) => {
+  await assertEmployeeExistsForAdmin({ id: employeeId });
 
   if (payload.username) {
     await assertUsernameIsAvailable({
@@ -77,8 +77,8 @@ export const updateAdminEmployee = async ({ adminId, employeeId, payload }) => {
   return employee;
 };
 
-export const deleteAdminEmployee = async ({ adminId, employeeId }) => {
-  await assertEmployeeExistsForAdmin({ id: employeeId, adminId });
+export const deleteAdminEmployee = async ({ employeeId }) => {
+  await assertEmployeeExistsForAdmin({ id: employeeId });
 
   const employee = await deleteEmployee(employeeId);
 

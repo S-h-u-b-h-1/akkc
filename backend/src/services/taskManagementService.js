@@ -13,8 +13,8 @@ import { AppError } from '../utils/appError.js';
 import { toDateOnly, todayDateOnly } from '../utils/date.js';
 import { getEffectiveTaskStatus, serializeTask } from '../utils/taskPresenter.js';
 
-const assertEmployeeCanReceiveTask = async ({ employeeId, adminId }) => {
-  const employee = await findEmployeeByAdmin({ id: employeeId, adminId });
+const assertEmployeeCanReceiveTask = async ({ employeeId }) => {
+  const employee = await findEmployeeByAdmin({ id: employeeId });
 
   if (!employee) {
     throw new AppError(API_MESSAGES.EMPLOYEE_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -23,8 +23,8 @@ const assertEmployeeCanReceiveTask = async ({ employeeId, adminId }) => {
   return employee;
 };
 
-const assertTaskExistsForAdmin = async ({ taskId, adminId }) => {
-  const task = await findTaskByAdmin({ id: taskId, adminId });
+const assertTaskExistsForAdmin = async ({ id }) => {
+  const task = await findTaskByAdmin({ id });
 
   if (!task) {
     throw new AppError(API_MESSAGES.TASK_NOT_FOUND, HTTP_STATUS.NOT_FOUND);
@@ -34,7 +34,7 @@ const assertTaskExistsForAdmin = async ({ taskId, adminId }) => {
 };
 
 export const createAdminTask = async ({ adminId, payload }) => {
-  await assertEmployeeCanReceiveTask({ employeeId: payload.employeeId, adminId });
+  await assertEmployeeCanReceiveTask({ employeeId: payload.employeeId });
 
   const today = todayDateOnly();
   const isBillable = payload.isBillable ?? false;
@@ -74,16 +74,16 @@ export const listAdminTasks = async ({ adminId, filters = {} }) => {
 
 export const getAdminTask = async ({ adminId, taskId }) => {
   const today = todayDateOnly();
-  const task = await assertTaskExistsForAdmin({ taskId, adminId });
+  const task = await assertTaskExistsForAdmin({ id: taskId });
 
   return serializeTask(task, today);
 };
 
 export const updateAdminTask = async ({ adminId, taskId, payload }) => {
-  await assertTaskExistsForAdmin({ taskId, adminId });
+  await assertTaskExistsForAdmin({ id: taskId });
 
   if (payload.employeeId) {
-    await assertEmployeeCanReceiveTask({ employeeId: payload.employeeId, adminId });
+    await assertEmployeeCanReceiveTask({ employeeId: payload.employeeId });
   }
 
   const data = {};
@@ -138,8 +138,8 @@ export const updateAdminTask = async ({ adminId, taskId, payload }) => {
   return serializeTask(task, today);
 };
 
-export const deleteAdminTask = async ({ adminId, taskId }) => {
-  await assertTaskExistsForAdmin({ taskId, adminId });
+export const deleteAdminTask = async ({ taskId }) => {
+  await assertTaskExistsForAdmin({ id: taskId });
 
   const task = await deleteTask(taskId);
 
