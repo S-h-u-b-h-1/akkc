@@ -10,7 +10,7 @@ export function GeneratedBillsTab({ entities }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [billFilters, setBillFilters] = useState({ clientName: '', status: '', isUnclubbed: 'true' });
+  const [billFilters, setBillFilters] = useState({ clientName: '', status: '', sourceType: '', isUnclubbed: 'true' });
   const [selectedBillIds, setSelectedBillIds] = useState([]);
 
   // For clubbing
@@ -223,6 +223,12 @@ export function GeneratedBillsTab({ entities }) {
           <option value="DRAFT">Draft</option>
           <option value="GENERATED">Generated</option>
           <option value="EMAILED">Emailed</option>
+        </select>
+        <select value={billFilters.sourceType} onChange={e => setBillFilters(prev => ({ ...prev, sourceType: e.target.value }))}>
+          <option value="">All Sources</option>
+          <option value="TASK_BASED">Task Based</option>
+          <option value="MANUAL">Manual</option>
+          <option value="CLUBBED">Clubbed</option>
         </select>
         <select value={billFilters.isUnclubbed} onChange={e => setBillFilters(prev => ({ ...prev, isUnclubbed: e.target.value }))}>
           <option value="true">Unclubbed Bills</option>

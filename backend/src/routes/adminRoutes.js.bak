@@ -18,7 +18,6 @@ import {
   deleteTask,
   getStats,
   getTask,
-  viewTaskBillPdf,
   listTasks,
   updateTask
 } from '../controllers/adminTaskController.js';
@@ -127,14 +126,6 @@ router.get(
   validateRequest(taskIdParamSchema),
   asyncHandler(getTask)
 );
-router.get(
-  '/tasks/:id/bill-pdf',
-  authenticate,
-  adminOnly,
-  validateRequest(taskIdParamSchema),
-  asyncHandler(viewTaskBillPdf)
-);
-
 router.put(
   '/tasks/:id',
   authenticate,

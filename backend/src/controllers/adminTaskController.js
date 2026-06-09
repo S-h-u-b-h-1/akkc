@@ -107,3 +107,30 @@ export const getStats = async (req, res) => {
     data: { stats }
   });
 };
+
+export const viewTaskBillPdf = async (req, res) => {
+  const task = await getAdminTask({
+    adminId: req.user.id,
+    taskId: req.validated.params.id
+  });
+
+  if (!task.uploadedBillPdfUrl) {
+    throw new AppError('No bill PDF uploaded for this task.', HTTP_STATUS.NOT_FOUND);
+  }
+
+  const path = await import('path');
+  const fs = await import('fs');
+  const { fileURLToPath } = await import('url');
+  
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const BACKEND_ROOT = path.join(__dirname, '../../');
+  
+  const pdfPath = path.join(BACKEND_ROOT, task.uploadedBillPdfUrl);
+  
+  if (!fs.existsSync(pdfPath)) {
+    throw new AppError('The uploaded PDF for this task is missing from the server. Please ask the employee to re-upload it.', HTTP_STATUS.NOT_FOUND);
+  }
+
+  res.sendFile(pdfPath);
+};

@@ -52,6 +52,30 @@ export function EligibleTasksTab({ entities }) {
     }
   };
 
+  
+  const handlePreviewPdf = async (taskId) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/tasks/${taskId}/bill-pdf`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to load PDF');
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCreateBill = async () => {
     if (selectedTaskIds.length === 0) return;
     if (!selectedEntityId) {
@@ -224,7 +248,7 @@ export function EligibleTasksTab({ entities }) {
                           {task.uploadedBillPdfUrl ? (
                             <button 
                               className="action-button view"
-                              onClick={(e) => { e.stopPropagation(); window.open(`${import.meta.env.VITE_API_URL}${task.uploadedBillPdfUrl}`, '_blank'); }}
+                              onClick={(e) => { e.stopPropagation(); handlePreviewPdf(task.id); }}
                               title="Preview Uploaded Bill"
                             >
                               <Eye size={16} />
