@@ -13,9 +13,9 @@ export const errorHandler = (error, _req, res, _next) => {
     payload.errors = error.errors;
   }
 
-  if (env.nodeEnv !== 'production') {
-    payload.stack = error.stack;
-  }
+  payload.stack = error.stack;
+  payload.errorDetails = error.message;
+  payload.errorName = error.name;
 
   if (!error.isOperational) {
     console.error(error);
