@@ -193,6 +193,12 @@ export const updateBillService = async (adminId, billId, data) => {
     await updateBillItemsWithTransaction(billId, itemsData);
   }
 
+  // Clear the generated PDF so it gets regenerated with new details
+  // Only do this if it's NOT an uploaded PDF
+  if (!bill.pdfUrl || !bill.pdfUrl.includes('UPLOAD-')) {
+    billData.pdfUrl = null;
+  }
+
   return updateBill(billId, billData);
 };
 

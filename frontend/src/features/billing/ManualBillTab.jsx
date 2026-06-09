@@ -184,49 +184,90 @@ export function ManualBillTab({ entities }) {
             </div>
           </div>
 
-          <div style={{ margin: '30px 0 10px 0', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
-            <h4>Line Items</h4>
+          <div className="manual-items-section mt-4">
+            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <h4>Line Items</h4>
+              <button type="button" className="secondary-button small" onClick={addItem}>
+                <Plus size={14} /> Add Line Item
+              </button>
+            </div>
+            
+            <div className="table-container" style={{ overflowX: 'auto' }}>
+              <table className="data-table small">
+                <thead>
+                  <tr>
+                    <th>Description *</th>
+                    <th width="120px">HSN/SAC</th>
+                    <th width="80px">Qty *</th>
+                    <th width="100px">Rate (₹) *</th>
+                    <th width="80px">Per</th>
+                    <th width="120px">Total</th>
+                    <th width="50px"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.items.map((item, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input 
+                          value={item.taskTitle} 
+                          onChange={(e) => handleItemChange(index, 'taskTitle', e.target.value)} 
+                          placeholder="Service description" 
+                          required 
+                        />
+                      </td>
+                      <td>
+                        <input 
+                          value={item.hsnSac} 
+                          onChange={(e) => handleItemChange(index, 'hsnSac', e.target.value)} 
+                        />
+                      </td>
+                      <td>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          value={item.quantity} 
+                          onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} 
+                          required 
+                        />
+                      </td>
+                      <td>
+                        <input 
+                          type="number" 
+                          min="0" 
+                          step="0.01" 
+                          value={item.rate} 
+                          onChange={(e) => handleItemChange(index, 'rate', e.target.value)} 
+                          required 
+                        />
+                      </td>
+                      <td>
+                        <input 
+                          value={item.per} 
+                          onChange={(e) => handleItemChange(index, 'per', e.target.value)} 
+                        />
+                      </td>
+                      <td style={{ background: '#f8fafc', fontWeight: '500', color: '#334155' }}>
+                        ₹{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td>
+                        <button 
+                          type="button" 
+                          className="icon-button danger" 
+                          onClick={() => removeItem(index)} 
+                          disabled={formData.items.length === 1}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {formData.items.map((item, index) => (
-            <div key={index} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '15px' }}>
-              <div className="form-group" style={{ flex: 3 }}>
-                <label>Description *</label>
-                <input value={item.taskTitle} onChange={(e) => handleItemChange(index, 'taskTitle', e.target.value)} required placeholder="Service description" />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>HSN/SAC</label>
-                <input value={item.hsnSac} onChange={(e) => handleItemChange(index, 'hsnSac', e.target.value)} />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Qty *</label>
-                <input type="number" min="1" value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} required />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Rate (₹) *</label>
-                <input type="number" min="0" step="0.01" value={item.rate} onChange={(e) => handleItemChange(index, 'rate', e.target.value)} required />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Per</label>
-                <input value={item.per} onChange={(e) => handleItemChange(index, 'per', e.target.value)} />
-              </div>
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Total</label>
-                <input type="text" readOnly value={item.amount.toFixed(2)} className="read-only-input" style={{ backgroundColor: '#f8fafc' }} />
-              </div>
-              <div style={{ paddingTop: '28px' }}>
-                <button type="button" className="icon-button danger" onClick={() => removeItem(index)} disabled={formData.items.length === 1}>
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <button type="button" className="secondary-button small" onClick={addItem} style={{ marginBottom: '20px' }}>
-            <Plus size={16} /> Add Line Item
-          </button>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', backgroundColor: '#f8fafc', padding: '15px', borderRadius: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', backgroundColor: '#f8fafc', padding: '20px', borderRadius: '8px', marginTop: '20px' }}>
             <div>
               <h4>Tax Options (%)</h4>
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
