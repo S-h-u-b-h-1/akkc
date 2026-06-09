@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { login } from '../controllers/employeeAuthController.js';
 import { listTasks, markDone, markNotDone } from '../controllers/employeeTaskController.js';
 import { authenticate, employeeOnly } from '../middleware/authMiddleware.js';
-import { validateRequest, validateMultipartRequest } from '../middleware/validateRequest.js';
+import { validateRequest } from '../middleware/validateRequest.js';
 import { uploadBillPdf } from '../middleware/fileUpload.js';
 import fs from 'fs';
 import { asyncHandler } from '../utils/asyncHandler.js';
