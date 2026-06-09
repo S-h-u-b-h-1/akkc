@@ -47,6 +47,7 @@ export function GeneratedBillsTab({ entities }) {
     setError('');
     try {
       await sendBillEmail(billId);
+      setSuccess('Email sent successfully!');
       loadBills();
     } catch (err) {
       setError(err.message);
