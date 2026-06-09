@@ -228,13 +228,10 @@ export const emailBillToClient = async (adminId, billId) => {
   if (!bill) throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
   if (!bill.clientEmail) throw new AppError('Client email is missing.', HTTP_STATUS.BAD_REQUEST);
 
-  let pdfPath = bill.pdfUrl ? path.join(BACKEND_ROOT, bill.pdfUrl) : null;
-
-  if (!pdfPath || !fs.existsSync(pdfPath)) {
-    const pdfUrl = await generateBillPdf(bill);
-    bill = await updateBillPdfStatus(bill.id, pdfUrl);
-    bill = await getBillById(adminId, billId);
-  }
+  let pdfPath = await getBillPdfPath(adminId, billId);
+  
+  // Reload bill to ensure any newly generated pdfUrl is present before sending email
+  bill = await getBillById(adminId, billId);
 
   await sendBillEmail(bill);
   return updateBillEmailStatus(bill.id);
