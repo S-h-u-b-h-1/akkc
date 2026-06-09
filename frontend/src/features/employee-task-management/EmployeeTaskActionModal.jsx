@@ -67,6 +67,11 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
       return;
     }
 
+    if (action === 'done' && task.isBillable && shouldProceedForBilling !== false && !billPdf) {
+      setError('A bill PDF is mandatory when marking a billable task as done.');
+      return;
+    }
+
     setError('');
     setIsSubmitting(true);
 

@@ -9,7 +9,6 @@ const initialForm = {
   title: '',
   domain: '',
   clientName: '',
-  clientEmail: '',
   dueDate: '',
   isHighPriority: false,
   isBillable: false,
@@ -59,7 +58,6 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
         title: form.title,
         domain: form.domain,
         clientName: form.clientName,
-        clientEmail: form.clientEmail || undefined,
         dueDate: form.dueDate,
         isHighPriority: form.isHighPriority,
         isBillable: form.isBillable,
@@ -143,11 +141,6 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
           <label>
             <span>Due date</span>
             <input name="dueDate" type="date" value={form.dueDate} onChange={updateField} required />
-          </label>
-
-          <label>
-            <span>Client email (optional for billing)</span>
-            <input name="clientEmail" type="email" value={form.clientEmail} onChange={updateField} />
           </label>
 
           <label className="checkbox-field">

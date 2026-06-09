@@ -63,6 +63,10 @@ export const markEmployeeTaskDone = async ({ employeeId, taskId, remark, shouldP
     }
   }
 
+  if (task.isBillable && shouldProceedForBilling !== false && !billPdf) {
+    throw new AppError('A bill PDF is mandatory when marking a billable task as done.', HTTP_STATUS.BAD_REQUEST);
+  }
+
   const updatedTask = await updateTaskStatusWithEmployeeUpdate({
     taskId,
     employeeId,

@@ -10,7 +10,6 @@ const createFormState = (task) => ({
   title: task.title ?? '',
   domain: task.domain ?? '',
   clientName: task.clientName ?? '',
-  clientEmail: task.clientEmail ?? '',
   dueDate: toDateInputValue(task.dueDate),
   status: task.storedStatus ?? task.status,
   isHighPriority: Boolean(task.isHighPriority),
@@ -120,11 +119,6 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
           <label>
             <span>Due date</span>
             <input name="dueDate" type="date" value={form.dueDate} onChange={updateField} required />
-          </label>
-
-          <label>
-            <span>Client email (optional for billing)</span>
-            <input name="clientEmail" type="email" value={form.clientEmail} onChange={updateField} />
           </label>
 
           <label className="checkbox-field">
