@@ -28,7 +28,16 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
   const [value, setValue] = useState('');
   const [shouldProceedForBilling, setShouldProceedForBilling] = useState(null);
   const [billingRemarks, setBillingRemarks] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [billPdf, setBillPdf] = useState(null);
   const content = actionContent[action];
+
+  // Pre-fill clientEmail when task changes
+  useState(() => {
+    if (task?.clientEmail) {
+      setClientEmail(task.clientEmail);
+    }
+  }, [task]);
 
   if (!task || !content) {
     return null;
@@ -62,11 +71,29 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
     setIsSubmitting(true);
 
     try {
-      const payload = showBillingConfirmation 
-        ? { remark: trimmedValue, shouldProceedForBilling, billingRemarks: billingRemarks.trim() } 
-        : trimmedValue;
+      if (action === 'done') {
+        const formData = new FormData();
+        formData.append('remark', trimmedValue);
         
-      await onSubmit(payload);
+        if (showBillingConfirmation) {
+          formData.append('shouldProceedForBilling', shouldProceedForBilling);
+          if (billingRemarks.trim()) {
+            formData.append('billingRemarks', billingRemarks.trim());
+          }
+        }
+
+        if (clientEmail.trim()) {
+          formData.append('clientEmail', clientEmail.trim());
+        }
+
+        if (billPdf) {
+          formData.append('billPdf', billPdf);
+        }
+
+        await onSubmit(formData);
+      } else {
+        await onSubmit(trimmedValue);
+      }
       onClose();
     } catch (submitError) {
       setError(submitError.message);
@@ -106,6 +133,33 @@ export function EmployeeTaskActionModal({ action, onClose, onSubmit, task }) {
               onChange={(event) => setValue(event.target.value)}
             />
           </label>
+
+          {action === 'done' && (
+            <>
+              <label>
+                <span>Client Email {task.isBillable ? '(Required)' : '(Optional)'}</span>
+                <input
+                  type="email"
+                  name="clientEmail"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="Client's email for billing"
+                  required={task.isBillable}
+                />
+              </label>
+
+              <label>
+                <span>Upload Custom Bill (PDF) {task.isBillable ? '(Required)' : '(Optional)'}</span>
+                <input
+                  type="file"
+                  name="billPdf"
+                  accept="application/pdf"
+                  onChange={(e) => setBillPdf(e.target.files[0])}
+                  required={task.isBillable}
+                />
+              </label>
+            </>
+          )}
 
           {action === 'done' && task.isBillable && task.billingApprovalStatus === 'PENDING_EMPLOYEE_CONFIRMATION' && (
             <div className="billing-confirmation">

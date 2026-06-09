@@ -100,7 +100,8 @@ export const markTaskDoneSchema = z.object({
     .object({
       remark: z.string().trim().min(1).max(2000),
       shouldProceedForBilling: z.boolean().optional(),
-      billingRemarks: z.string().trim().max(2000).optional()
+      billingRemarks: z.string().trim().max(2000).optional(),
+      clientEmail: z.string().email().optional().or(z.literal(''))
     })
     .strict(),
   params: z.object({

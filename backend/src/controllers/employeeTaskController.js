@@ -24,7 +24,9 @@ export const markDone = async (req, res) => {
     taskId: req.validated.params.id,
     remark: req.validated.body.remark,
     shouldProceedForBilling: req.validated.body.shouldProceedForBilling,
-    billingRemarks: req.validated.body.billingRemarks
+    billingRemarks: req.validated.body.billingRemarks,
+    clientEmail: req.validated.body.clientEmail,
+    billPdf: req.file
   });
 
   return sendSuccess(res, {

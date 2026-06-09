@@ -12,12 +12,18 @@ export const httpClient = async (path, options = {}) => {
   const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   const authorizationHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
+  const headers = {
+    'Content-Type': 'application/json',
+    ...authorizationHeader,
+    ...options.headers
+  };
+
+  if (options.body instanceof FormData) {
+    delete headers['Content-Type'];
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...authorizationHeader,
-      ...options.headers
-    },
+    headers,
     ...options
   });
 

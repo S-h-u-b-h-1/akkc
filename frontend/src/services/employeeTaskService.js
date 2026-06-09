@@ -15,11 +15,11 @@ export const getEmployeeTasks = (filters = {}) => {
 export const markEmployeeTaskDone = (taskId, payload) =>
   httpClient(`/employee/tasks/${taskId}/done`, {
     method: 'PUT',
-    body: JSON.stringify(payload)
+    body: payload instanceof FormData ? payload : JSON.stringify(payload)
   });
 
 export const markEmployeeTaskNotDone = (taskId, payload) =>
   httpClient(`/employee/tasks/${taskId}/not-done`, {
     method: 'PUT',
-    body: JSON.stringify(payload)
+    body: payload instanceof FormData ? payload : JSON.stringify(payload)
   });
