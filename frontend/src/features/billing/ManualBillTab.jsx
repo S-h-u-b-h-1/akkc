@@ -141,7 +141,7 @@ export function ManualBillTab({ entities }) {
           <p className="text-muted" style={{ margin: '8px 0 0 0' }}>Draft a custom professional invoice directly from the dashboard.</p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '30px' }}>
+        <form onSubmit={handleSubmit} className="manual-bill-container" style={{ padding: '30px' }}>
           
           {/* Main Info Section */}
           <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
@@ -247,18 +247,14 @@ export function ManualBillTab({ entities }) {
                           onChange={(e) => handleItemChange(index, 'taskTitle', e.target.value)} 
                           placeholder="Service description" 
                           required 
-                          style={{ border: '1px solid transparent', backgroundColor: '#f1f5f9' }}
-                          onFocus={(e) => e.target.style.border = '1px solid #3b82f6'}
-                          onBlur={(e) => e.target.style.border = '1px solid transparent'}
+                          className="table-input"
                         />
                       </td>
                       <td>
                         <input 
                           value={item.hsnSac} 
                           onChange={(e) => handleItemChange(index, 'hsnSac', e.target.value)} 
-                          style={{ border: '1px solid transparent', backgroundColor: '#f1f5f9' }}
-                          onFocus={(e) => e.target.style.border = '1px solid #3b82f6'}
-                          onBlur={(e) => e.target.style.border = '1px solid transparent'}
+                          className="table-input"
                         />
                       </td>
                       <td>
@@ -268,9 +264,7 @@ export function ManualBillTab({ entities }) {
                           value={item.quantity} 
                           onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} 
                           required 
-                          style={{ border: '1px solid transparent', backgroundColor: '#f1f5f9' }}
-                          onFocus={(e) => e.target.style.border = '1px solid #3b82f6'}
-                          onBlur={(e) => e.target.style.border = '1px solid transparent'}
+                          className="table-input"
                         />
                       </td>
                       <td>
@@ -281,18 +275,14 @@ export function ManualBillTab({ entities }) {
                           value={item.rate} 
                           onChange={(e) => handleItemChange(index, 'rate', e.target.value)} 
                           required 
-                          style={{ border: '1px solid transparent', backgroundColor: '#f1f5f9' }}
-                          onFocus={(e) => e.target.style.border = '1px solid #3b82f6'}
-                          onBlur={(e) => e.target.style.border = '1px solid transparent'}
+                          className="table-input"
                         />
                       </td>
                       <td>
                         <input 
                           value={item.per} 
                           onChange={(e) => handleItemChange(index, 'per', e.target.value)} 
-                          style={{ border: '1px solid transparent', backgroundColor: '#f1f5f9' }}
-                          onFocus={(e) => e.target.style.border = '1px solid #3b82f6'}
-                          onBlur={(e) => e.target.style.border = '1px solid transparent'}
+                          className="table-input"
                         />
                       </td>
                       <td style={{ background: '#f8fafc', fontWeight: '600', color: '#1e293b', fontSize: '1.05rem' }}>
