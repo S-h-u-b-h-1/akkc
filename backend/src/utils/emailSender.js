@@ -1,5 +1,6 @@
 import { google } from 'googleapis';
 import nodemailer from 'nodemailer';
+import MailComposer from 'nodemailer/lib/mail-composer/index.js';
 import { env } from '../config/env.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -56,7 +57,7 @@ export const sendBillEmail = async (bill) => {
     ]
   };
 
-  const mailComposer = new nodemailer.MailComposer(mailOptions);
+  const mailComposer = new MailComposer(mailOptions);
   const messageBuffer = await mailComposer.compile().build();
   const encodedMessage = Buffer.from(messageBuffer)
     .toString('base64')
