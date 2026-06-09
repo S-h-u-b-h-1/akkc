@@ -1,4 +1,5 @@
 import { API_MESSAGES, HTTP_STATUS } from '../constants/api.js';
+import { getPrisma } from '../prisma/client.js';
 import { TASK_STATUSES } from '../constants/task.js';
 import { findEmployeeById } from '../repositories/employeeRepository.js';
 import {
@@ -73,8 +74,7 @@ export const markEmployeeTaskDone = async ({ employeeId, taskId, remark, shouldP
   });
 
   if (billPdf || clientEmail) {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
+    const prisma = getPrisma();
     
     const updateData = {};
     if (billPdf) {
