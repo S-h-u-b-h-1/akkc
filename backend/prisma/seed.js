@@ -104,6 +104,29 @@ const main = async () => {
 
   const [auditEmployee, taxEmployee, gstEmployee] = employees;
 
+  const billingEntities = await Promise.all([
+    prisma.billingEntity.upsert({
+      where: { code: 'ASR' },
+      update: { name: 'ASR & Company', email: 'contact@asr.in' },
+      create: { name: 'ASR & Company', code: 'ASR', email: 'contact@asr.in' }
+    }),
+    prisma.billingEntity.upsert({
+      where: { code: 'AKK' },
+      update: { name: 'A K Kataruka and Company', email: 'info@akkataruka.com' },
+      create: { name: 'A K Kataruka and Company', code: 'AKK', email: 'info@akkataruka.com' }
+    }),
+    prisma.billingEntity.upsert({
+      where: { code: 'CHEV' },
+      update: { name: 'Cheviot Consultancy LLP', email: 'support@cheviot.in' },
+      create: { name: 'Cheviot Consultancy LLP', code: 'CHEV', email: 'support@cheviot.in' }
+    }),
+    prisma.billingEntity.upsert({
+      where: { code: 'SKC' },
+      update: { name: 'Shakshi Kataruka & Company', email: 'billing@skc.in' },
+      create: { name: 'Shakshi Kataruka & Company', code: 'SKC', email: 'billing@skc.in' }
+    })
+  ]);
+
   const tasks = await Promise.all([
     prisma.task.upsert({
       where: { id: ids.taskGst },

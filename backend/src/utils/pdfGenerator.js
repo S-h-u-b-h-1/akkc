@@ -23,31 +23,44 @@ export const generateBillPdf = async (bill) => {
 
       doc.pipe(stream);
 
-      // Header
-      doc
-        .fontSize(20)
-        .text('A K Kataruka and Company', { align: 'center' })
-        .moveDown(0.5);
+      // Header from Billing Entity
+      const entity = bill.billingEntity || { name: 'A K Kataruka and Company' };
+
+      doc.fontSize(20).text(entity.name, { align: 'center' }).moveDown(0.5);
       
-      doc
-        .fontSize(10)
-        .text('Chartered Accountants', { align: 'center' })
-        .moveDown(2);
+      if (entity.address) {
+        doc.fontSize(10).text(entity.address, { align: 'center' });
+      }
+      if (entity.email || entity.phone) {
+        const contact = [entity.email, entity.phone].filter(Boolean).join(' | ');
+        doc.fontSize(10).text(contact, { align: 'center' });
+      }
+      if (entity.gstNumber) {
+        doc.fontSize(10).text(`GSTIN: ${entity.gstNumber}`, { align: 'center' });
+      }
+      if (entity.panNumber) {
+        doc.fontSize(10).text(`PAN: ${entity.panNumber}`, { align: 'center' });
+      }
+      doc.moveDown(2);
 
       // Bill Info
-      doc
-        .fontSize(12)
+      doc.fontSize(12)
         .text(`Bill Number: ${bill.billNumber}`)
-        .text(`Date: ${new Date().toLocaleDateString()}`)
+        .text(`Date: ${bill.billDate ? new Date(bill.billDate).toLocaleDateString() : new Date().toLocaleDateString()}`)
         .text(`Client: ${bill.clientName}`)
-        .text(`Email: ${bill.clientEmail || 'N/A'}`)
-        .moveDown(2);
+        .text(`Email: ${bill.clientEmail || 'N/A'}`);
+      
+      if (bill.sourceType === 'CLUBBED') {
+        doc.text(`Type: Clubbed Bill`);
+      }
+      doc.moveDown(2);
 
       // Table Header
       const tableTop = doc.y;
       doc.font('Helvetica-Bold');
-      doc.text('Task', 50, tableTop);
-      doc.text('Domain', 250, tableTop);
+      doc.text('Description', 50, tableTop, { width: 200 });
+      doc.text('Qty', 260, tableTop, { width: 40 });
+      doc.text('Rate', 310, tableTop, { width: 100, align: 'right' });
       doc.text('Amount (INR)', 450, tableTop, { width: 100, align: 'right' });
       doc.moveDown(0.5);
       
@@ -59,11 +72,20 @@ export const generateBillPdf = async (bill) => {
       let y = doc.y;
 
       bill.items.forEach((item) => {
-        doc.text(item.taskTitle, 50, y, { width: 190 });
-        doc.text(item.taskDomain, 250, y, { width: 190 });
-        doc.text(Number(item.amount).toFixed(2), 450, y, { width: 100, align: 'right' });
+        const title = item.taskTitle || 'Service';
+        const qty = item.quantity || 1;
+        const rate = Number(item.amount).toFixed(2);
+        const amount = (qty * Number(item.amount)).toFixed(2);
+
+        // Calculate height needed for description
+        const textHeight = doc.heightOfString(title, { width: 200 });
         
-        y = doc.y + 10; // next row
+        doc.text(title, 50, y, { width: 200 });
+        doc.text(qty.toString(), 260, y, { width: 40 });
+        doc.text(rate, 310, y, { width: 100, align: 'right' });
+        doc.text(amount, 450, y, { width: 100, align: 'right' });
+        
+        y += textHeight + 5; // next row
       });
 
       doc.moveTo(50, y).lineTo(550, y).stroke();
@@ -75,7 +97,24 @@ export const generateBillPdf = async (bill) => {
       doc.text('Total Amount:', 300, y, { width: 100, align: 'right' });
       doc.text(`INR ${Number(bill.totalAmount).toFixed(2)}`, 450, y, { width: 100, align: 'right' });
 
-      doc.moveDown(3);
+      doc.moveDown(2);
+
+      if (bill.notes) {
+        doc.font('Helvetica');
+        doc.text('Notes:', 50, doc.y, { underline: true });
+        doc.text(bill.notes, 50, doc.y);
+        doc.moveDown(2);
+      }
+
+      if (entity.bankName && entity.bankAccountNumber) {
+        doc.font('Helvetica-Bold').text('Bank Details:');
+        doc.font('Helvetica')
+          .text(`Bank: ${entity.bankName}`)
+          .text(`Account No: ${entity.bankAccountNumber}`)
+          .text(`IFSC: ${entity.ifscCode || 'N/A'}`);
+        doc.moveDown(2);
+      }
+
       doc.font('Helvetica-Oblique');
       doc.text('Thank you for your business!', 50, doc.y, { align: 'center' });
 

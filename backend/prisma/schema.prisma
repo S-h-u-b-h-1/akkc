@@ -27,6 +27,12 @@ enum BillStatus {
   CANCELLED
 }
 
+enum BillSourceType {
+  TASK_BASED
+  MANUAL
+  CLUBBED
+}
+
 model Admin {
   id               String     @id @default(uuid()) @db.Uuid
   username         String     @unique @db.VarChar(60)
@@ -108,40 +114,81 @@ model TaskUpdate {
   @@index([createdAt])
 }
 
-model Bill {
-  id               String       @id @default(uuid()) @db.Uuid
-  billNumber       String       @unique @db.VarChar(50)
-  clientName       String       @db.VarChar(160)
-  clientEmail      String?      @db.VarChar(255)
-  totalAmount      Decimal      @default(0) @db.Decimal(12, 2)
-  status           BillStatus   @default(DRAFT)
-  pdfUrl           String?      @db.Text
-  generatedAt      DateTime?    @db.Timestamptz
-  emailedAt        DateTime?    @db.Timestamptz
-  createdByAdminId String?      @db.Uuid
-  createdByAdmin   Admin?       @relation("AdminCreatedBills", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  items            BillItem[]   @relation("BillItems")
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @default(now()) @updatedAt
+model BillingEntity {
+  id                String         @id @default(uuid()) @db.Uuid
+  name              String         @unique @db.VarChar(120)
+  code              String         @unique @db.VarChar(20)
+  email             String         @db.VarChar(255)
+  phone             String?        @db.VarChar(50)
+  address           String?        @db.Text
+  gstNumber         String?        @db.VarChar(50)
+  panNumber         String?        @db.VarChar(50)
+  bankName          String?        @db.VarChar(120)
+  bankAccountNumber String?        @db.VarChar(100)
+  ifscCode          String?        @db.VarChar(50)
+  logoUrl           String?        @db.Text
+  isActive          Boolean        @default(true)
+  bills             Bill[]
+  sequences         BillSequence[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now()) @updatedAt
+}
 
+model BillSequence {
+  id              String        @id @default(uuid()) @db.Uuid
+  billingEntityId String        @db.Uuid
+  financialYear   String        @db.VarChar(20)
+  lastSequence    Int           @default(0)
+  billingEntity   BillingEntity @relation(fields: [billingEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([billingEntityId, financialYear])
+}
+
+model Bill {
+  id               String         @id @default(uuid()) @db.Uuid
+  billNumber       String         @unique @db.VarChar(100)
+  billingEntityId  String         @db.Uuid
+  billingEntity    BillingEntity  @relation(fields: [billingEntityId], references: [id], onDelete: Restrict)
+  sourceType       BillSourceType @default(TASK_BASED)
+  clubbedIntoId    String?        @db.Uuid
+  clubbedInto      Bill?          @relation("ClubbedBills", fields: [clubbedIntoId], references: [id], onDelete: SetNull)
+  clubbedBills     Bill[]         @relation("ClubbedBills")
+  billDate         DateTime       @default(now()) @db.Date
+  clientName       String         @db.VarChar(160)
+  clientEmail      String?        @db.VarChar(255)
+  totalAmount      Decimal        @default(0) @db.Decimal(12, 2)
+  status           BillStatus     @default(DRAFT)
+  notes            String?        @db.Text
+  pdfUrl           String?        @db.Text
+  generatedAt      DateTime?      @db.Timestamptz
+  emailedAt        DateTime?      @db.Timestamptz
+  createdByAdminId String?        @db.Uuid
+  createdByAdmin   Admin?         @relation("AdminCreatedBills", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  items            BillItem[]     @relation("BillItems")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
+
+  @@index([billingEntityId])
   @@index([createdByAdminId])
   @@index([clientName])
   @@index([status])
   @@index([createdAt])
+  @@index([clubbedIntoId])
 }
 
 model BillItem {
   id         String   @id @default(uuid()) @db.Uuid
   billId     String   @db.Uuid
-  taskId     String   @unique @db.Uuid
+  taskId     String?  @unique @db.Uuid
   taskTitle  String   @db.VarChar(180)
   taskDomain String   @db.VarChar(120)
   clientName String   @db.VarChar(160)
   amount     Decimal  @db.Decimal(10, 2)
+  quantity   Int?     @default(1)
   remarks    String?  @db.Text
   
   bill       Bill     @relation("BillItems", fields: [billId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  task       Task     @relation("TaskBillItem", fields: [taskId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  task       Task?    @relation("TaskBillItem", fields: [taskId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   
   createdAt  DateTime @default(now())
 

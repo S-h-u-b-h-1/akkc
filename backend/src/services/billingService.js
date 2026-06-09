@@ -1,12 +1,14 @@
-import crypto from 'crypto';
 import { AppError } from '../utils/appError.js';
 import { HTTP_STATUS } from '../constants/api.js';
 import {
   listEligibleTasksForBilling,
   getTasksByIds,
-  createBillWithItems,
+  createBillWithTransaction,
+  createClubbedBillWithTransaction,
   listBills,
   getBillById,
+  updateBill,
+  updateBillItemsWithTransaction,
   deleteBill,
   updateBillPdfStatus,
   updateBillEmailStatus
@@ -16,7 +18,11 @@ export const getEligibleTasks = async (adminId, filters) => {
   return listEligibleTasksForBilling(adminId, filters);
 };
 
-export const createBill = async (adminId, taskIds) => {
+export const createBill = async (adminId, taskIds, billingEntityId, billDate) => {
+  if (!billingEntityId) {
+    throw new AppError('Billing entity ID is required.', HTTP_STATUS.BAD_REQUEST);
+  }
+
   const tasks = await getTasksByIds(adminId, taskIds);
   
   if (tasks.length !== taskIds.length) {
@@ -26,24 +32,18 @@ export const createBill = async (adminId, taskIds) => {
   const clientName = tasks[0].clientName;
   const clientEmail = tasks[0].clientEmail;
 
-  // Validate all tasks belong to the same client
   for (const task of tasks) {
     if (task.clientName !== clientName) {
       throw new AppError('All tasks in a single bill must belong to the same client.', HTTP_STATUS.BAD_REQUEST);
     }
   }
 
-  // Generate unique Bill Number (e.g., INV-YYYYMMDD-RANDOM)
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const randomStr = crypto.randomBytes(3).toString('hex').toUpperCase();
-  const billNumber = `INV-${dateStr}-${randomStr}`;
-
-  // Calculate Total Amount
   const totalAmount = tasks.reduce((sum, task) => sum + Number(task.billAmount), 0);
 
-  // Prepare Bill data
   const billData = {
-    billNumber,
+    billingEntityId,
+    sourceType: 'TASK_BASED',
+    billDate: billDate ? new Date(billDate) : new Date(),
     clientName,
     clientEmail,
     totalAmount,
@@ -51,18 +51,131 @@ export const createBill = async (adminId, taskIds) => {
     createdByAdminId: adminId
   };
 
-  // Prepare Bill Items data
   const itemsData = tasks.map(task => ({
     taskId: task.id,
     taskTitle: task.title,
     taskDomain: task.domain,
     clientName: task.clientName,
     amount: task.billAmount,
+    quantity: 1,
     remarks: task.billingRemarks
   }));
 
-  const bill = await createBillWithItems(billData, itemsData);
-  return bill;
+  return createBillWithTransaction(billData, itemsData);
+};
+
+export const createManualBill = async (adminId, data) => {
+  const { billingEntityId, billDate, clientName, clientEmail, notes, items } = data;
+
+  if (!billingEntityId || !clientName || !items || !items.length) {
+    throw new AppError('Billing entity, client name, and at least one item are required.', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const totalAmount = items.reduce((sum, item) => sum + (Number(item.amount) * (Number(item.quantity) || 1)), 0);
+
+  const billData = {
+    billingEntityId,
+    sourceType: 'MANUAL',
+    billDate: billDate ? new Date(billDate) : new Date(),
+    clientName,
+    clientEmail,
+    totalAmount,
+    notes,
+    status: 'DRAFT',
+    createdByAdminId: adminId
+  };
+
+  const itemsData = items.map(item => ({
+    taskTitle: item.taskTitle,
+    taskDomain: item.taskDomain || 'General',
+    clientName: clientName,
+    amount: item.amount,
+    quantity: item.quantity || 1,
+    remarks: item.remarks
+  }));
+
+  return createBillWithTransaction(billData, itemsData);
+};
+
+export const createClubbedBill = async (adminId, data) => {
+  const { billingEntityId, billDate, billIds, notes } = data;
+
+  if (!billingEntityId || !billIds || billIds.length < 2) {
+    throw new AppError('Billing entity and at least two bills are required to club.', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const bills = [];
+  for (const id of billIds) {
+    const b = await getBillById(adminId, id);
+    if (!b) throw new AppError(`Bill ${id} not found.`, HTTP_STATUS.NOT_FOUND);
+    if (b.clubbedIntoId) throw new AppError(`Bill ${b.billNumber} is already clubbed.`, HTTP_STATUS.BAD_REQUEST);
+    bills.push(b);
+  }
+
+  const clientName = bills[0].clientName;
+  const clientEmail = bills[0].clientEmail;
+  for (const b of bills) {
+    if (b.clientName !== clientName) {
+      throw new AppError('All bills to be clubbed must belong to the same client.', HTTP_STATUS.BAD_REQUEST);
+    }
+  }
+
+  const totalAmount = bills.reduce((sum, b) => sum + Number(b.totalAmount), 0);
+
+  const billData = {
+    billingEntityId,
+    sourceType: 'CLUBBED',
+    billDate: billDate ? new Date(billDate) : new Date(),
+    clientName,
+    clientEmail,
+    totalAmount,
+    notes,
+    status: 'DRAFT',
+    createdByAdminId: adminId
+  };
+
+  const itemsData = bills.flatMap(b => b.items.map(item => ({
+    taskId: item.taskId,
+    taskTitle: item.taskTitle,
+    taskDomain: item.taskDomain,
+    clientName: item.clientName,
+    amount: item.amount,
+    quantity: item.quantity,
+    remarks: item.remarks
+  })));
+
+  return createClubbedBillWithTransaction(billData, itemsData, billIds);
+};
+
+export const updateBillService = async (adminId, billId, data) => {
+  const bill = await getBillById(adminId, billId);
+  if (!bill) {
+    throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (bill.status === 'EMAILED') {
+    throw new AppError('Cannot modify an emailed bill.', HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const { items, ...billData } = data;
+  
+  if (items && items.length > 0 && bill.sourceType === 'MANUAL') {
+    const totalAmount = items.reduce((sum, item) => sum + (Number(item.amount) * (Number(item.quantity) || 1)), 0);
+    billData.totalAmount = totalAmount;
+
+    const itemsData = items.map(item => ({
+      taskTitle: item.taskTitle,
+      taskDomain: item.taskDomain || 'General',
+      clientName: billData.clientName || bill.clientName,
+      amount: item.amount,
+      quantity: item.quantity || 1,
+      remarks: item.remarks
+    }));
+
+    await updateBillItemsWithTransaction(billId, itemsData);
+  }
+
+  return updateBill(billId, billData);
 };
 
 export const getAllBills = async (adminId, filters) => {
@@ -83,8 +196,8 @@ export const cancelBill = async (adminId, billId) => {
     throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
   }
   
-  if (bill.status !== 'DRAFT') {
-    throw new AppError('Only DRAFT bills can be deleted.', HTTP_STATUS.BAD_REQUEST);
+  if (bill.status === 'EMAILED') {
+    throw new AppError('Cannot delete an emailed bill.', HTTP_STATUS.BAD_REQUEST);
   }
 
   await deleteBill(adminId, billId);
@@ -96,30 +209,19 @@ import { sendBillEmail } from '../utils/emailSender.js';
 
 export const emailBillToClient = async (adminId, billId) => {
   let bill = await getBillById(adminId, billId);
-  if (!bill) {
-    throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
-  }
-
-  if (!bill.clientEmail) {
-    throw new AppError('Client email is missing from this bill.', HTTP_STATUS.BAD_REQUEST);
-  }
+  if (!bill) throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
+  if (!bill.clientEmail) throw new AppError('Client email is missing.', HTTP_STATUS.BAD_REQUEST);
 
   let pdfPath = bill.pdfUrl ? path.join(BACKEND_ROOT, bill.pdfUrl) : null;
 
-  // Generate PDF if not already generated or if missing from ephemeral storage
   if (!pdfPath || !fs.existsSync(pdfPath)) {
     const pdfUrl = await generateBillPdf(bill);
     bill = await updateBillPdfStatus(bill.id, pdfUrl);
-    // Reload bill to ensure pdfUrl is present in memory
     bill = await getBillById(adminId, billId);
   }
 
-  // Send email
   await sendBillEmail(bill);
-
-  // Update status
-  const updatedBill = await updateBillEmailStatus(bill.id);
-  return updatedBill;
+  return updateBillEmailStatus(bill.id);
 };
 
 import path from 'path';
@@ -132,13 +234,10 @@ const BACKEND_ROOT = path.join(__dirname, '../../');
 
 export const getBillPdfPath = async (adminId, billId) => {
   let bill = await getBillById(adminId, billId);
-  if (!bill) {
-    throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
-  }
+  if (!bill) throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
 
   let pdfPath = bill.pdfUrl ? path.join(BACKEND_ROOT, bill.pdfUrl) : null;
 
-  // Generate PDF if not already generated, or if the file was deleted from ephemeral storage
   if (!pdfPath || !fs.existsSync(pdfPath)) {
     const pdfUrl = await generateBillPdf(bill);
     bill = await updateBillPdfStatus(bill.id, pdfUrl);

@@ -1,4 +1,7 @@
 import { getPrisma } from '../prisma/client.js';
+import { generateNextBillNumber } from '../services/billSequenceService.js';
+import { AppError } from '../utils/appError.js';
+import { HTTP_STATUS } from '../constants/api.js';
 
 export const listEligibleTasksForBilling = async (adminId, filters) => {
   const where = {
@@ -10,16 +13,11 @@ export const listEligibleTasksForBilling = async (adminId, filters) => {
   };
 
   if (filters.clientName) {
-    where.clientName = {
-      contains: filters.clientName,
-      mode: 'insensitive'
-    };
+    where.clientName = { contains: filters.clientName, mode: 'insensitive' };
   }
-
   if (filters.employeeId) {
     where.assignedEmployeeId = filters.employeeId;
   }
-
   if (filters.dateFrom || filters.dateTo) {
     where.dueDate = {};
     if (filters.dateFrom) where.dueDate.gte = new Date(filters.dateFrom);
@@ -30,12 +28,7 @@ export const listEligibleTasksForBilling = async (adminId, filters) => {
     where,
     orderBy: [{ clientName: 'asc' }, { dueDate: 'asc' }],
     include: {
-      assignedEmployee: {
-        select: {
-          id: true,
-          username: true
-        }
-      }
+      assignedEmployee: { select: { id: true, username: true } }
     }
   });
 };
@@ -51,37 +44,39 @@ export const getTasksByIds = async (adminId, taskIds) => {
       billItem: null
     },
     include: {
-      assignedEmployee: {
-        select: {
-          id: true,
-          username: true
-        }
-      }
+      assignedEmployee: { select: { id: true, username: true } }
     }
   });
 };
 
-export const createBillWithItems = async (billData, itemsData) => {
+export const createBillWithTransaction = async (billData, itemsData) => {
   return getPrisma().$transaction(async (tx) => {
-    // We double check if any task is already billed inside transaction to be fully safe
-    const taskIds = itemsData.map(item => item.taskId);
-    const existingItems = await tx.billItem.findMany({
-      where: { taskId: { in: taskIds } }
-    });
+    // Generate sequential bill number
+    const billNumber = await generateNextBillNumber(tx, billData.billingEntityId, billData.billDate);
+    
+    // For task-based bills, double check if already billed
+    if (billData.sourceType === 'TASK_BASED') {
+      const taskIds = itemsData.map(item => item.taskId).filter(Boolean);
+      const existingItems = await tx.billItem.findMany({
+        where: { taskId: { in: taskIds } }
+      });
 
-    if (existingItems.length > 0) {
-      throw new Error('One or more tasks have already been billed.');
+      if (existingItems.length > 0) {
+        throw new AppError('One or more tasks have already been billed.', HTTP_STATUS.BAD_REQUEST);
+      }
     }
 
     const bill = await tx.bill.create({
       data: {
         ...billData,
+        billNumber,
         items: {
           create: itemsData
         }
       },
       include: {
-        items: true
+        items: true,
+        billingEntity: true
       }
     });
 
@@ -89,52 +84,101 @@ export const createBillWithItems = async (billData, itemsData) => {
   });
 };
 
+export const createClubbedBillWithTransaction = async (billData, itemsData, originalBillIds) => {
+  return getPrisma().$transaction(async (tx) => {
+    // Check if original bills are already clubbed
+    const existingBills = await tx.bill.findMany({
+      where: { id: { in: originalBillIds } }
+    });
+
+    if (existingBills.some(b => b.clubbedIntoId)) {
+      throw new AppError('One or more selected bills are already clubbed into another bill.', HTTP_STATUS.BAD_REQUEST);
+    }
+
+    const billNumber = await generateNextBillNumber(tx, billData.billingEntityId, billData.billDate);
+
+    const clubbedBill = await tx.bill.create({
+      data: {
+        ...billData,
+        billNumber,
+        items: { create: itemsData }
+      },
+      include: {
+        items: true,
+        billingEntity: true
+      }
+    });
+
+    await tx.bill.updateMany({
+      where: { id: { in: originalBillIds } },
+      data: { clubbedIntoId: clubbedBill.id }
+    });
+
+    return clubbedBill;
+  });
+};
+
 export const listBills = async (adminId, filters) => {
-  const where = {
-    createdByAdminId: adminId
-  };
+  const where = { createdByAdminId: adminId };
 
   if (filters.clientName) {
-    where.clientName = {
-      contains: filters.clientName,
-      mode: 'insensitive'
-    };
+    where.clientName = { contains: filters.clientName, mode: 'insensitive' };
   }
-
   if (filters.status) {
     where.status = filters.status;
   }
-
-  if (filters.dateFrom || filters.dateTo) {
-    where.createdAt = {};
-    if (filters.dateFrom) where.createdAt.gte = new Date(filters.dateFrom);
-    if (filters.dateTo) where.createdAt.lte = new Date(filters.dateTo);
+  if (filters.sourceType) {
+    where.sourceType = filters.sourceType;
+  }
+  if (filters.billingEntityId) {
+    where.billingEntityId = filters.billingEntityId;
+  }
+  if (filters.isUnclubbed === 'true') {
+    where.clubbedIntoId = null;
   }
 
   return getPrisma().bill.findMany({
     where,
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: {
+      billingEntity: true
+    }
   });
 };
 
 export const getBillById = async (adminId, billId) => {
   return getPrisma().bill.findFirst({
-    where: {
-      id: billId,
-      createdByAdminId: adminId
-    },
+    where: { id: billId, createdByAdminId: adminId },
     include: {
-      items: true
+      items: true,
+      billingEntity: true,
+      clubbedBills: {
+        select: { billNumber: true, totalAmount: true }
+      }
     }
+  });
+};
+
+export const updateBill = async (billId, data) => {
+  return getPrisma().bill.update({
+    where: { id: billId },
+    data,
+    include: { items: true, billingEntity: true }
+  });
+};
+
+export const updateBillItemsWithTransaction = async (billId, itemsData) => {
+  return getPrisma().$transaction(async (tx) => {
+    await tx.billItem.deleteMany({ where: { billId } });
+    await tx.billItem.createMany({
+      data: itemsData.map(item => ({ ...item, billId }))
+    });
   });
 };
 
 export const deleteBill = async (adminId, billId) => {
   return getPrisma().bill.delete({
-    where: {
-      id: billId,
-      createdByAdminId: adminId
-    }
+    where: { id: billId, createdByAdminId: adminId }
   });
 };
 
