@@ -9,7 +9,7 @@ const backendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const deployMigrations = async () => {
   const { stderr, stdout } = await execFileAsync(
     'npx',
-    ['prisma', 'migrate', 'deploy', '--schema=prisma/schema.prisma'],
+    ['prisma', 'db', 'push', '--accept-data-loss', '--schema=prisma/schema.prisma'],
     {
       cwd: backendRoot
     }

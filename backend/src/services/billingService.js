@@ -18,7 +18,7 @@ export const getEligibleTasks = async (adminId, filters) => {
   return listEligibleTasksForBilling(adminId, filters);
 };
 
-export const createBill = async (adminId, taskIds, billingEntityId, billDate) => {
+export const createBill = async (adminId, taskIds, billingEntityId, billDate, extraDetails = {}) => {
   if (!billingEntityId) {
     throw new AppError('Billing entity ID is required.', HTTP_STATUS.BAD_REQUEST);
   }
@@ -48,7 +48,10 @@ export const createBill = async (adminId, taskIds, billingEntityId, billDate) =>
     clientEmail,
     totalAmount,
     status: 'DRAFT',
-    createdByAdminId: adminId
+    createdByAdminId: adminId,
+    clientDetails: extraDetails.clientDetails,
+    invoiceDetails: extraDetails.invoiceDetails,
+    taxDetails: extraDetails.taxDetails
   };
 
   const itemsData = tasks.map(task => ({
@@ -65,7 +68,7 @@ export const createBill = async (adminId, taskIds, billingEntityId, billDate) =>
 };
 
 export const createManualBill = async (adminId, data) => {
-  const { billingEntityId, billDate, clientName, clientEmail, notes, items } = data;
+  const { billingEntityId, billDate, clientName, clientEmail, notes, items, clientDetails, invoiceDetails, taxDetails } = data;
 
   if (!billingEntityId || !clientName || !items || !items.length) {
     throw new AppError('Billing entity, client name, and at least one item are required.', HTTP_STATUS.BAD_REQUEST);
@@ -82,7 +85,10 @@ export const createManualBill = async (adminId, data) => {
     totalAmount,
     notes,
     status: 'DRAFT',
-    createdByAdminId: adminId
+    createdByAdminId: adminId,
+    clientDetails,
+    invoiceDetails,
+    taxDetails
   };
 
   const itemsData = items.map(item => ({
@@ -91,6 +97,9 @@ export const createManualBill = async (adminId, data) => {
     clientName: clientName,
     amount: item.amount,
     quantity: item.quantity || 1,
+    rate: item.rate,
+    per: item.per,
+    hsnSac: item.hsnSac,
     remarks: item.remarks
   }));
 
@@ -98,7 +107,7 @@ export const createManualBill = async (adminId, data) => {
 };
 
 export const createClubbedBill = async (adminId, data) => {
-  const { billingEntityId, billDate, billIds, notes } = data;
+  const { billingEntityId, billDate, billIds, notes, clientDetails, invoiceDetails, taxDetails } = data;
 
   if (!billingEntityId || !billIds || billIds.length < 2) {
     throw new AppError('Billing entity and at least two bills are required to club.', HTTP_STATUS.BAD_REQUEST);
@@ -131,7 +140,10 @@ export const createClubbedBill = async (adminId, data) => {
     totalAmount,
     notes,
     status: 'DRAFT',
-    createdByAdminId: adminId
+    createdByAdminId: adminId,
+    clientDetails,
+    invoiceDetails,
+    taxDetails
   };
 
   const itemsData = bills.flatMap(b => b.items.map(item => ({
@@ -141,6 +153,9 @@ export const createClubbedBill = async (adminId, data) => {
     clientName: item.clientName,
     amount: item.amount,
     quantity: item.quantity,
+    rate: item.rate,
+    per: item.per,
+    hsnSac: item.hsnSac,
     remarks: item.remarks
   })));
 
@@ -169,6 +184,9 @@ export const updateBillService = async (adminId, billId, data) => {
       clientName: billData.clientName || bill.clientName,
       amount: item.amount,
       quantity: item.quantity || 1,
+      rate: item.rate,
+      per: item.per,
+      hsnSac: item.hsnSac,
       remarks: item.remarks
     }));
 

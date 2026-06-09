@@ -104,26 +104,47 @@ const main = async () => {
 
   const [auditEmployee, taxEmployee, gstEmployee] = employees;
 
+  const declarationText = "We declare that this invoice shows the actual value of services rendered and that all particulars are true and correct.";
+
   const billingEntities = await Promise.all([
     prisma.billingEntity.upsert({
-      where: { code: 'ASR' },
-      update: { name: 'ASR & Company', email: 'contact@asr.in' },
-      create: { name: 'ASR & Company', code: 'ASR', email: 'contact@asr.in' }
+      where: { code: 'AKKC' },
+      update: { 
+        name: 'A K Kataruka and Company', invoicePrefix: 'AKKC',
+        address: '41, B.B. Ganguly Street, 3rd Floor, Room No. C12', city: 'Kolkata', state: 'West Bengal', pincode: '700012', country: 'India',
+        gstNumber: '19AAJFA5260D1ZM', panNumber: 'AAJFA5260D', email: 'info@akkc.co', phone: null, bankName: null, accountHolderName: 'A K Kataruka and Company', bankAccountNumber: null, ifscCode: null, branchName: null, isActive: true, declarationText
+      },
+      create: { 
+        name: 'A K Kataruka and Company', code: 'AKKC', invoicePrefix: 'AKKC',
+        address: '41, B.B. Ganguly Street, 3rd Floor, Room No. C12', city: 'Kolkata', state: 'West Bengal', pincode: '700012', country: 'India',
+        gstNumber: '19AAJFA5260D1ZM', panNumber: 'AAJFA5260D', email: 'info@akkc.co', phone: null, bankName: null, accountHolderName: 'A K Kataruka and Company', bankAccountNumber: null, ifscCode: null, branchName: null, isActive: true, declarationText
+      }
     }),
     prisma.billingEntity.upsert({
-      where: { code: 'AKK' },
-      update: { name: 'A K Kataruka and Company', email: 'info@akkataruka.com' },
-      create: { name: 'A K Kataruka and Company', code: 'AKK', email: 'info@akkataruka.com' }
+      where: { code: 'ASR' },
+      update: { 
+        name: 'ASR & Company', invoicePrefix: 'ASR',
+        address: '3A, Bow Street, 3rd Floor', city: 'Kolkata', state: 'West Bengal', pincode: '700012', country: 'India',
+        gstNumber: null, panNumber: null, email: null, phone: null, bankName: 'HDFC Bank Limited', accountHolderName: 'ASR & Company', bankAccountNumber: '50200100604244', ifscCode: 'HDFC0000008', branchName: 'Stephen House Branch', isActive: true, declarationText
+      },
+      create: { 
+        name: 'ASR & Company', code: 'ASR', invoicePrefix: 'ASR',
+        address: '3A, Bow Street, 3rd Floor', city: 'Kolkata', state: 'West Bengal', pincode: '700012', country: 'India',
+        gstNumber: null, panNumber: null, email: null, phone: null, bankName: 'HDFC Bank Limited', accountHolderName: 'ASR & Company', bankAccountNumber: '50200100604244', ifscCode: 'HDFC0000008', branchName: 'Stephen House Branch', isActive: true, declarationText
+      }
     }),
     prisma.billingEntity.upsert({
       where: { code: 'CHEV' },
-      update: { name: 'Cheviot Consultancy LLP', email: 'support@cheviot.in' },
-      create: { name: 'Cheviot Consultancy LLP', code: 'CHEV', email: 'support@cheviot.in' }
-    }),
-    prisma.billingEntity.upsert({
-      where: { code: 'SKC' },
-      update: { name: 'Shakshi Kataruka & Company', email: 'billing@skc.in' },
-      create: { name: 'Shakshi Kataruka & Company', code: 'SKC', email: 'billing@skc.in' }
+      update: { 
+        name: 'Cheviot Consultancy LLP', invoicePrefix: 'CCLLP',
+        address: '3A, Bow Street, 3rd Floor', city: 'Kolkata', state: 'West Bengal', pincode: '700012', country: 'India',
+        gstNumber: null, panNumber: 'AANFC2597D', email: null, phone: null, bankName: 'HDFC Bank', accountHolderName: 'Cheviot Consultancy LLP', bankAccountNumber: '50200031922286', ifscCode: 'HDFC0000008', branchName: 'Stephen House Branch', isActive: true, declarationText
+      },
+      create: { 
+        name: 'Cheviot Consultancy LLP', code: 'CHEV', invoicePrefix: 'CCLLP',
+        address: '3A, Bow Street, 3rd Floor', city: 'Kolkata', state: 'West Bengal', pincode: '700012', country: 'India',
+        gstNumber: null, panNumber: 'AANFC2597D', email: null, phone: null, bankName: 'HDFC Bank', accountHolderName: 'Cheviot Consultancy LLP', bankAccountNumber: '50200031922286', ifscCode: 'HDFC0000008', branchName: 'Stephen House Branch', isActive: true, declarationText
+      }
     })
   ]);
 

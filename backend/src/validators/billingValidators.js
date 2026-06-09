@@ -22,7 +22,10 @@ export const createBillSchema = z.object({
     .object({
       billingEntityId: uuid,
       billDate: date.optional(),
-      taskIds: z.array(uuid).min(1, 'At least one task ID is required')
+      taskIds: z.array(uuid).min(1, 'At least one task ID is required'),
+      clientDetails: z.record(z.any()).optional().nullable(),
+      invoiceDetails: z.record(z.any()).optional().nullable(),
+      taxDetails: z.record(z.any()).optional().nullable()
     })
     .strict(),
   params: z.object({}).optional(),
@@ -37,11 +40,17 @@ export const createManualBillSchema = z.object({
       clientName: z.string().trim().min(1).max(160),
       clientEmail: z.string().email().optional().nullable(),
       notes: z.string().optional().nullable(),
+      clientDetails: z.record(z.any()).optional().nullable(),
+      invoiceDetails: z.record(z.any()).optional().nullable(),
+      taxDetails: z.record(z.any()).optional().nullable(),
       items: z.array(z.object({
         taskTitle: z.string().trim().min(1).max(180),
         taskDomain: z.string().trim().max(120).optional(),
         amount: z.number().min(0),
         quantity: z.number().int().min(1).optional(),
+        rate: z.number().min(0).optional(),
+        per: z.string().max(50).optional(),
+        hsnSac: z.string().max(50).optional(),
         remarks: z.string().optional().nullable()
       })).min(1)
     })
@@ -69,11 +78,17 @@ export const updateBillSchema = z.object({
       clientName: z.string().trim().min(1).max(160).optional(),
       clientEmail: z.string().email().optional().nullable(),
       notes: z.string().optional().nullable(),
+      clientDetails: z.record(z.any()).optional().nullable(),
+      invoiceDetails: z.record(z.any()).optional().nullable(),
+      taxDetails: z.record(z.any()).optional().nullable(),
       items: z.array(z.object({
         taskTitle: z.string().trim().min(1).max(180),
         taskDomain: z.string().trim().max(120).optional(),
         amount: z.number().min(0),
         quantity: z.number().int().min(1).optional(),
+        rate: z.number().min(0).optional(),
+        per: z.string().max(50).optional(),
+        hsnSac: z.string().max(50).optional(),
         remarks: z.string().optional().nullable()
       })).optional()
     })

@@ -118,15 +118,24 @@ model BillingEntity {
   id                String         @id @default(uuid()) @db.Uuid
   name              String         @unique @db.VarChar(120)
   code              String         @unique @db.VarChar(20)
-  email             String         @db.VarChar(255)
+  invoicePrefix     String         @default("INV") @db.VarChar(20)
+  email             String?        @db.VarChar(255)
   phone             String?        @db.VarChar(50)
   address           String?        @db.Text
+  city              String?        @db.VarChar(100)
+  state             String?        @db.VarChar(100)
+  pincode           String?        @db.VarChar(20)
+  country           String?        @db.VarChar(100)
   gstNumber         String?        @db.VarChar(50)
   panNumber         String?        @db.VarChar(50)
   bankName          String?        @db.VarChar(120)
+  accountHolderName String?        @db.VarChar(160)
   bankAccountNumber String?        @db.VarChar(100)
   ifscCode          String?        @db.VarChar(50)
+  branchName        String?        @db.VarChar(120)
   logoUrl           String?        @db.Text
+  signatureUrl      String?        @db.Text
+  declarationText   String?        @db.Text
   isActive          Boolean        @default(true)
   bills             Bill[]
   sequences         BillSequence[]
@@ -159,6 +168,9 @@ model Bill {
   totalAmount      Decimal        @default(0) @db.Decimal(12, 2)
   status           BillStatus     @default(DRAFT)
   notes            String?        @db.Text
+  clientDetails    Json?
+  invoiceDetails   Json?
+  taxDetails       Json?
   pdfUrl           String?        @db.Text
   generatedAt      DateTime?      @db.Timestamptz
   emailedAt        DateTime?      @db.Timestamptz
@@ -185,6 +197,9 @@ model BillItem {
   clientName String   @db.VarChar(160)
   amount     Decimal  @db.Decimal(10, 2)
   quantity   Int?     @default(1)
+  rate       Decimal? @db.Decimal(10, 2)
+  per        String?  @default("Nos") @db.VarChar(50)
+  hsnSac     String?  @db.VarChar(50)
   remarks    String?  @db.Text
   
   bill       Bill     @relation("BillItems", fields: [billId], references: [id], onDelete: Cascade, onUpdate: Cascade)

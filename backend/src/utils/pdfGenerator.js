@@ -2,10 +2,16 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { convertAmountToWords } from './currencyFormatter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const UPLOADS_DIR = path.join(__dirname, '../../uploads/bills');
+
+// Helper to draw a stroked rectangle
+const drawBox = (doc, x, y, width, height) => {
+  doc.rect(x, y, width, height).stroke();
+};
 
 export const generateBillPdf = async (bill) => {
   return new Promise((resolve, reject) => {
@@ -14,109 +20,266 @@ export const generateBillPdf = async (bill) => {
         fs.mkdirSync(UPLOADS_DIR, { recursive: true });
       }
 
-      const fileName = `${bill.billNumber}.pdf`;
+      const fileName = `${bill.billNumber.replace(/\//g, '_')}.pdf`;
       const filePath = path.join(UPLOADS_DIR, fileName);
       const relativePath = `/uploads/bills/${fileName}`;
 
-      const doc = new PDFDocument({ margin: 50 });
+      const doc = new PDFDocument({ size: 'A4', margin: 40 });
       const stream = fs.createWriteStream(filePath);
 
       doc.pipe(stream);
 
-      // Header from Billing Entity
-      const entity = bill.billingEntity || { name: 'A K Kataruka and Company' };
+      const entity = bill.billingEntity || {};
+      const client = typeof bill.clientDetails === 'object' && bill.clientDetails ? bill.clientDetails : {};
+      const invoice = typeof bill.invoiceDetails === 'object' && bill.invoiceDetails ? bill.invoiceDetails : {};
+      const tax = typeof bill.taxDetails === 'object' && bill.taxDetails ? bill.taxDetails : {};
 
-      doc.fontSize(20).text(entity.name, { align: 'center' }).moveDown(0.5);
+      // 1. HEADER (Letterhead)
+      if (entity.name) {
+        doc.font('Helvetica-Bold').fontSize(16).text(entity.name, 40, 40, { align: 'center' });
+      }
+      doc.font('Helvetica').fontSize(10);
+      let headerAddress = '';
+      if (entity.address) headerAddress += entity.address;
+      if (entity.city) headerAddress += `, ${entity.city}`;
+      if (entity.state) headerAddress += `, ${entity.state}`;
+      if (entity.pincode) headerAddress += ` - ${entity.pincode}`;
+      if (headerAddress) {
+        doc.text(headerAddress, { align: 'center' });
+      }
+
+      const contactArr = [];
+      if (entity.phone) contactArr.push(`Ph: ${entity.phone}`);
+      if (entity.email) contactArr.push(`Email: ${entity.email}`);
+      if (contactArr.length > 0) {
+        doc.text(contactArr.join(' | '), { align: 'center' });
+      }
+
+      const taxArr = [];
+      if (entity.gstNumber) taxArr.push(`GSTIN: ${entity.gstNumber}`);
+      if (entity.panNumber) taxArr.push(`PAN: ${entity.panNumber}`);
+      if (taxArr.length > 0) {
+        doc.font('Helvetica-Bold').text(taxArr.join(' | '), { align: 'center' });
+      }
+
+      doc.moveDown(1);
       
-      if (entity.address) {
-        doc.fontSize(10).text(entity.address, { align: 'center' });
-      }
-      if (entity.email || entity.phone) {
-        const contact = [entity.email, entity.phone].filter(Boolean).join(' | ');
-        doc.fontSize(10).text(contact, { align: 'center' });
-      }
-      if (entity.gstNumber) {
-        doc.fontSize(10).text(`GSTIN: ${entity.gstNumber}`, { align: 'center' });
-      }
-      if (entity.panNumber) {
-        doc.fontSize(10).text(`PAN: ${entity.panNumber}`, { align: 'center' });
-      }
-      doc.moveDown(2);
+      const isTaxInvoice = tax.totalTaxAmount && parseFloat(tax.totalTaxAmount) > 0;
+      doc.font('Helvetica-Bold').fontSize(12).text(isTaxInvoice ? 'TAX INVOICE' : 'INVOICE', { align: 'center', underline: true });
+      doc.moveDown(1);
 
-      // Bill Info
-      doc.fontSize(12)
-        .text(`Bill Number: ${bill.billNumber}`)
-        .text(`Date: ${bill.billDate ? new Date(bill.billDate).toLocaleDateString() : new Date().toLocaleDateString()}`)
-        .text(`Client: ${bill.clientName}`)
-        .text(`Email: ${bill.clientEmail || 'N/A'}`);
+      const startY = doc.y;
+
+      // TOP BOX FOR CLIENT & INVOICE DETAILS
+      drawBox(doc, 40, startY, 515, 120);
+
+      // Vertical separator
+      doc.moveTo(300, startY).lineTo(300, startY + 120).stroke();
+
+      // Left Side: Client Details
+      doc.font('Helvetica').fontSize(9);
+      doc.text('To,', 45, startY + 5);
+      doc.font('Helvetica-Bold').fontSize(10).text(bill.clientName, 45, startY + 18);
       
-      if (bill.sourceType === 'CLUBBED') {
-        doc.text(`Type: Clubbed Bill`);
-      }
-      doc.moveDown(2);
-
-      // Table Header
-      const tableTop = doc.y;
-      doc.font('Helvetica-Bold');
-      doc.text('Description', 50, tableTop, { width: 200 });
-      doc.text('Qty', 260, tableTop, { width: 40 });
-      doc.text('Rate', 310, tableTop, { width: 100, align: 'right' });
-      doc.text('Amount (INR)', 450, tableTop, { width: 100, align: 'right' });
-      doc.moveDown(0.5);
+      doc.font('Helvetica').fontSize(9);
+      let clientAddrY = startY + 32;
       
-      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-      doc.moveDown(0.5);
+      if (client.address) {
+        doc.text(client.address, 45, clientAddrY, { width: 245 });
+        clientAddrY = doc.y;
+      }
+      if (client.state) {
+        doc.text(`State: ${client.state}`, 45, clientAddrY);
+        clientAddrY += 12;
+      }
+      if (client.gstNumber) {
+        doc.font('Helvetica-Bold').text(`GSTIN: ${client.gstNumber}`, 45, clientAddrY);
+        clientAddrY += 12;
+      }
+      if (client.panNumber) {
+        doc.font('Helvetica-Bold').text(`PAN: ${client.panNumber}`, 45, clientAddrY);
+      }
 
-      // Table Rows
-      doc.font('Helvetica');
-      let y = doc.y;
+      // Right Side: Invoice Details
+      let invY = startY + 5;
+      doc.font('Helvetica-Bold').text(`Invoice No: ${bill.billNumber}`, 305, invY);
+      doc.font('Helvetica').text(`Date: ${new Date(bill.billDate).toLocaleDateString('en-IN')}`, 425, invY);
+      
+      // Horizontal line in the right section
+      doc.moveTo(300, invY + 15).lineTo(555, invY + 15).stroke();
+      
+      invY += 20;
+      if (invoice.deliveryNote) {
+        doc.text(`Delivery Note: ${invoice.deliveryNote}`, 305, invY);
+        invY += 12;
+      }
+      if (invoice.modeOfPayment) {
+        doc.text(`Mode of Payment: ${invoice.modeOfPayment}`, 305, invY);
+        invY += 12;
+      }
+      if (invoice.referenceNumber) {
+        doc.text(`Reference No: ${invoice.referenceNumber}`, 305, invY);
+        invY += 12;
+      }
+      if (invoice.buyerOrderNumber) {
+        doc.text(`Buyer Order No: ${invoice.buyerOrderNumber}`, 305, invY);
+        invY += 12;
+      }
+      if (invoice.dispatchDocumentNumber) {
+        doc.text(`Dispatch Doc No: ${invoice.dispatchDocumentNumber}`, 305, invY);
+        invY += 12;
+      }
+      if (invoice.destination) {
+        doc.text(`Destination: ${invoice.destination}`, 305, invY);
+      }
 
-      bill.items.forEach((item) => {
-        const title = item.taskTitle || 'Service';
+      const tableTop = startY + 120 + 10;
+
+      // Draw Main Table Headers
+      doc.font('Helvetica-Bold').fontSize(9);
+      drawBox(doc, 40, tableTop, 515, 20); // Header box
+      
+      const cols = {
+        sn: 40,
+        desc: 75,
+        hsn: 300,
+        qty: 360,
+        rate: 400,
+        per: 450,
+        amt: 480
+      };
+
+      doc.text('S.N.', cols.sn + 5, tableTop + 5);
+      doc.text('Description of Services', cols.desc + 5, tableTop + 5);
+      doc.text('HSN/SAC', cols.hsn + 5, tableTop + 5);
+      doc.text('Qty', cols.qty + 5, tableTop + 5);
+      doc.text('Rate', cols.rate + 5, tableTop + 5);
+      doc.text('Per', cols.per + 5, tableTop + 5);
+      doc.text('Amount', cols.amt + 5, tableTop + 5);
+
+      let rowY = tableTop + 20;
+      doc.font('Helvetica').fontSize(9);
+
+      let subtotal = 0;
+
+      bill.items.forEach((item, index) => {
+        const title = item.taskTitle || item.remarks || 'Professional Services';
+        const hsn = item.hsnSac || '';
         const qty = item.quantity || 1;
-        const rate = Number(item.amount).toFixed(2);
-        const amount = (qty * Number(item.amount)).toFixed(2);
+        const rate = item.rate || Number(item.amount);
+        const per = item.per || 'Nos';
+        const amount = Number(item.amount);
+        subtotal += amount;
 
-        // Calculate height needed for description
-        const textHeight = doc.heightOfString(title, { width: 200 });
-        
-        doc.text(title, 50, y, { width: 200 });
-        doc.text(qty.toString(), 260, y, { width: 40 });
-        doc.text(rate, 310, y, { width: 100, align: 'right' });
-        doc.text(amount, 450, y, { width: 100, align: 'right' });
-        
-        y += textHeight + 5; // next row
+        // Check page break
+        if (rowY > 700) {
+          doc.addPage();
+          rowY = 40;
+        }
+
+        const textHeight = doc.heightOfString(title, { width: cols.hsn - cols.desc - 10 });
+
+        doc.text((index + 1).toString(), cols.sn + 5, rowY + 5);
+        doc.text(title, cols.desc + 5, rowY + 5, { width: cols.hsn - cols.desc - 10 });
+        doc.text(hsn, cols.hsn + 5, rowY + 5);
+        doc.text(qty.toString(), cols.qty + 5, rowY + 5);
+        doc.text(rate.toFixed(2), cols.rate + 5, rowY + 5);
+        doc.text(per, cols.per + 5, rowY + 5);
+        doc.text(amount.toFixed(2), cols.amt + 5, rowY + 5, { width: 515 - cols.amt - 10, align: 'right' });
+
+        rowY += textHeight + 10;
       });
 
-      doc.moveTo(50, y).lineTo(550, y).stroke();
-      doc.moveDown(1);
-      y += 10;
+      // Draw vertical lines for the table
+      doc.moveTo(cols.desc, tableTop).lineTo(cols.desc, rowY).stroke();
+      doc.moveTo(cols.hsn, tableTop).lineTo(cols.hsn, rowY).stroke();
+      doc.moveTo(cols.qty, tableTop).lineTo(cols.qty, rowY).stroke();
+      doc.moveTo(cols.rate, tableTop).lineTo(cols.rate, rowY).stroke();
+      doc.moveTo(cols.per, tableTop).lineTo(cols.per, rowY).stroke();
+      doc.moveTo(cols.amt, tableTop).lineTo(cols.amt, rowY).stroke();
 
-      // Total
+      // Outer box for items
+      drawBox(doc, 40, tableTop + 20, 515, rowY - (tableTop + 20));
+
+      // TOTALS SECTION
+      let totalsY = rowY;
+      
+      // Bottom border for items
+      doc.moveTo(40, totalsY).lineTo(555, totalsY).stroke();
+
+      if (isTaxInvoice) {
+        doc.font('Helvetica-Bold');
+        doc.text('Taxable Value', cols.rate + 5, totalsY + 5);
+        doc.text(subtotal.toFixed(2), cols.amt + 5, totalsY + 5, { width: 515 - cols.amt - 10, align: 'right' });
+        totalsY += 20;
+        doc.moveTo(cols.rate, totalsY).lineTo(555, totalsY).stroke();
+
+        if (tax.cgstAmount > 0) {
+          doc.font('Helvetica');
+          doc.text(`Add: CGST @ ${tax.cgstPercentage}%`, cols.hsn + 5, totalsY + 5);
+          doc.text(Number(tax.cgstAmount).toFixed(2), cols.amt + 5, totalsY + 5, { width: 515 - cols.amt - 10, align: 'right' });
+          totalsY += 15;
+        }
+        if (tax.sgstAmount > 0) {
+          doc.font('Helvetica');
+          doc.text(`Add: SGST @ ${tax.sgstPercentage}%`, cols.hsn + 5, totalsY + 5);
+          doc.text(Number(tax.sgstAmount).toFixed(2), cols.amt + 5, totalsY + 5, { width: 515 - cols.amt - 10, align: 'right' });
+          totalsY += 15;
+        }
+        if (tax.igstAmount > 0) {
+          doc.font('Helvetica');
+          doc.text(`Add: IGST @ ${tax.igstPercentage}%`, cols.hsn + 5, totalsY + 5);
+          doc.text(Number(tax.igstAmount).toFixed(2), cols.amt + 5, totalsY + 5, { width: 515 - cols.amt - 10, align: 'right' });
+          totalsY += 15;
+        }
+        doc.moveTo(cols.hsn, totalsY).lineTo(555, totalsY).stroke();
+      }
+
+      const grandTotal = Number(bill.totalAmount);
       doc.font('Helvetica-Bold');
-      doc.text('Total Amount:', 300, y, { width: 100, align: 'right' });
-      doc.text(`INR ${Number(bill.totalAmount).toFixed(2)}`, 450, y, { width: 100, align: 'right' });
+      doc.text('Total Amount', cols.rate + 5, totalsY + 5);
+      doc.text(grandTotal.toFixed(2), cols.amt + 5, totalsY + 5, { width: 515 - cols.amt - 10, align: 'right' });
+      
+      // Draw lines around totals
+      drawBox(doc, cols.rate, rowY, 555 - cols.rate, totalsY + 20 - rowY);
 
       doc.moveDown(2);
+      let bottomY = totalsY + 30;
 
-      if (bill.notes) {
-        doc.font('Helvetica');
-        doc.text('Notes:', 50, doc.y, { underline: true });
-        doc.text(bill.notes, 50, doc.y);
-        doc.moveDown(2);
+      // Amount in Words
+      doc.font('Helvetica-Bold').fontSize(9).text('Amount Chargeable (in words):', 40, bottomY);
+      doc.font('Helvetica-Oblique').text(convertAmountToWords(grandTotal), 40, bottomY + 12);
+      bottomY += 35;
+
+      // Bank Details and Signature Block
+      drawBox(doc, 40, bottomY, 515, 100);
+      
+      // Left Side: Bank Details
+      doc.font('Helvetica-Bold').text('Bank Details:', 45, bottomY + 5);
+      doc.font('Helvetica').fontSize(9);
+      if (entity.bankName) doc.text(`Bank Name: ${entity.bankName}`, 45, bottomY + 20);
+      if (entity.accountHolderName) doc.text(`A/c Holder: ${entity.accountHolderName}`, 45, bottomY + 35);
+      if (entity.bankAccountNumber) doc.text(`A/c Number: ${entity.bankAccountNumber}`, 45, bottomY + 50);
+      if (entity.ifscCode) doc.text(`IFSC Code: ${entity.ifscCode}`, 45, bottomY + 65);
+      if (entity.branchName) doc.text(`Branch: ${entity.branchName}`, 45, bottomY + 80);
+
+      // Vertical Separator
+      doc.moveTo(300, bottomY).lineTo(300, bottomY + 100).stroke();
+
+      // Right Side: Signature
+      doc.font('Helvetica-Bold').text(`For ${entity.name || 'Company'}`, 305, bottomY + 5, { align: 'center', width: 245 });
+      
+      doc.font('Helvetica-Bold').fontSize(9).text('Authorised Signatory', 305, bottomY + 85, { align: 'center', width: 245 });
+
+      // Declaration
+      let declY = bottomY + 110;
+      if (entity.declarationText) {
+        doc.font('Helvetica-Bold').text('Declaration:', 40, declY);
+        doc.font('Helvetica').fontSize(8).text(entity.declarationText, 40, declY + 12, { width: 515 });
+      } else {
+        doc.font('Helvetica-Bold').text('Declaration:', 40, declY);
+        doc.font('Helvetica').fontSize(8).text('We declare that this invoice shows the actual value of services rendered and that all particulars are true and correct.', 40, declY + 12, { width: 515 });
       }
-
-      if (entity.bankName && entity.bankAccountNumber) {
-        doc.font('Helvetica-Bold').text('Bank Details:');
-        doc.font('Helvetica')
-          .text(`Bank: ${entity.bankName}`)
-          .text(`Account No: ${entity.bankAccountNumber}`)
-          .text(`IFSC: ${entity.ifscCode || 'N/A'}`);
-        doc.moveDown(2);
-      }
-
-      doc.font('Helvetica-Oblique');
-      doc.text('Thank you for your business!', 50, doc.y, { align: 'center' });
 
       doc.end();
 

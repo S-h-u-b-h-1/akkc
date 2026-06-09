@@ -26,8 +26,8 @@ export const listEligibleTasks = async (req, res) => {
 };
 
 export const generateBill = async (req, res) => {
-  const { taskIds, billingEntityId, billDate } = req.validated.body;
-  const bill = await createBill(req.user.id, taskIds, billingEntityId, billDate);
+  const { taskIds, billingEntityId, billDate, ...extraDetails } = req.validated.body;
+  const bill = await createBill(req.user.id, taskIds, billingEntityId, billDate, extraDetails);
   return sendSuccess(res, {
     message: 'Bill created successfully',
     data: { bill }

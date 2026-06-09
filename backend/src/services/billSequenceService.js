@@ -5,9 +5,9 @@ export const getFinancialYear = (date = new Date()) => {
   const month = date.getMonth(); // 0-indexed (0 = Jan, 3 = Apr)
   const year = date.getFullYear();
   if (month >= 3) {
-    return `${year}-${(year + 1).toString().slice(-2)}`;
+    return `${year.toString().slice(-2)}-${(year + 1).toString().slice(-2)}`;
   }
-  return `${year - 1}-${year.toString().slice(-2)}`;
+  return `${(year - 1).toString().slice(-2)}-${year.toString().slice(-2)}`;
 };
 
 export const generateNextBillNumber = async (transaction, billingEntityId, billDate) => {
@@ -39,5 +39,5 @@ export const generateNextBillNumber = async (transaction, billingEntityId, billD
   });
 
   const seqFormatted = sequence.lastSequence.toString().padStart(3, '0');
-  return `${entity.code}_FY${financialYear}_${seqFormatted}`;
+  return `${entity.invoicePrefix}/${financialYear}/${seqFormatted}`;
 };
