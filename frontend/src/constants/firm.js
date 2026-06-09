@@ -2,7 +2,7 @@ export const FIRM = Object.freeze({
   NAME: 'A K Kataruka and Company',
   SHORT_NAME: 'AKKC',
   APP_NAME: 'Team AKKC',
-  LOGO_URL: 'https://ca-rajeshri.in/images/icai-ca-logo.png',
+  LOGO_URL: 'https://www.taxscan.in/wp-content/uploads/2023/11/ICAI-unveils-new-CA-Logo-GloPAC-TAXSCAN.jpg',
   TAGLINE: 'Chartered Accountants'
 });
 
