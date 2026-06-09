@@ -1,4 +1,5 @@
-import { Resend } from 'resend';
+import { google } from 'googleapis';
+import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,14 +9,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BACKEND_ROOT = path.join(__dirname, '../../');
 
-const resend = env.resendApiKey ? new Resend(env.resendApiKey) : null;
-
 import { AppError } from './appError.js';
 import { HTTP_STATUS } from '../constants/api.js';
 
+let gmail = null;
+
+if (env.gmailClientId && env.gmailClientSecret && env.gmailRefreshToken) {
+  const oAuth2Client = new google.auth.OAuth2(
+    env.gmailClientId,
+    env.gmailClientSecret,
+    'https://developers.google.com/oauthplayground'
+  );
+
+  oAuth2Client.setCredentials({ refresh_token: env.gmailRefreshToken });
+  gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+}
+
 export const sendBillEmail = async (bill) => {
-  if (!resend) {
-    throw new AppError('Email service is not configured yet. Please add RESEND_API_KEY.', HTTP_STATUS.BAD_REQUEST);
+  if (!gmail) {
+    throw new AppError('Gmail API is not configured. Please add GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, and GMAIL_REFRESH_TOKEN.', HTTP_STATUS.BAD_REQUEST);
   }
   if (!bill.clientEmail) {
     throw new AppError('No email address provided for the client.', HTTP_STATUS.BAD_REQUEST);
@@ -30,9 +42,8 @@ export const sendBillEmail = async (bill) => {
     throw new AppError('PDF file is missing from disk.', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
-  const fileData = fs.readFileSync(pdfPath);
-
-  const { data, error } = await resend.emails.send({
+  // Create MIME message using nodemailer
+  const mailOptions = {
     from: env.smtpFrom,
     to: bill.clientEmail,
     subject: `Invoice/Bill for Completed Tasks - ${bill.billNumber}`,
@@ -40,15 +51,29 @@ export const sendBillEmail = async (bill) => {
     attachments: [
       {
         filename: `${bill.billNumber.replace(/[^a-zA-Z0-9-]/g, '_')}.pdf`,
-        content: fileData
+        path: pdfPath
       }
     ]
-  });
+  };
 
-  if (error) {
-    console.error('Resend API Error:', error);
-    throw new AppError(`Failed to send email: ${error.message}`, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+  const mailComposer = new nodemailer.MailComposer(mailOptions);
+  const messageBuffer = await mailComposer.compile().build();
+  const encodedMessage = Buffer.from(messageBuffer)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, ''); // Base64URL encoding required by Gmail API
+
+  try {
+    const response = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Gmail API Error:', error);
+    throw new AppError(`Failed to send email via Gmail API: ${error.message}`, HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
-
-  return data;
 };

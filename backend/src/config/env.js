@@ -20,7 +20,9 @@ export const env = Object.freeze({
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1d',
-  resendApiKey: process.env.RESEND_API_KEY,
+  gmailClientId: process.env.GMAIL_CLIENT_ID,
+  gmailClientSecret: process.env.GMAIL_CLIENT_SECRET,
+  gmailRefreshToken: process.env.GMAIL_REFRESH_TOKEN,
   smtpFrom: process.env.SMTP_FROM || 'info@akkc.co'
 });
 
