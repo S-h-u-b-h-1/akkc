@@ -39,6 +39,7 @@ export const createBill = async (adminId, taskIds, billingEntityId, billDate, ex
   }
 
   const totalAmount = tasks.reduce((sum, task) => sum + Number(task.billAmount), 0);
+  const uploadedPdf = tasks.find(t => t.uploadedBillPdfUrl)?.uploadedBillPdfUrl;
 
   const billData = {
     billingEntityId,
@@ -47,7 +48,8 @@ export const createBill = async (adminId, taskIds, billingEntityId, billDate, ex
     clientName,
     clientEmail,
     totalAmount,
-    status: 'DRAFT',
+    status: uploadedPdf ? 'GENERATED' : 'DRAFT',
+    pdfUrl: uploadedPdf || null,
     createdByAdminId: adminId,
     clientDetails: extraDetails.clientDetails,
     invoiceDetails: extraDetails.invoiceDetails,

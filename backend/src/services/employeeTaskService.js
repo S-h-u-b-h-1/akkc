@@ -72,55 +72,24 @@ export const markEmployeeTaskDone = async ({ employeeId, taskId, remark, shouldP
     billingRemarks
   });
 
-  if (billPdf) {
-    // If clientEmail is provided, we should update the task. Wait, we can't easily update it without modifying repo.
-    // Instead, we create a Bill directly.
+  if (billPdf || clientEmail) {
     const { PrismaClient } = await import('@prisma/client');
     const prisma = new PrismaClient();
     
-    // Find the first active billing entity
-    const billingEntity = await prisma.billingEntity.findFirst({
-      where: { isActive: true },
-      orderBy: { createdAt: 'asc' }
-    });
+    const updateData = {};
+    if (billPdf) {
+      updateData.uploadedBillPdfUrl = '/uploads/bills/' + billPdf.filename;
+    }
+    if (clientEmail && clientEmail !== updatedTask.clientEmail) {
+      updateData.clientEmail = clientEmail;
+    }
 
-    if (billingEntity) {
-      // Generate a unique bill number based on time
-      const uniqueSuffix = Date.now().toString().slice(-6);
-      const billNumber = `UPLOAD-${uniqueSuffix}`;
-
-      const finalClientEmail = clientEmail || updatedTask.clientEmail || null;
-
-      await prisma.bill.create({
-        data: {
-          billNumber,
-          billingEntityId: billingEntity.id,
-          sourceType: 'TASK_BASED',
-          status: 'GENERATED',
-          clientName: updatedTask.clientName,
-          clientEmail: finalClientEmail,
-          totalAmount: updatedTask.billAmount || 0,
-          pdfUrl: '/uploads/bills/' + billPdf.filename,
-          items: {
-            create: [{
-              taskId: updatedTask.id,
-              taskTitle: updatedTask.title,
-              taskDomain: updatedTask.domain,
-              clientName: updatedTask.clientName,
-              amount: updatedTask.billAmount || 0,
-              quantity: 1
-            }]
-          }
-        }
+    if (Object.keys(updateData).length > 0) {
+      await prisma.task.update({
+        where: { id: updatedTask.id },
+        data: updateData
       });
-      
-      // Update task client email if provided
-      if (clientEmail && clientEmail !== updatedTask.clientEmail) {
-        await prisma.task.update({
-          where: { id: updatedTask.id },
-          data: { clientEmail }
-        });
-      }
+      Object.assign(updatedTask, updateData);
     }
   }
 

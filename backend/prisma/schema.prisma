@@ -77,6 +77,7 @@ model Task {
   billingApprovalStatus BillingApprovalStatus @default(NOT_REQUIRED)
   billAmount            Decimal?              @db.Decimal(10, 2)
   billingRemarks        String?               @db.Text
+  uploadedBillPdfUrl    String?               @db.Text
   assignedDate          DateTime              @db.Date
   dueDate            DateTime     @db.Date
   assignedEmployeeId String?      @db.Uuid

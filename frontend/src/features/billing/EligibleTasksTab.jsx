@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getEligibleTasksForBilling, createBill } from '../../services/billingService.js';
 import { getAdminEmployees } from '../../services/adminService.js';
-import { FilePlus, FileText, AlertCircle, RefreshCcw } from 'lucide-react';
+import { FilePlus, FileText, AlertCircle, RefreshCcw, Eye } from 'lucide-react';
 
 export function EligibleTasksTab({ entities }) {
   const [tasks, setTasks] = useState([]);
@@ -142,13 +142,13 @@ export function EligibleTasksTab({ entities }) {
 
       <div className="card billing-creation-bar" style={{ position: 'sticky', top: '20px', zIndex: 10, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}>
         <div className="form-group row" style={{ marginBottom: 0, alignItems: 'center' }}>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, display: 'none' }}>
             <label>Billing Entity</label>
             <select value={selectedEntityId} onChange={e => setSelectedEntityId(e.target.value)} style={{ margin: 0 }}>
               {entities.map(e => <option key={e.id} value={e.id}>{e.name} ({e.code})</option>)}
             </select>
           </div>
-          <div style={{ width: '200px' }}>
+          <div style={{ width: '200px', marginLeft: 'auto' }}>
             <label>Bill Date</label>
             <input type="date" value={billDate} onChange={e => setBillDate(e.target.value)} style={{ margin: 0 }} />
           </div>
@@ -199,6 +199,7 @@ export function EligibleTasksTab({ entities }) {
                       <th>Amount</th>
                       <th>Staff</th>
                       <th>Remarks</th>
+                      <th style={{ width: '80px', textAlign: 'center' }}>PDF</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -219,6 +220,19 @@ export function EligibleTasksTab({ entities }) {
                         <td className="amount-cell">₹{Number(task.billAmount).toLocaleString('en-IN')}</td>
                         <td>@{task.assignedEmployee?.username}</td>
                         <td className="remarks-cell">{task.billingRemarks || <span className="empty-text">None</span>}</td>
+                        <td>
+                          {task.uploadedBillPdfUrl ? (
+                            <button 
+                              className="action-button view"
+                              onClick={(e) => { e.stopPropagation(); window.open(`${import.meta.env.VITE_API_URL}${task.uploadedBillPdfUrl}`, '_blank'); }}
+                              title="Preview Uploaded Bill"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          ) : (
+                            <span className="empty-text">No PDF</span>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
