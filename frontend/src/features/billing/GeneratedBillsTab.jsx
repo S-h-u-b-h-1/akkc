@@ -140,7 +140,7 @@ export function GeneratedBillsTab({ entities }) {
     if (e.target.checked) {
       // Select all selectable bills
       const selectableIds = bills
-        .filter(b => !b.clubbedIntoId && b.status !== 'EMAILED')
+        .filter(b => !b.clubbedIntoId)
         .map(b => b.id);
       setSelectedBillIds(selectableIds);
     } else {
@@ -180,7 +180,7 @@ export function GeneratedBillsTab({ entities }) {
     }
   };
 
-  const selectableBillsCount = bills.filter(b => !b.clubbedIntoId && b.status !== 'EMAILED').length;
+  const selectableBillsCount = bills.filter(b => !b.clubbedIntoId).length;
   const isAllSelected = selectableBillsCount > 0 && selectedBillIds.length === selectableBillsCount;
 
   return (
@@ -303,7 +303,7 @@ export function GeneratedBillsTab({ entities }) {
           </thead>
           <tbody>
             {bills.map(bill => {
-              const isSelectable = !bill.clubbedIntoId && bill.status !== 'EMAILED';
+              const isSelectable = !bill.clubbedIntoId;
               return (
                 <tr key={bill.id} className={selectedBillIds.includes(bill.id) ? 'selected-row' : ''}>
                   <td>
@@ -342,19 +342,19 @@ export function GeneratedBillsTab({ entities }) {
                         <Eye size={18} />
                       </button>
                       
-                      {!bill.clubbedIntoId && bill.status !== 'EMAILED' && (
+                      {!bill.clubbedIntoId && (
                         <button className="icon-button" title="Send Email" onClick={() => handleSendEmail(bill.id)} disabled={isLoading || isMailingBulk}>
                           <Mail size={18} />
                         </button>
                       )}
 
-                      {!bill.clubbedIntoId && bill.status !== 'EMAILED' && (
+                      {!bill.clubbedIntoId && (
                         <button className="icon-button" title="Edit Bill" onClick={() => setEditingBill(bill)} disabled={isLoading}>
                           <Pencil size={18} />
                         </button>
                       )}
                       
-                      {!bill.clubbedIntoId && bill.status !== 'EMAILED' && (
+                      {!bill.clubbedIntoId && (
                         <button className="icon-button danger" title="Delete Bill" onClick={() => handleDeleteBill(bill.id)} disabled={isLoading}>
                           <Trash2 size={18} />
                         </button>

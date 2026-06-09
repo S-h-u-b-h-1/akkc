@@ -168,10 +168,6 @@ export const updateBillService = async (adminId, billId, data) => {
     throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
   }
 
-  if (bill.status === 'EMAILED') {
-    throw new AppError('Cannot modify an emailed bill.', HTTP_STATUS.BAD_REQUEST);
-  }
-
   const { items, ...billData } = data;
   
   if (items && items.length > 0 && bill.sourceType === 'MANUAL') {
@@ -218,10 +214,6 @@ export const cancelBill = async (adminId, billId) => {
   const bill = await getBillById(adminId, billId);
   if (!bill) {
     throw new AppError('Bill not found.', HTTP_STATUS.NOT_FOUND);
-  }
-  
-  if (bill.status === 'EMAILED') {
-    throw new AppError('Cannot delete an emailed bill.', HTTP_STATUS.BAD_REQUEST);
   }
 
   await deleteBill(adminId, billId);
