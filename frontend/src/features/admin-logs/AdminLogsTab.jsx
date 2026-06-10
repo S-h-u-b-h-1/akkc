@@ -1,6 +1,6 @@
 import { AlertCircle, History } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { adminService } from '../../services/adminService.js';
+import { getLogs } from '../../services/adminService.js';
 
 export function AdminLogsTab() {
   const [logs, setLogs] = useState([]);
@@ -10,8 +10,8 @@ export function AdminLogsTab() {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const data = await adminService.getLogs();
-        setLogs(data.logs);
+        const response = await getLogs();
+        setLogs(response.data?.logs ?? []);
       } catch (err) {
         setError(err.message);
       } finally {
