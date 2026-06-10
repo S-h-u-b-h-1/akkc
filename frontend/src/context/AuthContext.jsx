@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { createContext, useMemo, useState } from 'react';
 
 import { STORAGE_KEYS } from '../constants/routes.js';
-import { AuthContext } from './authContext.js';
+
+export const AuthContext = createContext(null);
 
 const parseStoredUser = () => {
   const storedUser = localStorage.getItem(STORAGE_KEYS.AUTH_USER);
