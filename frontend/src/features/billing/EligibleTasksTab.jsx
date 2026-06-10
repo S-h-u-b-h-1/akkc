@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getEligibleTasksForBilling, createBill } from '../../services/billingService.js';
-import { getAdminEmployees } from '../../services/adminService.js';
-import { FilePlus, FileText, AlertCircle, RefreshCcw, Eye } from 'lucide-react';
+import { getAdminEmployees, deleteAdminTask } from '../../services/adminService.js';
+import { FilePlus, FileText, AlertCircle, RefreshCcw, Eye, Trash2 } from 'lucide-react';
 
 export function EligibleTasksTab({ entities }) {
   const [tasks, setTasks] = useState([]);
@@ -98,6 +98,25 @@ export function EligibleTasksTab({ entities }) {
       await createBill(selectedTaskIds, firstEntityId, billDate);
       setSelectedTaskIds([]);
       setSuccess(`Bill created successfully for ${firstClient}!`);
+      loadEligibleTasks();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTask = async (taskId, title) => {
+    if (!window.confirm(`Are you sure you want to completely delete the task "${title}"? This cannot be undone.`)) {
+      return;
+    }
+    
+    setIsLoading(true);
+    setError('');
+    try {
+      await deleteAdminTask(taskId);
+      setSuccess(`Task "${title}" deleted successfully.`);
+      setSelectedTaskIds(prev => prev.filter(id => id !== taskId));
       loadEligibleTasks();
     } catch (err) {
       setError(err.message);
@@ -217,7 +236,7 @@ export function EligibleTasksTab({ entities }) {
                       <th>Amount</th>
                       <th>Staff</th>
                       <th>Remarks</th>
-                      <th style={{ width: '80px', textAlign: 'center' }}>PDF</th>
+                      <th style={{ width: '100px', textAlign: 'center' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -239,17 +258,24 @@ export function EligibleTasksTab({ entities }) {
                         <td>@{task.assignedEmployee?.username}</td>
                         <td className="remarks-cell">{task.billingRemarks || <span className="empty-text">None</span>}</td>
                         <td>
-                          {task.uploadedBillPdfUrl ? (
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            {task.uploadedBillPdfUrl ? (
+                              <button 
+                                className="action-button view"
+                                onClick={(e) => { e.stopPropagation(); handlePreviewPdf(task.id); }}
+                                title="Preview Uploaded Bill"
+                              >
+                                <Eye size={16} />
+                              </button>
+                            ) : null}
                             <button 
-                              className="action-button view"
-                              onClick={(e) => { e.stopPropagation(); handlePreviewPdf(task.id); }}
-                              title="Preview Uploaded Bill"
+                              className="action-button delete"
+                              onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id, task.title); }}
+                              title="Delete Task Completely"
                             >
-                              <Eye size={16} />
+                              <Trash2 size={16} />
                             </button>
-                          ) : (
-                            <span className="empty-text">No PDF</span>
-                          )}
+                          </div>
                         </td>
                       </tr>
                     ))}

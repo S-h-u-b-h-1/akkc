@@ -176,16 +176,40 @@ export const updateBillItemsWithTransaction = async (billId, itemsData) => {
 
 export const deleteBill = async (adminId, billId) => {
   return getPrisma().$transaction(async (tx) => {
+    // Find all tasks associated with this bill
+    const billItems = await tx.billItem.findMany({ where: { billId } });
+    const taskIds = billItems.map(item => item.taskId).filter(Boolean);
+
+    // Find sub-bills if this is a clubbed bill
+    const subBills = await tx.bill.findMany({ where: { clubbedIntoId: billId } });
+    const subBillIds = subBills.map(b => b.id);
+    
+    // Find tasks associated with sub-bills
+    if (subBillIds.length > 0) {
+      const subBillItems = await tx.billItem.findMany({ where: { billId: { in: subBillIds } } });
+      const subTaskIds = subBillItems.map(item => item.taskId).filter(Boolean);
+      taskIds.push(...subTaskIds);
+    }
+
     // Manually cascade delete bill items since Neon DB constraints might be missing
     await tx.billItem.deleteMany({ where: { billId } });
+    if (subBillIds.length > 0) {
+      await tx.billItem.deleteMany({ where: { billId: { in: subBillIds } } });
+    }
     
-    // Manually clear clubbed bills reference
-    await tx.bill.updateMany({
-      where: { clubbedIntoId: billId },
-      data: { clubbedIntoId: null }
-    });
+    // Delete sub-bills
+    if (subBillIds.length > 0) {
+      await tx.bill.deleteMany({ where: { clubbedIntoId: billId } });
+    }
 
-    return tx.bill.delete({ where: { id: billId } });
+    const deletedBill = await tx.bill.delete({ where: { id: billId } });
+
+    // Completely remove the associated tasks from the database
+    if (taskIds.length > 0) {
+      await tx.task.deleteMany({ where: { id: { in: taskIds } } });
+    }
+
+    return deletedBill;
   });
 };
 
