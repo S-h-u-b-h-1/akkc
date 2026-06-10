@@ -611,7 +611,7 @@ tbody tr:hover {
 .stat-card span {
   display: block;
   color: #64748b;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -621,8 +621,9 @@ tbody tr:hover {
   display: block;
   margin-top: 8px;
   color: #0f172a;
-  font-size: 2rem;
+  font-size: 2.5rem;
   line-height: 1;
+  font-weight: 700;
 }
 
 .stat-card strong.loading-value {
@@ -1913,4 +1914,15 @@ tbody tr:hover {
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  margin-bottom: 6px;
+}
+
+.progress-row-header strong {
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+.progress-row-header span {
+  font-size: 0.9375rem;
+  color: #64748b;
 }

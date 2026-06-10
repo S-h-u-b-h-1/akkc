@@ -12,7 +12,6 @@ export function EligibleTasksTab({ entities }) {
 
   const [taskFilters, setTaskFilters] = useState({ clientName: '', employeeId: '' });
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
-  const [selectedEntityId, setSelectedEntityId] = useState('');
   const [billDate, setBillDate] = useState(new Date().toISOString().slice(0, 10));
 
   useEffect(() => {
@@ -22,13 +21,6 @@ export function EligibleTasksTab({ entities }) {
   useEffect(() => {
     loadEligibleTasks();
   }, [taskFilters]);
-
-  // Set default entity
-  useEffect(() => {
-    if (entities.length > 0 && !selectedEntityId) {
-      setSelectedEntityId(entities[0].id);
-    }
-  }, [entities, selectedEntityId]);
 
   const loadEmployees = async () => {
     try {
@@ -52,7 +44,6 @@ export function EligibleTasksTab({ entities }) {
     }
   };
 
-  
   const handlePreviewPdf = async (taskId) => {
     setIsLoading(true);
     setError('');
@@ -78,10 +69,6 @@ export function EligibleTasksTab({ entities }) {
 
   const handleCreateBill = async () => {
     if (selectedTaskIds.length === 0) return;
-    if (!selectedEntityId) {
-      setError('Please select a Billing Entity');
-      return;
-    }
 
     // Verify all selected tasks belong to the same client
     const selectedTasks = tasks.filter(t => selectedTaskIds.includes(t.id));
@@ -90,12 +77,25 @@ export function EligibleTasksTab({ entities }) {
       setError('You can only generate a bill for one client at a time. Please select tasks from the same client.');
       return;
     }
+    
+    // Verify all selected tasks belong to the same billing entity (fallback to first entity if null)
+    const getEntityId = (task) => task.billingEntityId || entities[0]?.id;
+    const firstEntityId = getEntityId(selectedTasks[0]);
+    if (selectedTasks.some(t => getEntityId(t) !== firstEntityId)) {
+      setError('Selected tasks have different billing entities. You can only group tasks that share the same billing entity.');
+      return;
+    }
+    
+    if (!firstEntityId) {
+      setError('No billing entity available to create bill.');
+      return;
+    }
 
     setIsLoading(true);
     setError('');
     setSuccess('');
     try {
-      await createBill(selectedTaskIds, selectedEntityId, billDate);
+      await createBill(selectedTaskIds, firstEntityId, billDate);
       setSelectedTaskIds([]);
       setSuccess(`Bill created successfully for ${firstClient}!`);
       loadEligibleTasks();
@@ -166,12 +166,6 @@ export function EligibleTasksTab({ entities }) {
 
       <div className="card billing-creation-bar" style={{ position: 'sticky', top: '20px', zIndex: 10, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' }}>
         <div className="form-group row" style={{ marginBottom: 0, alignItems: 'center' }}>
-          <div style={{ flex: 1, display: 'none' }}>
-            <label>Billing Entity</label>
-            <select value={selectedEntityId} onChange={e => setSelectedEntityId(e.target.value)} style={{ margin: 0 }}>
-              {entities.map(e => <option key={e.id} value={e.id}>{e.name} ({e.code})</option>)}
-            </select>
-          </div>
           <div style={{ width: '200px', marginLeft: 'auto' }}>
             <label>Bill Date</label>
             <input type="date" value={billDate} onChange={e => setBillDate(e.target.value)} style={{ margin: 0 }} />

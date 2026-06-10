@@ -152,7 +152,8 @@ export const createTask = ({
   assignedDate,
   dueDate,
   assignedEmployeeId,
-  createdByAdminId
+  createdByAdminId,
+  billingEntityId
 }) =>
   getPrisma().task.create({
     data: {
@@ -168,7 +169,8 @@ export const createTask = ({
       assignedDate,
       dueDate,
       assignedEmployeeId,
-      createdByAdminId
+      createdByAdminId,
+      billingEntityId
     },
     select: taskSelect
   });

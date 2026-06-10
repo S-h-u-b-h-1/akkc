@@ -52,7 +52,8 @@ export const createAdminTask = async ({ adminId, payload }) => {
     assignedDate: today,
     dueDate: toDateOnly(payload.dueDate),
     assignedEmployeeId: payload.employeeId,
-    createdByAdminId: adminId
+    createdByAdminId: adminId,
+    billingEntityId: isBillable ? payload.billingEntityId : null
   });
 
   return serializeTask(task, today);
@@ -131,6 +132,14 @@ export const updateAdminTask = async ({ adminId, taskId, payload }) => {
 
   if (payload.clientEmail !== undefined) {
     data.clientEmail = payload.clientEmail === '' ? null : payload.clientEmail;
+  }
+
+  if (payload.billingEntityId !== undefined && payload.isBillable !== false) {
+    data.billingEntityId = payload.billingEntityId;
+  }
+  
+  if (data.isBillable === false) {
+    data.billingEntityId = null;
   }
 
   const task = await updateTask({ id: taskId, data });

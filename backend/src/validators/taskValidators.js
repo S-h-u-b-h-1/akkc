@@ -64,6 +64,7 @@ export const updateTaskSchema = z.object({
       isHighPriority: z.boolean().optional(),
       isBillable: z.boolean().optional(),
       billAmount: z.number().positive().optional(),
+      billingEntityId: z.string().uuid().optional(),
       clientEmail: z.string().email().optional().or(z.literal(''))
     })
     .strict()

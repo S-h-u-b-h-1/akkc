@@ -82,8 +82,10 @@ model Task {
   dueDate            DateTime     @db.Date
   assignedEmployeeId String?      @db.Uuid
   createdByAdminId   String?      @db.Uuid
+  billingEntityId    String?      @db.Uuid
   assignedEmployee   Employee?    @relation("EmployeeAssignedTasks", fields: [assignedEmployeeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdByAdmin     Admin?       @relation("AdminCreatedTasks", fields: [createdByAdminId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  billingEntity      BillingEntity? @relation(fields: [billingEntityId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   updates            TaskUpdate[] @relation("TaskUpdates")
   billItem           BillItem?    @relation("TaskBillItem")
   createdAt          DateTime     @default(now())
@@ -139,6 +141,7 @@ model BillingEntity {
   declarationText   String?        @db.Text
   isActive          Boolean        @default(true)
   bills             Bill[]
+  tasks             Task[]
   sequences         BillSequence[]
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @default(now()) @updatedAt

@@ -36,6 +36,9 @@ export const createBill = async (adminId, taskIds, billingEntityId, billDate, ex
     if (task.clientName !== clientName) {
       throw new AppError('All tasks in a single bill must belong to the same client.', HTTP_STATUS.BAD_REQUEST);
     }
+    if (task.billingEntityId && task.billingEntityId !== billingEntityId) {
+      throw new AppError('One or more tasks belong to a different billing entity.', HTTP_STATUS.BAD_REQUEST);
+    }
   }
 
   const totalAmount = tasks.reduce((sum, task) => sum + Number(task.billAmount), 0);

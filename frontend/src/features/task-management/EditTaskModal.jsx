@@ -1,9 +1,10 @@
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { CA_SERVICE_LINES } from '../../constants/firm.js';
 import { TASK_STATUS_OPTIONS } from '../../constants/task.js';
 import { toDateInputValue } from '../../utils/formatters.js';
+import { getEntities } from '../../services/billingService.js';
 
 const createFormState = (task) => ({
   employeeId: task.assignedEmployeeId ?? '',
@@ -14,13 +15,28 @@ const createFormState = (task) => ({
   status: task.storedStatus ?? task.status,
   isHighPriority: Boolean(task.isHighPriority),
   isBillable: Boolean(task.isBillable),
-  billAmount: task.billAmount ?? ''
+  billAmount: task.billAmount ?? '',
+  billingEntityId: task.billingEntityId ?? ''
 });
 
 export function EditTaskModal({ employees, onClose, onSubmit, task }) {
   const [form, setForm] = useState(() => createFormState(task));
+  const [entities, setEntities] = useState([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadEntities();
+  }, []);
+
+  const loadEntities = async () => {
+    try {
+      const res = await getEntities();
+      setEntities(res.data?.entities || []);
+    } catch (err) {
+      console.error('Failed to load billing entities', err);
+    }
+  };
 
   const updateField = (event) => {
     const { checked, name, type, value } = event.target;
@@ -40,8 +56,10 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
       const payload = { ...form };
       if (!payload.isBillable) {
         payload.billAmount = undefined;
-      } else if (payload.billAmount) {
-        payload.billAmount = Number(payload.billAmount);
+        payload.billingEntityId = undefined;
+      } else {
+        if (payload.billAmount) payload.billAmount = Number(payload.billAmount);
+        if (!payload.billingEntityId) throw new Error('Please select a Billing Entity for billable tasks');
       }
       
       await onSubmit(task.id, payload);
@@ -132,18 +150,30 @@ export function EditTaskModal({ employees, onClose, onSubmit, task }) {
           </label>
 
           {form.isBillable && (
-            <label>
-              <span>Bill amount (INR)</span>
-              <input 
-                name="billAmount" 
-                type="number" 
-                min="0" 
-                step="0.01" 
-                value={form.billAmount} 
-                onChange={updateField} 
-                required 
-              />
-            </label>
+            <>
+              <label>
+                <span>Billing Entity</span>
+                <select name="billingEntityId" value={form.billingEntityId} onChange={updateField} required>
+                  <option value="">Select billing entity...</option>
+                  {entities.map(e => (
+                    <option key={e.id} value={e.id}>{e.name} ({e.code})</option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span>Bill amount (INR)</span>
+                <input 
+                  name="billAmount" 
+                  type="number" 
+                  min="0" 
+                  step="0.01" 
+                  value={form.billAmount} 
+                  onChange={updateField} 
+                  required 
+                />
+              </label>
+            </>
           )}
 
           <label className="checkbox-field">

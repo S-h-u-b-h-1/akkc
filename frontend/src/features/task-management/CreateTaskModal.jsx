@@ -1,7 +1,8 @@
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { CA_ASSIGNMENT_TEMPLATES, CA_SERVICE_LINES } from '../../constants/firm.js';
+import { getEntities } from '../../services/billingService.js';
 
 const initialForm = {
   employeeId: '',
@@ -12,13 +13,30 @@ const initialForm = {
   dueDate: '',
   isHighPriority: false,
   isBillable: false,
-  billAmount: ''
+  billAmount: '',
+  billingEntityId: ''
 };
 
 export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
   const [form, setForm] = useState(initialForm);
+  const [entities, setEntities] = useState([]);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadEntities();
+    }
+  }, [isOpen]);
+
+  const loadEntities = async () => {
+    try {
+      const res = await getEntities();
+      setEntities(res.data?.entities || []);
+    } catch (err) {
+      console.error('Failed to load billing entities', err);
+    }
+  };
 
   if (!isOpen) {
     return null;
@@ -61,8 +79,14 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
         dueDate: form.dueDate,
         isHighPriority: form.isHighPriority,
         isBillable: form.isBillable,
-        billAmount: form.isBillable ? Number(form.billAmount) : undefined
+        billAmount: form.isBillable ? Number(form.billAmount) : undefined,
+        billingEntityId: form.isBillable ? form.billingEntityId : undefined
       };
+      
+      if (form.isBillable && !form.billingEntityId) {
+        throw new Error('Please select a Billing Entity for billable tasks');
+      }
+
       await onSubmit(payload);
       setForm(initialForm);
       onClose();
@@ -154,18 +178,30 @@ export function CreateTaskModal({ employees, isOpen, onClose, onSubmit }) {
           </label>
 
           {form.isBillable && (
-            <label>
-              <span>Bill amount (INR)</span>
-              <input 
-                name="billAmount" 
-                type="number" 
-                min="0" 
-                step="0.01" 
-                value={form.billAmount} 
-                onChange={updateField} 
-                required 
-              />
-            </label>
+            <>
+              <label>
+                <span>Billing Entity</span>
+                <select name="billingEntityId" value={form.billingEntityId} onChange={updateField} required>
+                  <option value="">Select billing entity...</option>
+                  {entities.map(e => (
+                    <option key={e.id} value={e.id}>{e.name} ({e.code})</option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span>Bill amount (INR)</span>
+                <input 
+                  name="billAmount" 
+                  type="number" 
+                  min="0" 
+                  step="0.01" 
+                  value={form.billAmount} 
+                  onChange={updateField} 
+                  required 
+                />
+              </label>
+            </>
           )}
 
           <label className="checkbox-field">
