@@ -586,21 +586,22 @@ tbody tr:hover {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 120px;
+  min-height: 100px;
   border: 1px solid #eef1f5;
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   background: #ffffff;
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.04);
   transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
 }
 
 .stat-card:hover {
@@ -611,19 +612,23 @@ tbody tr:hover {
 .stat-card span {
   display: block;
   color: #64748b;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .stat-card strong {
   display: block;
-  margin-top: 8px;
+  margin-top: 6px;
   color: #0f172a;
-  font-size: 2.5rem;
+  font-size: 2rem;
   line-height: 1;
   font-weight: 700;
+  word-break: break-word;
 }
 
 .stat-card strong.loading-value {
