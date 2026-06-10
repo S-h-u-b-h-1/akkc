@@ -1,11 +1,13 @@
-import { AlertCircle, History } from 'lucide-react';
+import { AlertCircle, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getLogs } from '../../services/adminService.js';
+import { LogDetailsModal } from './LogDetailsModal.jsx';
 
 export function AdminLogsTab() {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedLog, setSelectedLog] = useState(null);
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -69,15 +71,22 @@ export function AdminLogsTab() {
                 <td><span className="status-badge" data-status={log.action}>{log.action}</span></td>
                 <td>{log.entity} {log.entityId ? `(#${log.entityId.slice(0, 8)})` : ''}</td>
                 <td>
-                  <pre style={{ margin: 0, fontSize: '0.8rem', whiteSpace: 'pre-wrap', color: '#657287' }}>
-                    {log.details ? JSON.stringify(JSON.parse(log.details), null, 2) : '-'}
-                  </pre>
+                  <button 
+                    className="secondary-button fit-button"
+                    style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                    onClick={() => setSelectedLog(log)}
+                  >
+                    <Eye size={14} style={{ marginRight: '0.25rem' }} />
+                    View
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <LogDetailsModal log={selectedLog} onClose={() => setSelectedLog(null)} />
     </section>
   );
 }

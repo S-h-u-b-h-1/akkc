@@ -26,7 +26,12 @@ export const createTask = async (req, res) => {
     action: 'CREATE_TASK',
     entity: 'Task',
     entityId: task.id,
-    details: { title: task.title, domain: task.domain }
+    details: { 
+      title: task.title, 
+      domain: task.domain,
+      assigneeUsername: task.assignedEmployee?.username,
+      isHighPriority: task.isHighPriority
+    }
   });
 
   return sendSuccess(res, {
