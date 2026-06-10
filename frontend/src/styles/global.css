@@ -1907,3 +1907,10 @@ tbody tr:hover {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+
+.progress-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}

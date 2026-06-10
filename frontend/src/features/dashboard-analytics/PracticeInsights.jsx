@@ -179,7 +179,7 @@ function ProgressList({ emptyText, items }) {
 
         return (
           <article className="insight-row progress-row" key={item.id}>
-            <div>
+            <div className="progress-row-header">
               <strong>{item.name}</strong>
               <span>
                 {item.totalTasks} total, {item.pendingTasks + item.delayedTasks} open
