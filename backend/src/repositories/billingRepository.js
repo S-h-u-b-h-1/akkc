@@ -175,8 +175,17 @@ export const updateBillItemsWithTransaction = async (billId, itemsData) => {
 };
 
 export const deleteBill = async (adminId, billId) => {
-  return getPrisma().bill.delete({
-    where: { id: billId }
+  return getPrisma().$transaction(async (tx) => {
+    // Manually cascade delete bill items since Neon DB constraints might be missing
+    await tx.billItem.deleteMany({ where: { billId } });
+    
+    // Manually clear clubbed bills reference
+    await tx.bill.updateMany({
+      where: { clubbedIntoId: billId },
+      data: { clubbedIntoId: null }
+    });
+
+    return tx.bill.delete({ where: { id: billId } });
   });
 };
 

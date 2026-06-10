@@ -14,6 +14,8 @@ export const httpClient = async (path, options = {}) => {
 
   const headers = {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
     ...authorizationHeader,
     ...options.headers
   };
