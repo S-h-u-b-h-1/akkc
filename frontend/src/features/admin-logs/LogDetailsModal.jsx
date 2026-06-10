@@ -31,7 +31,13 @@ export function LogDetailsModal({ log, onClose }) {
 
       case 'UPDATE_TASK':
         if (parsedDetails.updatedFields) {
-          return `${adminName} updated a task. Changed fields: ${parsedDetails.updatedFields.join(', ')}`;
+          let desc = `${adminName} updated a task`;
+          if (parsedDetails.title) desc += ` (${parsedDetails.title})`;
+          if (parsedDetails.assigneeUsername) {
+            desc += ` and reassigned it to ${parsedDetails.assigneeUsername}`;
+          }
+          desc += `. Changed fields: ${parsedDetails.updatedFields.join(', ')}`;
+          return desc;
         }
         return `${adminName} updated a task.`;
 

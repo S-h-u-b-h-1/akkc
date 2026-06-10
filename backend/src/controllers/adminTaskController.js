@@ -89,7 +89,11 @@ export const updateTask = async (req, res) => {
     action: 'UPDATE_TASK',
     entity: 'Task',
     entityId: task.id,
-    details: { updatedFields: Object.keys(req.validated.body) }
+    details: { 
+      updatedFields: Object.keys(req.validated.body),
+      title: task.title,
+      assigneeUsername: req.validated.body.employeeId ? task.assignedEmployee?.username : undefined
+    }
   });
 
   return sendSuccess(res, {
