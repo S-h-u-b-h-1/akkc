@@ -7,13 +7,7 @@ import { ROUTES, USER_ROLES } from '../constants/routes.js';
 import { useAuth } from '../hooks/useAuth.js';
 import { getLoginRouteForRole } from '../utils/authRedirects.js';
 
-const adminNavigationItems = [
-  { label: 'Team AKKC', to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { label: 'Admins', to: ROUTES.ADMIN_ADMINS, icon: ShieldCheck },
-  { label: 'Team', to: ROUTES.ADMIN_EMPLOYEES, icon: Users },
-  { label: 'Assignments', to: ROUTES.ADMIN_TASKS, icon: ClipboardList },
-  { label: 'Billing', to: ROUTES.ADMIN_BILLING, icon: Receipt }
-];
+
 
 const employeeNavigationItems = [
   { label: 'Team AKKC', to: ROUTES.EMPLOYEE_DASHBOARD, icon: LayoutDashboard },
@@ -26,7 +20,11 @@ export function AppLayout() {
   
   const navigationItems = role === USER_ROLES.ADMIN 
     ? [
-        ...adminNavigationItems,
+        { label: 'Team AKKC', to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
+        ...(user?.username === 'admin' ? [{ label: 'Admins', to: ROUTES.ADMIN_ADMINS, icon: ShieldCheck }] : []),
+        { label: 'Team', to: ROUTES.ADMIN_EMPLOYEES, icon: Users },
+        { label: 'Assignments', to: ROUTES.ADMIN_TASKS, icon: ClipboardList },
+        { label: 'Billing', to: ROUTES.ADMIN_BILLING, icon: Receipt },
         ...(user?.username === 'admin' ? [{ label: 'Admin Logs', to: ROUTES.ADMIN_LOGS, icon: ShieldCheck }] : [])
       ]
     : employeeNavigationItems;

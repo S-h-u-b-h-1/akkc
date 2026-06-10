@@ -9,13 +9,17 @@ import { logAdminActivity, getAdminLogs as fetchAdminLogs } from '../services/ad
 import { sendSuccess } from '../utils/apiResponse.js';
 import { AppError } from '../utils/appError.js';
 
-export const getAdminLogs = async (req, res) => {
-  const admin = await listAdminAccounts().then(admins => admins.find(a => a.id === req.user.id));
+const requireSuperAdmin = async (userId) => {
+  const admins = await listAdminAccounts();
+  const admin = admins.find(a => a.id === userId);
   
   if (!admin || admin.username !== 'admin') {
-    throw new AppError('Only the default super-admin can view logs.', HTTP_STATUS.FORBIDDEN);
+    throw new AppError('Only the default super-admin can perform this action.', HTTP_STATUS.FORBIDDEN);
   }
+};
 
+export const getAdminLogs = async (req, res) => {
+  await requireSuperAdmin(req.user.id);
   const logs = await fetchAdminLogs();
   
   return sendSuccess(res, {
@@ -25,6 +29,8 @@ export const getAdminLogs = async (req, res) => {
 };
 
 export const createAdmin = async (req, res) => {
+  await requireSuperAdmin(req.user.id);
+
   const admin = await createAdminAccount({
     currentAdminId: req.user.id,
     payload: req.validated.body
@@ -45,7 +51,9 @@ export const createAdmin = async (req, res) => {
   });
 };
 
-export const listAdmins = async (_req, res) => {
+export const listAdmins = async (req, res) => {
+  await requireSuperAdmin(req.user.id);
+
   const admins = await listAdminAccounts();
 
   return sendSuccess(res, {
@@ -55,6 +63,8 @@ export const listAdmins = async (_req, res) => {
 };
 
 export const updateAdmin = async (req, res) => {
+  await requireSuperAdmin(req.user.id);
+
   const admin = await updateAdminAccount({
     adminId: req.validated.params.id,
     payload: req.validated.body
@@ -75,6 +85,8 @@ export const updateAdmin = async (req, res) => {
 };
 
 export const deleteAdmin = async (req, res) => {
+  await requireSuperAdmin(req.user.id);
+
   const admin = await deleteAdminAccount({
     currentAdminId: req.user.id,
     adminId: req.validated.params.id
