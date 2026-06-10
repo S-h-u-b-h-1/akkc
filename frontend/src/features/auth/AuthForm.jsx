@@ -111,11 +111,16 @@ export function AuthForm({
           </button>
         </form>
 
-        {alternateLink ? (
-          <Link className="auth-switch-link" to={alternateLink.to}>
-            {alternateLink.label}
+        <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+          {alternateLink ? (
+            <Link className="auth-switch-link" to={alternateLink.to}>
+              {alternateLink.label}
+            </Link>
+          ) : null}
+          <Link className="auth-switch-link" to="/">
+            Go back to home page
           </Link>
-        ) : null}
+        </div>
       </section>
     </main>
   );
