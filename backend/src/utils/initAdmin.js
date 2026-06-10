@@ -1,7 +1,9 @@
-import { prisma } from '../prisma/client.js';
+import { getPrisma } from '../prisma/client.js';
 import { hashPassword } from './password.js';
 
 export const ensureDefaultAdmin = async () => {
+  const prisma = getPrisma();
+
   try {
     const adminExists = await prisma.admin.findUnique({
       where: { username: 'admin' }

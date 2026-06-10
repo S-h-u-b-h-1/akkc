@@ -1,7 +1,8 @@
-import { prisma } from '../prisma/client.js';
+import { getPrisma } from '../prisma/client.js';
 
 export const logAdminActivity = async ({ adminId, action, entity, entityId, details }) => {
   try {
+    const prisma = getPrisma();
     await prisma.adminLog.create({
       data: {
         adminId,
@@ -17,6 +18,7 @@ export const logAdminActivity = async ({ adminId, action, entity, entityId, deta
 };
 
 export const getAdminLogs = async () => {
+  const prisma = getPrisma();
   return prisma.adminLog.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
