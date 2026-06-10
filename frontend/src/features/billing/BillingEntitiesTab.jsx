@@ -71,32 +71,35 @@ export function BillingEntitiesTab({ entities, reloadEntities }) {
                 return (
                   <tr key={entity.id} className="editing-row">
                     <td colSpan="5" style={{ padding: '15px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        <div>
-                          <h4 style={{ marginBottom: '10px' }}>Basic Info</h4>
-                          <div className="form-group"><label>Name</label><input name="name" value={formData.name || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Invoice Prefix</label><input name="invoicePrefix" value={formData.invoicePrefix || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Email</label><input name="email" value={formData.email || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Phone</label><input name="phone" value={formData.phone || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Address</label><textarea name="address" value={formData.address || ''} onChange={handleChange} rows="2" /></div>
-                          <div className="form-group"><label>City / State</label><div style={{ display: 'flex', gap: '10px' }}><input name="city" placeholder="City" value={formData.city || ''} onChange={handleChange} /><input name="state" placeholder="State" value={formData.state || ''} onChange={handleChange} /></div></div>
-                          <div className="form-group"><label>Pincode / Country</label><div style={{ display: 'flex', gap: '10px' }}><input name="pincode" placeholder="Pincode" value={formData.pincode || ''} onChange={handleChange} /><input name="country" placeholder="Country" value={formData.country || ''} onChange={handleChange} /></div></div>
+                      <div className="form-grid" style={{ padding: '0 8px' }}>
+                        <div style={{ gridColumn: '1 / -1', borderBottom: '1px solid #eef1f5', paddingBottom: '8px', marginBottom: '8px' }}>
+                          <h4 style={{ margin: 0, color: '#172033', fontSize: '1rem' }}>Basic Info</h4>
                         </div>
-                        <div>
-                          <h4 style={{ marginBottom: '10px' }}>Tax & Bank Info</h4>
-                          <div className="form-group"><label>GST Number</label><input name="gstNumber" value={formData.gstNumber || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>PAN Number</label><input name="panNumber" value={formData.panNumber || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Bank Name</label><input name="bankName" value={formData.bankName || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Account Holder Name</label><input name="accountHolderName" value={formData.accountHolderName || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>A/C Number</label><input name="bankAccountNumber" value={formData.bankAccountNumber || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>IFSC Code</label><input name="ifscCode" value={formData.ifscCode || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Branch Name</label><input name="branchName" value={formData.branchName || ''} onChange={handleChange} /></div>
-                          <div className="form-group"><label>Declaration Text</label><textarea name="declarationText" value={formData.declarationText || ''} onChange={handleChange} rows="2" /></div>
+                        <label><span>Name</span><input name="name" value={formData.name || ''} onChange={handleChange} /></label>
+                        <label><span>Invoice Prefix</span><input name="invoicePrefix" value={formData.invoicePrefix || ''} onChange={handleChange} /></label>
+                        <label><span>Email</span><input name="email" value={formData.email || ''} onChange={handleChange} /></label>
+                        <label><span>Phone</span><input name="phone" value={formData.phone || ''} onChange={handleChange} /></label>
+                        <label style={{ gridColumn: '1 / -1' }}><span>Address</span><textarea name="address" value={formData.address || ''} onChange={handleChange} rows="2" /></label>
+                        <label><span>City</span><input name="city" placeholder="City" value={formData.city || ''} onChange={handleChange} /></label>
+                        <label><span>State</span><input name="state" placeholder="State" value={formData.state || ''} onChange={handleChange} /></label>
+                        <label><span>Pincode</span><input name="pincode" placeholder="Pincode" value={formData.pincode || ''} onChange={handleChange} /></label>
+                        <label><span>Country</span><input name="country" placeholder="Country" value={formData.country || ''} onChange={handleChange} /></label>
+                        
+                        <div style={{ gridColumn: '1 / -1', borderBottom: '1px solid #eef1f5', paddingBottom: '8px', marginBottom: '8px', marginTop: '16px' }}>
+                          <h4 style={{ margin: 0, color: '#172033', fontSize: '1rem' }}>Tax & Bank Info</h4>
                         </div>
+                        <label><span>GST Number</span><input name="gstNumber" value={formData.gstNumber || ''} onChange={handleChange} /></label>
+                        <label><span>PAN Number</span><input name="panNumber" value={formData.panNumber || ''} onChange={handleChange} /></label>
+                        <label><span>Bank Name</span><input name="bankName" value={formData.bankName || ''} onChange={handleChange} /></label>
+                        <label><span>Account Holder Name</span><input name="accountHolderName" value={formData.accountHolderName || ''} onChange={handleChange} /></label>
+                        <label><span>A/C Number</span><input name="bankAccountNumber" value={formData.bankAccountNumber || ''} onChange={handleChange} /></label>
+                        <label><span>IFSC Code</span><input name="ifscCode" value={formData.ifscCode || ''} onChange={handleChange} /></label>
+                        <label><span>Branch Name</span><input name="branchName" value={formData.branchName || ''} onChange={handleChange} /></label>
+                        <label style={{ gridColumn: '1 / -1' }}><span>Declaration Text</span><textarea name="declarationText" value={formData.declarationText || ''} onChange={handleChange} rows="2" /></label>
                       </div>
-                      <div className="action-buttons-row" style={{ marginTop: '15px', justifyContent: 'flex-end', display: 'flex', gap: '10px' }}>
+                      <div className="action-buttons-row" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #eef1f5', justifyContent: 'flex-end', display: 'flex', gap: '10px' }}>
                         <button className="secondary-button" onClick={handleCancel} disabled={isLoading}>Cancel</button>
-                        <button className="primary-button" onClick={() => handleSave(entity.id)} disabled={isLoading}><Save size={16} /> Save Changes</button>
+                        <button className="primary-button fit-button" onClick={() => handleSave(entity.id)} disabled={isLoading}><Save size={16} /> Save Changes</button>
                       </div>
                     </td>
                   </tr>

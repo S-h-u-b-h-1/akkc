@@ -83,41 +83,39 @@ export function EditBillModal({ bill, onClose, onSave }) {
         
         {error && <div className="error-toast">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="modal-body">
-          <div className="form-group row">
-            <div style={{ flex: 1 }}>
-              <label>Client Name *</label>
-              <input value={clientName} onChange={e => setClientName(e.target.value)} required />
-            </div>
-            <div style={{ flex: 1 }}>
-              <label>Client Email</label>
-              <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} />
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="form-grid" style={{ padding: '24px' }}>
+          <label>
+            <span>Client Name *</span>
+            <input value={clientName} onChange={e => setClientName(e.target.value)} required />
+          </label>
+          <label>
+            <span>Client Email</span>
+            <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} />
+          </label>
           
-          <div className="form-group">
-            <label>Internal Notes</label>
+          <label style={{ gridColumn: '1 / -1' }}>
+            <span>Internal Notes</span>
             <input value={notes} onChange={e => setNotes(e.target.value)} placeholder="e.g. Follow up next week..." />
-          </div>
+          </label>
 
           {bill.sourceType === 'MANUAL' && (
-            <div className="manual-items-section mt-4">
-              <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3>Bill Items</h3>
-                <button type="button" className="secondary-button small" onClick={handleAddItem}>
+            <div className="manual-items-section" style={{ gridColumn: '1 / -1', marginTop: '16px' }}>
+              <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ margin: 0, fontSize: '1rem', color: '#172033' }}>Bill Items</h3>
+                <button type="button" className="secondary-button" style={{ minHeight: '32px', padding: '0 12px' }} onClick={handleAddItem}>
                   <Plus size={14} /> Add Item
                 </button>
               </div>
               
-              <div className="table-container" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+              <div className="table-container" style={{ maxHeight: '250px', overflowY: 'auto', border: '1px solid #eef1f5', borderRadius: '8px' }}>
                 <table className="data-table small">
                   <thead>
                     <tr>
-                      <th>Description *</th>
-                      <th width="100px">Amount *</th>
-                      <th width="80px">Qty *</th>
-                      <th>Remarks</th>
-                      <th width="50px"></th>
+                      <th style={{ background: '#f8fafc' }}>Description *</th>
+                      <th width="100px" style={{ background: '#f8fafc' }}>Amount *</th>
+                      <th width="80px" style={{ background: '#f8fafc' }}>Qty *</th>
+                      <th style={{ background: '#f8fafc' }}>Remarks</th>
+                      <th width="50px" style={{ background: '#f8fafc' }}></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -125,6 +123,8 @@ export function EditBillModal({ bill, onClose, onSave }) {
                       <tr key={item.id}>
                         <td>
                           <input 
+                            className="table-input"
+                            style={{ width: '100%', border: '1px solid #eef1f5', padding: '6px', borderRadius: '4px' }}
                             value={item.taskTitle} 
                             onChange={e => handleItemChange(item.id, 'taskTitle', e.target.value)} 
                             placeholder="Service name..." 
@@ -133,6 +133,8 @@ export function EditBillModal({ bill, onClose, onSave }) {
                         </td>
                         <td>
                           <input 
+                            className="table-input"
+                            style={{ width: '100%', border: '1px solid #eef1f5', padding: '6px', borderRadius: '4px' }}
                             type="number" 
                             min="0"
                             step="0.01"
@@ -143,6 +145,8 @@ export function EditBillModal({ bill, onClose, onSave }) {
                         </td>
                         <td>
                           <input 
+                            className="table-input"
+                            style={{ width: '100%', border: '1px solid #eef1f5', padding: '6px', borderRadius: '4px' }}
                             type="number" 
                             min="1"
                             value={item.quantity} 
@@ -152,15 +156,18 @@ export function EditBillModal({ bill, onClose, onSave }) {
                         </td>
                         <td>
                           <input 
+                            className="table-input"
+                            style={{ width: '100%', border: '1px solid #eef1f5', padding: '6px', borderRadius: '4px' }}
                             value={item.remarks} 
                             onChange={e => handleItemChange(item.id, 'remarks', e.target.value)} 
                             placeholder="Optional..." 
                           />
                         </td>
-                        <td>
+                        <td style={{ textAlign: 'center' }}>
                           <button 
                             type="button" 
                             className="icon-button danger" 
+                            style={{ border: 'none', background: 'transparent' }}
                             onClick={() => handleRemoveItem(item.id)}
                             disabled={items.length === 1}
                           >
@@ -172,21 +179,21 @@ export function EditBillModal({ bill, onClose, onSave }) {
                   </tbody>
                 </table>
               </div>
-              <div className="total-summary" style={{ textAlign: 'right', marginTop: '12px', fontWeight: 'bold' }}>
+              <div className="total-summary" style={{ textAlign: 'right', marginTop: '12px', fontWeight: 'bold', color: '#172033' }}>
                 Subtotal: ₹{subtotal.toLocaleString('en-IN')}
               </div>
             </div>
           )}
 
           {!bill.sourceType.includes('MANUAL') && (
-            <div className="info-box mt-4" style={{ padding: '12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '0.9rem', color: '#64748b' }}>
-              <strong>Note:</strong> Because this bill was {bill.sourceType === 'TASK_BASED' ? 'generated from tasks' : 'uploaded by an employee'}, its line items and total amount are locked. You can only update the client's information.
+            <div className="info-box" style={{ gridColumn: '1 / -1', padding: '16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+              <strong style={{ color: '#172033' }}>Note:</strong> Because this bill was {bill.sourceType === 'TASK_BASED' ? 'generated from tasks' : 'uploaded by an employee'}, its line items and total amount are locked. You can only update the client's information.
             </div>
           )}
 
-          <div className="modal-footer">
+          <div className="modal-actions" style={{ gridColumn: '1 / -1', borderTop: '1px solid #eef1f5', paddingTop: '20px', marginTop: '8px' }}>
             <button type="button" className="secondary-button" onClick={onClose} disabled={isSaving}>Cancel</button>
-            <button type="submit" className="primary-button" disabled={isSaving}>
+            <button type="submit" className="primary-button fit-button" disabled={isSaving}>
               {isSaving ? 'Saving...' : <><Save size={16} /> Save Changes</>}
             </button>
           </div>
