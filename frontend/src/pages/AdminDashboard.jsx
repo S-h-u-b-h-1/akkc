@@ -354,7 +354,7 @@ export function AdminDashboard() {
         </div>
       )}
 
-      {isDashboardRoute || isTasksRoute ? (
+      {isTasksRoute ? (
         <TaskFilters
           employees={employees}
           filters={filters}
