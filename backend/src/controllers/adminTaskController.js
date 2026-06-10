@@ -7,6 +7,7 @@ import {
   listAdminTasks,
   updateAdminTask
 } from '../services/taskManagementService.js';
+import { logAdminActivity } from '../services/adminLogService.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 import { AppError } from '../utils/appError.js';
 
@@ -18,6 +19,14 @@ export const createTask = async (req, res) => {
   const task = await createAdminTask({
     adminId: req.user.id,
     payload: req.validated.body
+  });
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'CREATE_TASK',
+    entity: 'Task',
+    entityId: task.id,
+    details: { title: task.title, domain: task.domain }
   });
 
   return sendSuccess(res, {
@@ -70,6 +79,14 @@ export const updateTask = async (req, res) => {
     payload: req.validated.body
   });
 
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'UPDATE_TASK',
+    entity: 'Task',
+    entityId: task.id,
+    details: { updatedFields: Object.keys(req.validated.body) }
+  });
+
   return sendSuccess(res, {
     message: API_MESSAGES.TASK_UPDATED,
     data: { task }
@@ -84,6 +101,14 @@ export const deleteTask = async (req, res) => {
   const task = await deleteAdminTask({
     adminId: req.user.id,
     taskId: req.validated.params.id
+  });
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'DELETE_TASK',
+    entity: 'Task',
+    entityId: task.id,
+    details: { title: task.title }
   });
 
   return sendSuccess(res, {

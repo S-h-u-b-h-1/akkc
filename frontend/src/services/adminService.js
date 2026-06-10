@@ -17,6 +17,8 @@ export const getAdminStats = (filters) => httpClient(`/admin/stats${buildQuerySt
 
 export const getAdminAccounts = () => httpClient('/admin/admins');
 
+export const getLogs = () => httpClient('/admin/logs');
+
 export const createAdminAccount = (payload) =>
   httpClient('/admin/admins', {
     method: 'POST',

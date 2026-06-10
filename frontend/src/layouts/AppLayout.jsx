@@ -23,7 +23,13 @@ const employeeNavigationItems = [
 export function AppLayout() {
   const { logout, role, user } = useAuth();
   const navigate = useNavigate();
-  const navigationItems = role === USER_ROLES.ADMIN ? adminNavigationItems : employeeNavigationItems;
+  
+  const navigationItems = role === USER_ROLES.ADMIN 
+    ? [
+        ...adminNavigationItems,
+        ...(user?.username === 'admin' ? [{ label: 'Admin Logs', to: ROUTES.ADMIN_LOGS, icon: ShieldCheck }] : [])
+      ]
+    : employeeNavigationItems;
 
   const handleLogout = () => {
     const loginRoute = getLoginRouteForRole(role);

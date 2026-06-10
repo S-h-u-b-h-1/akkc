@@ -16,6 +16,7 @@ import {
   listBillingEntities,
   updateBillingEntity
 } from '../services/billingEntityService.js';
+import { logAdminActivity } from '../services/adminLogService.js';
 
 export const listEligibleTasks = async (req, res) => {
   const tasks = await getEligibleTasks(req.user.id, req.validated.query || {});
@@ -28,6 +29,15 @@ export const listEligibleTasks = async (req, res) => {
 export const generateBill = async (req, res) => {
   const { taskIds, billingEntityId, billDate, ...extraDetails } = req.validated.body;
   const bill = await createBill(req.user.id, taskIds, billingEntityId, billDate, extraDetails);
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'CREATE_BILL',
+    entity: 'Bill',
+    entityId: bill.id,
+    details: { billNumber: bill.billNumber, type: 'TASK_BASED' }
+  });
+
   return sendSuccess(res, {
     message: 'Bill created successfully',
     data: { bill }
@@ -36,6 +46,15 @@ export const generateBill = async (req, res) => {
 
 export const generateManualBill = async (req, res) => {
   const bill = await createManualBill(req.user.id, req.validated.body);
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'CREATE_MANUAL_BILL',
+    entity: 'Bill',
+    entityId: bill.id,
+    details: { billNumber: bill.billNumber, type: 'MANUAL' }
+  });
+
   return sendSuccess(res, {
     message: 'Manual bill created successfully',
     data: { bill }
@@ -44,6 +63,15 @@ export const generateManualBill = async (req, res) => {
 
 export const generateClubbedBill = async (req, res) => {
   const bill = await createClubbedBill(req.user.id, req.validated.body);
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'CREATE_CLUBBED_BILL',
+    entity: 'Bill',
+    entityId: bill.id,
+    details: { billNumber: bill.billNumber, type: 'CLUBBED' }
+  });
+
   return sendSuccess(res, {
     message: 'Clubbed bill created successfully',
     data: { bill }
@@ -52,6 +80,15 @@ export const generateClubbedBill = async (req, res) => {
 
 export const updateBill = async (req, res) => {
   const bill = await updateBillService(req.user.id, req.validated.params.id, req.validated.body);
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'UPDATE_BILL',
+    entity: 'Bill',
+    entityId: bill.id,
+    details: { updatedFields: Object.keys(req.validated.body) }
+  });
+
   return sendSuccess(res, {
     message: 'Bill updated successfully',
     data: { bill }
@@ -76,6 +113,15 @@ export const getBill = async (req, res) => {
 
 export const deleteBill = async (req, res) => {
   const bill = await cancelBill(req.user.id, req.validated.params.id);
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'CANCEL_BILL',
+    entity: 'Bill',
+    entityId: bill.id,
+    details: { billNumber: bill.billNumber }
+  });
+
   return sendSuccess(res, {
     message: 'Bill deleted successfully',
     data: { bill }
@@ -84,6 +130,15 @@ export const deleteBill = async (req, res) => {
 
 export const sendEmailForBill = async (req, res) => {
   const bill = await emailBillToClient(req.user.id, req.validated.params.id);
+  
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'EMAIL_BILL',
+    entity: 'Bill',
+    entityId: bill.id,
+    details: { billNumber: bill.billNumber }
+  });
+
   return sendSuccess(res, {
     message: 'Bill emailed successfully',
     data: { bill }
@@ -105,6 +160,15 @@ export const listEntities = async (req, res) => {
 
 export const updateEntity = async (req, res) => {
   const entity = await updateBillingEntity(req.validated.params.id, req.validated.body);
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'UPDATE_BILLING_ENTITY',
+    entity: 'BillingEntity',
+    entityId: entity.id,
+    details: { name: entity.name, updatedFields: Object.keys(req.validated.body) }
+  });
+
   return sendSuccess(res, {
     message: 'Entity updated successfully',
     data: { entity }

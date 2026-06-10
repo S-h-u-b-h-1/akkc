@@ -11,6 +11,9 @@ const startServer = async () => {
   if (env.nodeEnv === 'production') {
     await deployMigrations();
   }
+  
+  const { ensureDefaultAdmin } = await import('./utils/initAdmin.js');
+  await ensureDefaultAdmin();
 
   server = app.listen(env.port, () => {
     console.info(`API server listening on port ${env.port}`);

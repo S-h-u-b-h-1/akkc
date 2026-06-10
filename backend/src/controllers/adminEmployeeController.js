@@ -5,12 +5,21 @@ import {
   listAdminEmployees,
   updateAdminEmployee
 } from '../services/employeeManagementService.js';
+import { logAdminActivity } from '../services/adminLogService.js';
 import { sendSuccess } from '../utils/apiResponse.js';
 
 export const createEmployee = async (req, res) => {
   const employee = await createAdminEmployee({
     adminId: req.user.id,
     payload: req.validated.body
+  });
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'CREATE_EMPLOYEE',
+    entity: 'Employee',
+    entityId: employee.id,
+    details: { username: employee.username }
   });
 
   return sendSuccess(res, {
@@ -35,6 +44,14 @@ export const updateEmployee = async (req, res) => {
     payload: req.validated.body
   });
 
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'UPDATE_EMPLOYEE',
+    entity: 'Employee',
+    entityId: employee.id,
+    details: { updatedFields: Object.keys(req.validated.body) }
+  });
+
   return sendSuccess(res, {
     message: API_MESSAGES.EMPLOYEE_UPDATED,
     data: { employee }
@@ -44,6 +61,14 @@ export const updateEmployee = async (req, res) => {
 export const deleteEmployee = async (req, res) => {
   const employee = await deleteAdminEmployee({
     employeeId: req.validated.params.id
+  });
+
+  await logAdminActivity({
+    adminId: req.user.id,
+    action: 'DELETE_EMPLOYEE',
+    entity: 'Employee',
+    entityId: employee.id,
+    details: { username: employee.username }
   });
 
   return sendSuccess(res, {

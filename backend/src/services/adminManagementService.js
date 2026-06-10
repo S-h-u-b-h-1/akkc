@@ -54,7 +54,11 @@ export const listAdminAccounts = async () => {
 };
 
 export const updateAdminAccount = async ({ adminId, payload }) => {
-  await assertAdminExists(adminId);
+  const adminToUpdate = await assertAdminExists(adminId);
+
+  if (adminToUpdate.username === 'admin') {
+    throw new AppError('The default admin account cannot be modified.', HTTP_STATUS.FORBIDDEN);
+  }
 
   if (payload.username !== undefined) {
     await assertUsernameIsAvailable({
@@ -78,7 +82,11 @@ export const updateAdminAccount = async ({ adminId, payload }) => {
 };
 
 export const deleteAdminAccount = async ({ currentAdminId, adminId }) => {
-  await assertAdminExists(adminId);
+  const adminToDelete = await assertAdminExists(adminId);
+
+  if (adminToDelete.username === 'admin') {
+    throw new AppError('The default admin account cannot be deleted.', HTTP_STATUS.FORBIDDEN);
+  }
 
   if (currentAdminId === adminId) {
     throw new AppError(API_MESSAGES.CANNOT_DELETE_SELF, HTTP_STATUS.BAD_REQUEST);

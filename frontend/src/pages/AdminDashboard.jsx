@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { ROUTES } from '../constants/routes.js';
 
 import { AdminManagement } from '../features/admin-management/AdminManagement.jsx';
+import { AdminLogsTab } from '../features/admin-logs/AdminLogsTab.jsx';
 
 import { PracticeInsights } from '../features/dashboard-analytics/PracticeInsights.jsx';
 import { TaskStatsCards } from '../features/dashboard-analytics/TaskStatsCards.jsx';
@@ -314,6 +315,7 @@ export function AdminDashboard() {
   const isAdminsRoute = location.pathname === ROUTES.ADMIN_ADMINS;
   const isEmployeesRoute = location.pathname === ROUTES.ADMIN_EMPLOYEES;
   const isTasksRoute = location.pathname === ROUTES.ADMIN_TASKS;
+  const isLogsRoute = location.pathname === ROUTES.ADMIN_LOGS;
 
   const getHeaderDetails = () => {
     if (isAdminsRoute) {
@@ -326,6 +328,11 @@ export function AdminDashboard() {
     if (isTasksRoute) {
       return { eyebrow: 'Client work', title: 'Assignments' };
     }
+    
+    if (isLogsRoute) {
+      return { eyebrow: 'System Auditing', title: 'Admin Activity Logs' };
+    }
+    
     return { eyebrow: 'A K Kataruka and Company', title: 'Team AKKC' };
   };
 
@@ -398,6 +405,10 @@ export function AdminDashboard() {
           onDeleteEmployee={handleDeleteEmployee}
           onUpdateEmployee={handleUpdateEmployee}
         />
+      ) : null}
+
+      {isLogsRoute ? (
+        <AdminLogsTab />
       ) : null}
 
       <CreateTaskModal

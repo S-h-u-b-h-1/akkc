@@ -107,23 +107,27 @@ export function AdminManagement({
                   : 'Admin account'}
             </small>
             <div className="row-actions">
-              <button
-                className="icon-button"
-                type="button"
-                aria-label={`Edit ${admin.username}`}
-                onClick={() => setAdminBeingEdited(admin)}
-              >
-                <Pencil size={16} aria-hidden="true" />
-              </button>
-              <button
-                className="icon-button danger"
-                type="button"
-                aria-label={`Delete ${admin.username}`}
-                disabled={admin.id === currentAdminId}
-                onClick={() => onDeleteAdmin(admin)}
-              >
-                <Trash2 size={16} aria-hidden="true" />
-              </button>
+              {admin.username !== 'admin' && (
+                <>
+                  <button
+                    className="icon-button"
+                    type="button"
+                    aria-label={`Edit ${admin.username}`}
+                    onClick={() => setAdminBeingEdited(admin)}
+                  >
+                    <Pencil size={16} aria-hidden="true" />
+                  </button>
+                  <button
+                    className="icon-button danger"
+                    type="button"
+                    aria-label={`Delete ${admin.username}`}
+                    disabled={admin.id === currentAdminId}
+                    onClick={() => onDeleteAdmin(admin)}
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                  </button>
+                </>
+              )}
             </div>
           </article>
         ))}

@@ -58,6 +58,10 @@ export function AppRoutes() {
             element={<AdminBilling />}
           />
           <Route
+            path={ROUTES.ADMIN_LOGS}
+            element={<AdminDashboard />}
+          />
+          <Route
             path="/admin/*"
             element={<Navigate to={ROUTES.ADMIN_DASHBOARD} replace />}
           />

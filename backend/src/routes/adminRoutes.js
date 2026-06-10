@@ -11,7 +11,8 @@ import {
   createAdmin,
   deleteAdmin,
   listAdmins,
-  updateAdmin
+  updateAdmin,
+  getAdminLogs
 } from '../controllers/adminManagementController.js';
 import {
   createTask,
@@ -49,6 +50,12 @@ import {
 const router = Router();
 
 router.post('/login', validateRequest(loginSchema), asyncHandler(login));
+router.get(
+  '/logs',
+  authenticate,
+  adminOnly,
+  asyncHandler(getAdminLogs)
+);
 router.post(
   '/admins',
   authenticate,

@@ -43,10 +43,25 @@ model Admin {
   employees        Employee[] @relation("AdminCreatedEmployees")
   tasks            Task[]     @relation("AdminCreatedTasks")
   bills            Bill[]     @relation("AdminCreatedBills")
+  adminLogs        AdminLog[] @relation("AdminLogs")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @default(now()) @updatedAt
 
   @@index([createdByAdminId])
+  @@index([createdAt])
+}
+
+model AdminLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  adminId   String   @db.Uuid
+  action    String   @db.VarChar(100)
+  entity    String   @db.VarChar(100)
+  entityId  String?  @db.VarChar(100)
+  details   String?  @db.Text
+  admin     Admin    @relation("AdminLogs", fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
   @@index([createdAt])
 }
 
